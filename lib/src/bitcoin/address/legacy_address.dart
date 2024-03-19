@@ -79,7 +79,7 @@ abstract class LegacyAddress implements BitcoinBaseAddress {
 }
 
 class P2shAddress extends LegacyAddress {
-  static RegExp get regex => RegExp(r'(^|\s)[23][a-km-zA-HJ-NP-Z1-9]{25,34}($|\s)');
+  static RegExp get regex => RegExp(r'(^|\s)[23M][a-km-zA-HJ-NP-Z1-9]{25,34}($|\s)');
 
   P2shAddress.fromRedeemScript({required Script script, this.type = P2shAddressType.p2pkInP2sh})
       : super.fromRedeemScript(script: script);
@@ -124,7 +124,7 @@ class P2shAddress extends LegacyAddress {
 }
 
 class P2pkhAddress extends LegacyAddress {
-  static RegExp get regex => RegExp(r'(^|\s)[1mn][a-km-zA-HJ-NP-Z1-9]{25,34}($|\s)');
+  static RegExp get regex => RegExp(r'(^|\s)[1mnL][a-km-zA-HJ-NP-Z1-9]{25,34}($|\s)');
   factory P2pkhAddress.fromScriptPubkey(
       {required Script script, P2pkhAddressType type = P2pkhAddressType.p2pkh}) {
     if (script.getAddressType() != P2pkhAddressType.p2pkh) {
