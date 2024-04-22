@@ -1,3 +1,4 @@
+import 'package:convert/convert.dart';
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/models/network.dart';
 
@@ -29,6 +30,10 @@ List<int> addressToOutputScript({required String address, required BasedUtxoNetw
 
   if (P2trAddress.regex.hasMatch(address)) {
     return P2trAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();
+  }
+
+  if (MwebAddress.regex.hasMatch(address)) {
+    return hex.decode(MwebAddress.fromAddress(address: address, network: network).addressProgram);
   }
 
   return P2wpkhAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();

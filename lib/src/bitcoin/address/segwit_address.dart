@@ -160,3 +160,54 @@ class P2wshAddress extends SegwitAddress {
   @override
   SegwitAddresType get type => SegwitAddresType.p2wsh;
 }
+
+class MwebAddress extends SegwitAddress {
+  static RegExp get regex => RegExp(r'(ltc|t)mweb1q[ac-hj-np-z02-9]{90,120}($|\s)');
+
+  MwebAddress.fromAddress({required String address, required BasedUtxoNetwork network})
+      : super(_BitcoinAddressUtils.segwitV0) {
+    final decoded = Bech32DecoderBase.decodeBech32(
+        address, Bech32Const.separator, Bech32Const.checksumStrLen,
+        (hrp, data) => Bech32Utils.verifyChecksum(hrp, data, Bech32Encodings.bech32));
+    final hrp = decoded.item1;
+    final data = decoded.item2;
+    if (hrp != 'ltcmweb') {
+      throw ArgumentException(
+          'Invalid format (HRP not valid, expected ltcmweb, got $hrp)');
+    }
+    if (data[0] != segwitVersion) {
+      throw ArgumentException("Invalid segwit version");
+    }
+    final convData = Bech32BaseUtils.convertFromBase32(data.sublist(1));
+    if (convData.length != 66) {
+      throw ArgumentException(
+          'Invalid format (witness program length not valid: ${convData.length})');
+    }
+    addressProgram = BytesUtils.toHexString(convData);
+  }
+
+  MwebAddress.fromProgram({required String program})
+      : super.fromProgram(
+            segwitVersion: _BitcoinAddressUtils.segwitV0,
+            program: program,
+            addressType: SegwitAddresType.mweb);
+  MwebAddress.fromRedeemScript({required Script script})
+      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0, script: script);
+
+  factory MwebAddress.fromScriptPubkey({required Script script, type = SegwitAddresType.mweb}) {
+    if (script.getAddressType() != SegwitAddresType.mweb) {
+      throw ArgumentError("Invalid scriptPubKey");
+    }
+    return MwebAddress.fromProgram(program: script.findScriptParam(1));
+  }
+
+  /// returns the scriptPubKey of a MWEB witness script
+  @override
+  Script toScriptPubKey() {
+    return Script(script: [addressProgram]);
+  }
+
+  /// returns the type of address
+  @override
+  SegwitAddresType get type => SegwitAddresType.mweb;
+}

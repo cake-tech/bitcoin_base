@@ -229,6 +229,7 @@ class LitecoinNetwork implements BasedUtxoNetwork {
     SegwitAddresType.p2wpkh,
     PubKeyAddressType.p2pk,
     SegwitAddresType.p2wsh,
+    SegwitAddresType.mweb,
     P2shAddressType.p2wshInP2sh,
     P2shAddressType.p2wpkhInP2sh,
     P2shAddressType.p2pkhInP2sh,

@@ -41,6 +41,7 @@ abstract class BitcoinAddressType implements Enumerate {
     SegwitAddresType.p2wpkh,
     SegwitAddresType.p2tr,
     SegwitAddresType.p2wsh,
+    SegwitAddresType.mweb,
     P2shAddressType.p2wshInP2sh,
     P2shAddressType.p2wpkhInP2sh,
     P2shAddressType.p2pkhInP2sh,
@@ -188,6 +189,7 @@ class SegwitAddresType implements BitcoinAddressType {
   static const SegwitAddresType p2wpkh = SegwitAddresType._("P2WPKH");
   static const SegwitAddresType p2tr = SegwitAddresType._("P2TR");
   static const SegwitAddresType p2wsh = SegwitAddresType._("P2WSH");
+  static const SegwitAddresType mweb = SegwitAddresType._("MWEB");
   @override
   bool get isP2sh => false;
   @override
