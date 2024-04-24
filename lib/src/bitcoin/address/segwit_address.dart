@@ -198,13 +198,13 @@ class MwebAddress extends SegwitAddress {
     if (script.getAddressType() != SegwitAddresType.mweb) {
       throw ArgumentError("Invalid scriptPubKey");
     }
-    return MwebAddress.fromProgram(program: script.findScriptParam(1));
+    return MwebAddress.fromProgram(program: BytesUtils.toHexString(script.script as List<int>));
   }
 
   /// returns the scriptPubKey of a MWEB witness script
   @override
   Script toScriptPubKey() {
-    return Script(script: [addressProgram]);
+    return Script(script: BytesUtils.fromHexString(addressProgram));
   }
 
   /// returns the type of address
