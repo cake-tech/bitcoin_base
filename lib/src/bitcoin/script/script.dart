@@ -122,6 +122,7 @@ class Script {
   /// returns a serialized byte version of the script
   List<int> toBytes() {
     if (script.isEmpty) return <int>[];
+    if (script.every((x) => x is int)) return script.cast();
     DynamicByteTracker scriptBytes = DynamicByteTracker();
     for (var token in script) {
       if (BitcoinOpCodeConst.OP_CODES.containsKey(token)) {
