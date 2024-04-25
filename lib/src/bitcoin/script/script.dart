@@ -70,7 +70,7 @@ class Script {
   BitcoinAddressType? getAddressType() {
     if (script.isEmpty) return null;
 
-    if (script is List<int> && script.length == 66 &&
+    if (script.every((x) => x is int) && script.length == 66 &&
        (script[0]  == 2 || script[0]  == 3) &&
        (script[33] == 2 || script[33] == 3)) {
       return SegwitAddresType.mweb;
