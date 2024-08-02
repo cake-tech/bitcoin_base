@@ -164,8 +164,7 @@ class P2wshAddress extends SegwitAddress {
 class MwebAddress extends SegwitAddress {
   static RegExp get regex => RegExp(r'(ltc|t)mweb1q[ac-hj-np-z02-9]{90,120}($|\s)');
 
-  MwebAddress.fromAddress({required String address, required BasedUtxoNetwork network})
-      : super(_BitcoinAddressUtils.segwitV0) {
+  factory MwebAddress.fromAddress({required String address, required BasedUtxoNetwork network}) {
     final decoded = Bech32DecoderBase.decodeBech32(
         address, Bech32Const.separator, Bech32Const.checksumStrLen,
         (hrp, data) => Bech32Utils.verifyChecksum(hrp, data, Bech32Encodings.bech32));
@@ -175,24 +174,25 @@ class MwebAddress extends SegwitAddress {
       throw ArgumentException(
           'Invalid format (HRP not valid, expected ltcmweb, got $hrp)');
     }
-    if (data[0] != segwitVersion) {
-      throw ArgumentException("Invalid segwit version");
+    if (data[0] != _BitcoinAddressUtils.segwitV0) {
+      throw const ArgumentException("Invalid segwit version");
     }
     final convData = Bech32BaseUtils.convertFromBase32(data.sublist(1));
     if (convData.length != 66) {
       throw ArgumentException(
           'Invalid format (witness program length not valid: ${convData.length})');
     }
-    addressProgram = BytesUtils.toHexString(convData);
+
+    return MwebAddress.fromProgram(program: BytesUtils.toHexString(convData));
   }
 
-  MwebAddress.fromProgram({required String program})
+  MwebAddress.fromProgram({required super.program})
       : super.fromProgram(
-            segwitVersion: _BitcoinAddressUtils.segwitV0,
-            program: program,
-            addressType: SegwitAddresType.mweb);
-  MwebAddress.fromRedeemScript({required Script script})
-      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0, script: script);
+          segwitVersion: _BitcoinAddressUtils.segwitV0,
+          addressType: SegwitAddresType.mweb,
+        );
+  MwebAddress.fromRedeemScript({required super.script})
+      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0);
 
   factory MwebAddress.fromScriptPubkey({required Script script, type = SegwitAddresType.mweb}) {
     if (script.getAddressType() != SegwitAddresType.mweb) {
