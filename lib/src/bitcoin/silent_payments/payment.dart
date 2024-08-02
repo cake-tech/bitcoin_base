@@ -46,7 +46,8 @@ class SilentPaymentBuilder {
     final head = pubkeys!.first;
     final tail = pubkeys!.sublist(1);
 
-    A_sum = tail.fold<ECPublic>(head, (acc, item) => ECPublic(acc.publicKey).pubkeyAdd(item));
+    A_sum =
+        tail.fold<ECPublic>(head, (acc, item) => ECPublic.fromBip32(acc.publicKey).pubkeyAdd(item));
   }
 
   void _getInputHash() {

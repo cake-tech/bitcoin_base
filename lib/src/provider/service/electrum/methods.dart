@@ -12,8 +12,7 @@ class ElectrumRequestMethods {
       ElectrumRequestMethods._("server.donation_address");
 
   /// A newly-started server uses this call to get itself into other servers’ peers lists. It should not be used by wallet clients.
-  static const ElectrumRequestMethods serverAddPeer =
-      ElectrumRequestMethods._("server.add_peer");
+  static const ElectrumRequestMethods serverAddPeer = ElectrumRequestMethods._("server.add_peer");
 
   /// Subscribe to a script hash.
   static const ElectrumRequestMethods scriptHashSubscribe =
@@ -72,28 +71,23 @@ class ElectrumRequestMethods {
       ElectrumRequestMethods._("blockchain.transaction.broadcast");
 
   /// Return a banner to be shown in the Electrum console.
-  static const ElectrumRequestMethods serverBanner =
-      ElectrumRequestMethods._("server.banner");
+  static const ElectrumRequestMethods serverBanner = ElectrumRequestMethods._("server.banner");
 
   /// Return a list of features and services supported by the server.
-  static const ElectrumRequestMethods serverFeatures =
-      ElectrumRequestMethods._("server.features");
+  static const ElectrumRequestMethods serverFeatures = ElectrumRequestMethods._("server.features");
 
   /// Ping the server to ensure it is responding, and to keep the session alive. The server may disconnect clients that have sent no requests for roughly 10 minutes.
-  static const ElectrumRequestMethods ping =
-      ElectrumRequestMethods._("server.ping");
+  static const ElectrumRequestMethods ping = ElectrumRequestMethods._("server.ping");
 
   /// Identify the client to the server and negotiate the protocol version. Only the first server.version() message is accepted.
-  static const ElectrumRequestMethods version =
-      ElectrumRequestMethods._("server.version");
+  static const ElectrumRequestMethods version = ElectrumRequestMethods._("server.version");
 
   /// Subscribe to receive block headers when a new block is found.
   static const ElectrumRequestMethods headersSubscribe =
       ElectrumRequestMethods._("blockchain.headers.subscribe");
 
   /// Return the minimum fee a low-priority transaction must pay in order to be accepted to the daemon’s memory pool.
-  static const ElectrumRequestMethods relayFee =
-      ElectrumRequestMethods._("blockchain.relayfee");
+  static const ElectrumRequestMethods relayFee = ElectrumRequestMethods._("blockchain.relayfee");
 
   /// Pass through the masternode announce message to be broadcast by the daemon.
   static const ElectrumRequestMethods masternodeAnnounceBroadcast =
@@ -104,20 +98,18 @@ class ElectrumRequestMethods {
       ElectrumRequestMethods._("masternode.subscribe");
 
   /// Returns the list of masternodes.
-  static const ElectrumRequestMethods masternodeList =
-      ElectrumRequestMethods._("masternode.list");
+  static const ElectrumRequestMethods masternodeList = ElectrumRequestMethods._("masternode.list");
 
   /// Returns a diff between two deterministic masternode lists. The result also contains proof data.
-  static const ElectrumRequestMethods protxDiff =
-      ElectrumRequestMethods._("protx.diff");
+  static const ElectrumRequestMethods protxDiff = ElectrumRequestMethods._("protx.diff");
 
   /// Returns detailed information about a deterministic masternode.
-  static const ElectrumRequestMethods protxInfo =
-      ElectrumRequestMethods._("protx.info");
+  static const ElectrumRequestMethods protxInfo = ElectrumRequestMethods._("protx.info");
 
   /// Returns a name resolution proof, suitable for low-latency (single round-trip) resolution.
   static const ElectrumRequestMethods getValueProof =
       ElectrumRequestMethods._("blockchain.name.get_value_proof");
+
   @override
   String toString() {
     return method;

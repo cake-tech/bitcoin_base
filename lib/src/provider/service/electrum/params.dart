@@ -31,8 +31,7 @@ class ElectrumRequestDetails {
 }
 
 /// Abstract class representing an Electrum request with generic result and response types.
-abstract class ElectrumRequest<RESULT, RESPONSE>
-    implements ElectrumRequestParams {
+abstract class ElectrumRequest<RESULT, RESPONSE> implements ElectrumRequestParams {
   String? get validate => null;
 
   RESULT onResonse(RESPONSE result) {
@@ -48,7 +47,6 @@ abstract class ElectrumRequest<RESULT, RESPONSE>
       "params": inJson,
       "id": requestId,
     };
-    return ElectrumRequestDetails(
-        id: requestId, params: params, method: method);
+    return ElectrumRequestDetails(id: requestId, params: params, method: method);
   }
 }

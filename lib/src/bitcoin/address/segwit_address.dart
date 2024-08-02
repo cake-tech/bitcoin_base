@@ -1,39 +1,55 @@
 part of 'package:bitcoin_base/src/bitcoin/address/address.dart';
 
-abstract class SegwitAddress implements BitcoinBaseAddress {
-  SegwitAddress.fromAddress(
-      {required String address, required BasedUtxoNetwork network, required this.segwitVersion}) {
-    if (!network.supportedAddress.contains(type)) {
-      throw BitcoinBasePluginException(
-          "network does not support ${type.value} address");
-    }
+abstract class SegwitAddress extends BitcoinBaseAddress {
+  SegwitAddress.fromAddress({
+    required String address,
+    required BasedUtxoNetwork network,
+    required this.segwitVersion,
+  }) : super(network: network) {
     addressProgram = _BitcoinAddressUtils.toSegwitProgramWithVersionAndNetwork(
-        address: address, version: segwitVersion, network: network);
+      address: address,
+      version: segwitVersion,
+      network: network,
+    );
   }
-  SegwitAddress.fromProgram(
-      {required String program,
-      required this.segwitVersion,
-      required SegwitAddresType addressType,
-      ECPublic? ecpublic})
-      : addressProgram = _BitcoinAddressUtils.validateAddressProgram(program, addressType),
-        pubkey = ecpublic;
-  SegwitAddress.fromRedeemScript({required Script script, required this.segwitVersion})
-      : addressProgram = _BitcoinAddressUtils.segwitScriptToSHA256(script);
+
+  SegwitAddress.fromProgram({
+    required String program,
+    required SegwitAddresType addressType,
+    super.network,
+    required this.segwitVersion,
+    this.pubkey,
+  })  : addressProgram = _BitcoinAddressUtils.validateAddressProgram(program, addressType),
+        super();
+
+  SegwitAddress.fromRedeemScript({
+    required Script script,
+    super.network,
+    required this.segwitVersion,
+  }) : addressProgram = _BitcoinAddressUtils.segwitScriptToSHA256(script);
 
   @override
   late final String addressProgram;
-
   final int segwitVersion;
   ECPublic? pubkey;
 
   @override
-  String toAddress(BasedUtxoNetwork network) {
-    if (!network.supportedAddress.contains(type)) {
-      throw BitcoinBasePluginException(
-          "network does not support ${type.value} address");
+  String toAddress([BasedUtxoNetwork? network]) {
+    network ??= this.network;
+
+    if (network == null) {
+      throw const BitcoinBasePluginException("Network is required");
     }
+
+    if (!network.supportedAddress.contains(type)) {
+      throw BitcoinBasePluginException("network does not support ${type.value} address");
+    }
+
     return _BitcoinAddressUtils.segwitToAddress(
-        addressProgram: addressProgram, network: network, segwitVersion: segwitVersion);
+      addressProgram: addressProgram,
+      network: network,
+      segwitVersion: segwitVersion,
+    );
   }
 
   @override
@@ -45,23 +61,24 @@ abstract class SegwitAddress implements BitcoinBaseAddress {
 class P2wpkhAddress extends SegwitAddress {
   static RegExp get regex => RegExp(r'(bc|tb|ltc)1q[ac-hj-np-z02-9]{25,39}($|\s)');
 
-  P2wpkhAddress.fromAddress({required String address, required BasedUtxoNetwork network})
-      : super.fromAddress(
-            segwitVersion: _BitcoinAddressUtils.segwitV0, address: address, network: network);
+  P2wpkhAddress.fromAddress({required super.address, required super.network})
+      : super.fromAddress(segwitVersion: _BitcoinAddressUtils.segwitV0);
 
-  P2wpkhAddress.fromProgram({required String program})
+  P2wpkhAddress.fromProgram({required super.program, super.network})
       : super.fromProgram(
-            segwitVersion: _BitcoinAddressUtils.segwitV0,
-            program: program,
-            addressType: SegwitAddresType.p2wpkh);
-  P2wpkhAddress.fromRedeemScript({required Script script})
-      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0, script: script);
+          segwitVersion: _BitcoinAddressUtils.segwitV0,
+          addressType: SegwitAddresType.p2wpkh,
+        );
 
-  factory P2wpkhAddress.fromScriptPubkey({required Script script, type = SegwitAddresType.p2wpkh}) {
+  P2wpkhAddress.fromRedeemScript({required super.script, super.network})
+      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0);
+
+  factory P2wpkhAddress.fromScriptPubkey({required Script script, BasedUtxoNetwork? network}) {
     if (script.getAddressType() != SegwitAddresType.p2wpkh) {
       throw ArgumentError("Invalid scriptPubKey");
     }
-    return P2wpkhAddress.fromProgram(program: script.findScriptParam(1));
+
+    return P2wpkhAddress.fromProgram(program: script.findScriptParam(1), network: network);
   }
 
   /// returns the scriptPubKey of a P2WPKH witness script
@@ -79,23 +96,24 @@ class P2trAddress extends SegwitAddress {
   static RegExp get regex =>
       RegExp(r'(bc|tb)1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89})');
 
-  P2trAddress.fromAddress({required String address, required BasedUtxoNetwork network})
-      : super.fromAddress(
-            segwitVersion: _BitcoinAddressUtils.segwitV1, address: address, network: network);
-  P2trAddress.fromProgram({required String program, ECPublic? pubkey})
-      : super.fromProgram(
-            segwitVersion: _BitcoinAddressUtils.segwitV1,
-            program: program,
-            addressType: SegwitAddresType.p2tr,
-            ecpublic: pubkey);
-  P2trAddress.fromRedeemScript({required Script script})
-      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV1, script: script);
+  P2trAddress.fromAddress({required super.address, required super.network})
+      : super.fromAddress(segwitVersion: _BitcoinAddressUtils.segwitV1);
 
-  factory P2trAddress.fromScriptPubkey({required Script script, type = SegwitAddresType.p2wpkh}) {
+  P2trAddress.fromProgram({required super.program, super.network, super.pubkey})
+      : super.fromProgram(
+          segwitVersion: _BitcoinAddressUtils.segwitV1,
+          addressType: SegwitAddresType.p2tr,
+        );
+
+  P2trAddress.fromRedeemScript({required super.script, super.network})
+      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV1);
+
+  factory P2trAddress.fromScriptPubkey({required Script script, BasedUtxoNetwork? network}) {
     if (script.getAddressType() != SegwitAddresType.p2tr) {
       throw ArgumentError("Invalid scriptPubKey");
     }
-    return P2trAddress.fromProgram(program: script.findScriptParam(1));
+
+    return P2trAddress.fromProgram(program: script.findScriptParam(1), network: network);
   }
 
   /// returns the scriptPubKey of a P2TR witness script
@@ -112,22 +130,24 @@ class P2trAddress extends SegwitAddress {
 class P2wshAddress extends SegwitAddress {
   static RegExp get regex => RegExp(r'(bc|tb)1q[ac-hj-np-z02-9]{40,80}');
 
-  P2wshAddress.fromAddress({required String address, required BasedUtxoNetwork network})
-      : super.fromAddress(
-            segwitVersion: _BitcoinAddressUtils.segwitV0, address: address, network: network);
-  P2wshAddress.fromProgram({required String program})
-      : super.fromProgram(
-            segwitVersion: _BitcoinAddressUtils.segwitV0,
-            program: program,
-            addressType: SegwitAddresType.p2wsh);
-  P2wshAddress.fromRedeemScript({required Script script})
-      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0, script: script);
+  P2wshAddress.fromAddress({required super.address, required super.network})
+      : super.fromAddress(segwitVersion: _BitcoinAddressUtils.segwitV0);
 
-  factory P2wshAddress.fromScriptPubkey({required Script script, type = SegwitAddresType.p2wsh}) {
+  P2wshAddress.fromProgram({required super.program, super.network})
+      : super.fromProgram(
+          segwitVersion: _BitcoinAddressUtils.segwitV0,
+          addressType: SegwitAddresType.p2wsh,
+        );
+
+  P2wshAddress.fromRedeemScript({required super.script, super.network})
+      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0);
+
+  factory P2wshAddress.fromScriptPubkey({required Script script, BasedUtxoNetwork? network}) {
     if (script.getAddressType() != SegwitAddresType.p2wsh) {
       throw ArgumentError("Invalid scriptPubKey");
     }
-    return P2wshAddress.fromProgram(program: script.findScriptParam(1));
+
+    return P2wshAddress.fromProgram(program: script.findScriptParam(1), network: network);
   }
 
   /// Returns the scriptPubKey of a P2WPKH witness script

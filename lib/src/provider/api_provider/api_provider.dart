@@ -4,16 +4,14 @@ import 'package:bitcoin_base/src/provider/service/http/http_service.dart';
 import 'package:bitcoin_base/src/models/network.dart';
 
 class ApiProvider {
-  ApiProvider(
-      {required this.api, Map<String, String>? header, required this.service})
+  ApiProvider({required this.api, Map<String, String>? header, required this.service})
       : _header = header ?? {"Content-Type": "application/json"};
   factory ApiProvider.fromMempool(BasedUtxoNetwork network, ApiService service,
       {Map<String, String>? header}) {
     final api = APIConfig.mempool(network);
     return ApiProvider(api: api, header: header, service: service);
   }
-  factory ApiProvider.fromBlocCypher(
-      BasedUtxoNetwork network, ApiService service,
+  factory ApiProvider.fromBlocCypher(BasedUtxoNetwork network, ApiService service,
       {Map<String, String>? header}) {
     final api = APIConfig.fromBlockCypher(network);
     return ApiProvider(api: api, header: header, service: service);
@@ -41,8 +39,7 @@ class ApiProvider {
       "params": params
     };
     final response = await _postReqiest<Map<String, dynamic>>(
-        "https://btc.getblock.io/786c97b8-f53f-427b-80f7-9af7bd5bdb84/testnet/",
-        json.encode(data));
+        "https://btc.getblock.io/786c97b8-f53f-427b-80f7-9af7bd5bdb84/testnet/", json.encode(data));
     return response;
   }
 
@@ -53,8 +50,7 @@ class ApiProvider {
     final response = await _getRequest(url);
     switch (api.apiType) {
       case APIType.mempool:
-        final utxos =
-            (response as List).map((e) => MempolUtxo.fromJson(e)).toList();
+        final utxos = (response as List).map((e) => MempolUtxo.fromJson(e)).toList();
         return utxos.toUtxoWithOwnerList(owner);
       default:
         final blockCypherUtxo = BlockCypherUtxo.fromJson(response);
@@ -62,8 +58,7 @@ class ApiProvider {
     }
   }
 
-  Future<String> sendRawTransaction(String txDigest,
-      {String Function(String)? tokenize}) async {
+  Future<String> sendRawTransaction(String txDigest, {String Function(String)? tokenize}) async {
     final apiUrl = api.sendTransaction;
     final url = tokenize?.call(apiUrl) ?? apiUrl;
 
@@ -73,8 +68,7 @@ class ApiProvider {
         return response;
       default:
         final Map<String, dynamic> digestData = {"tx": txDigest};
-        final response = await _postReqiest<Map<String, dynamic>>(
-            url, json.encode(digestData));
+        final response = await _postReqiest<Map<String, dynamic>>(url, json.encode(digestData));
         BlockCypherTransaction? tr;
         if (response["tx"] != null) {
           tr = BlockCypherTransaction.fromJson(response["tx"]);
@@ -85,8 +79,7 @@ class ApiProvider {
     }
   }
 
-  Future<BitcoinFeeRate> getNetworkFeeRate(
-      {String Function(String)? tokenize}) async {
+  Future<BitcoinFeeRate> getNetworkFeeRate({String Function(String)? tokenize}) async {
     final apiUrl = api.getFeeApiUrl();
     final url = tokenize?.call(apiUrl) ?? apiUrl;
     final response = await _getRequest<Map<String, dynamic>>(url);
@@ -98,8 +91,7 @@ class ApiProvider {
     }
   }
 
-  Future<T> getTransaction<T>(String transactionId,
-      {String Function(String)? tokenize}) async {
+  Future<T> getTransaction<T>(String transactionId, {String Function(String)? tokenize}) async {
     final apiUrl = api.getTransactionUrl(transactionId);
     final url = tokenize?.call(apiUrl) ?? apiUrl;
     final response = await _getRequest<Map<String, dynamic>>(url);
@@ -118,9 +110,8 @@ class ApiProvider {
     final response = await _getRequest(url);
     switch (api.apiType) {
       case APIType.mempool:
-        final transactions = (response as List)
-            .map((e) => MempoolTransaction.fromJson(e) as T)
-            .toList();
+        final transactions =
+            (response as List).map((e) => MempoolTransaction.fromJson(e) as T).toList();
         return transactions;
       default:
         if (response is Map) {
@@ -132,9 +123,8 @@ class ApiProvider {
           }
           return [];
         }
-        final transactions = (response as List)
-            .map((e) => BlockCypherTransaction.fromJson(e) as T)
-            .toList();
+        final transactions =
+            (response as List).map((e) => BlockCypherTransaction.fromJson(e) as T).toList();
         return transactions;
     }
   }

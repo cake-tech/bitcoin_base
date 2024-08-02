@@ -25,3 +25,5 @@ export 'package:bitcoin_base/src/cash_token/cash_token.dart';
 export 'package:bitcoin_base/src/bitcoin_cash/bitcoin_cash.dart';
 
 export 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
+
+export 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';

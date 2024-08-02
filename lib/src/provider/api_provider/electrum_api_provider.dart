@@ -11,19 +11,16 @@ class ElectrumApiProvider {
   /// Sends a request to the Electrum server using the specified [request] parameter.
   ///
   /// The [timeout] parameter, if provided, sets the maximum duration for the request.
-  Future<T> request<T>(ElectrumRequest<T, dynamic> request,
-      [Duration? timeout]) async {
+  Future<T> request<T>(ElectrumRequest<T, dynamic> request, [Duration? timeout]) async {
     final id = ++_id;
     final params = request.toRequest(id);
     final data = await rpc.call(params, timeout);
     return request.onResonse(_findResult(data, params));
   }
 
-  dynamic _findResult(
-      Map<String, dynamic> data, ElectrumRequestDetails request) {
+  dynamic _findResult(Map<String, dynamic> data, ElectrumRequestDetails request) {
     if (data["error"] != null) {
-      final code =
-          int.tryParse(((data["error"]?['code']?.toString()) ?? "0")) ?? 0;
+      final code = int.tryParse(((data["error"]?['code']?.toString()) ?? "0")) ?? 0;
       final message = data["error"]?['message'] ?? "";
       throw RPCError(
         errorCode: code,

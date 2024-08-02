@@ -8,6 +8,5 @@ mixin BitcoinBaseElectrumRPCService {
   /// Makes an HTTP GET request to the Tron network with the specified [params].
   ///
   /// The optional [timeout] parameter sets the maximum duration for the request.
-  Future<Map<String, dynamic>> call(ElectrumRequestDetails params,
-      [Duration? timeout]);
+  Future<Map<String, dynamic>> call(ElectrumRequestDetails params, [Duration? timeout]);
 }

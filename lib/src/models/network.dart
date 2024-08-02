@@ -2,7 +2,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/utils/enumerate.dart';
 import 'package:blockchain_utils/bip/bip/bip.dart';
-import 'package:blockchain_utils/bip/bip/conf/bip_coins.dart';
 import 'package:blockchain_utils/bip/coin_conf/coin_conf.dart';
 import 'package:blockchain_utils/bip/coin_conf/coins_conf.dart';
 
@@ -28,9 +27,7 @@ abstract class BasedUtxoNetwork implements Enumerate {
   @override
   operator ==(other) {
     if (identical(other, this)) return true;
-    return other is BasedUtxoNetwork &&
-        other.runtimeType == runtimeType &&
-        value == other.value;
+    return other is BasedUtxoNetwork && other.runtimeType == runtimeType && value == other.value;
   }
 
   @override
@@ -104,8 +101,7 @@ class BitcoinSVNetwork implements BasedUtxoNetwork {
   bool get isMainnet => this == BitcoinSVNetwork.mainnet;
 
   @override
-  List<BitcoinAddressType> get supportedAddress =>
-      [P2pkhAddressType.p2pkh, PubKeyAddressType.p2pk];
+  List<BitcoinAddressType> get supportedAddress => [P2pkhAddressType.p2pkh, PubKeyAddressType.p2pk];
 
   @override
   List<CryptoCoins> get coins {
@@ -244,23 +240,17 @@ class LitecoinNetwork implements BasedUtxoNetwork {
     if (isMainnet) {
       return [Bip44Coins.litecoin, Bip49Coins.litecoin, Bip84Coins.litecoin];
     }
-    return [
-      Bip44Coins.litecoinTestnet,
-      Bip49Coins.litecoinTestnet,
-      Bip84Coins.litecoinTestnet
-    ];
+    return [Bip44Coins.litecoinTestnet, Bip49Coins.litecoinTestnet, Bip84Coins.litecoinTestnet];
   }
 }
 
 /// Class representing a Dash network, implementing the `BasedUtxoNetwork` abstract class.
 class DashNetwork implements BasedUtxoNetwork {
   /// Mainnet configuration with associated `CoinConf`.
-  static const DashNetwork mainnet =
-      DashNetwork._("dashMainnet", CoinsConf.dashMainNet);
+  static const DashNetwork mainnet = DashNetwork._("dashMainnet", CoinsConf.dashMainNet);
 
   /// Testnet configuration with associated `CoinConf`.
-  static const DashNetwork testnet =
-      DashNetwork._("dashTestnet", CoinsConf.dashTestNet);
+  static const DashNetwork testnet = DashNetwork._("dashTestnet", CoinsConf.dashTestNet);
 
   /// Overrides the `conf` property from `BasedUtxoNetwork` with the associated `CoinConf`.
   @override
@@ -283,8 +273,8 @@ class DashNetwork implements BasedUtxoNetwork {
 
   /// Retrieves the Human-Readable Part (HRP) for Pay-to-Witness-Public-Key-Hash (P2WPKH) addresses.
   @override
-  String get p2wpkhHrp => throw const BitcoinBasePluginException(
-      "DashNetwork network does not support P2WPKH/P2WSH");
+  String get p2wpkhHrp =>
+      throw const BitcoinBasePluginException("DashNetwork network does not support P2WPKH/P2WSH");
 
   /// Checks if the current network is the mainnet.
   @override
@@ -410,8 +400,8 @@ class BitcoinCashNetwork implements BasedUtxoNetwork {
   /// Retrieves the Human-Readable Part (HRP) for Pay-to-Witness-Public-Key-Hash (P2WPKH) addresses
   /// from the associated `CoinConf`.
   @override
-  String get p2wpkhHrp => throw const BitcoinBasePluginException(
-      "network does not support p2wpkh HRP");
+  String get p2wpkhHrp =>
+      throw const BitcoinBasePluginException("network does not support p2wpkh HRP");
 
   String get networkHRP => conf.params.p2pkhStdHrp!;
 
@@ -444,8 +434,7 @@ class BitcoinCashNetwork implements BasedUtxoNetwork {
 /// Class representing a Dogecoin network, implementing the `BasedUtxoNetwork` abstract class.
 class PepeNetwork implements BasedUtxoNetwork {
   /// Mainnet configuration with associated `CoinConf`.
-  static const PepeNetwork mainnet =
-      PepeNetwork._("pepecoinMainnet", CoinsConf.pepeMainnet);
+  static const PepeNetwork mainnet = PepeNetwork._("pepecoinMainnet", CoinsConf.pepeMainnet);
 
   /// Overrides the `conf` property from `BasedUtxoNetwork` with the associated `CoinConf`.
   @override

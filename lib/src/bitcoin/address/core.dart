@@ -12,6 +12,24 @@ abstract class BitcoinAddressType implements Enumerate {
         orElse: () => throw MessageException('Invalid BitcoinAddressType: $value'));
   }
 
+  static BitcoinAddressType fromAddress(BitcoinBaseAddress address) {
+    if (address is P2pkhAddress) {
+      return P2pkhAddressType.p2pkh;
+    } else if (address is P2shAddress) {
+      return P2shAddressType.p2wpkhInP2sh;
+    } else if (address is P2wshAddress) {
+      return SegwitAddresType.p2wsh;
+    } else if (address is P2trAddress) {
+      return SegwitAddresType.p2tr;
+    } else if (address is SilentPaymentsAddresType) {
+      return SilentPaymentsAddresType.p2sp;
+    } else if (address is P2wpkhAddress) {
+      return SegwitAddresType.p2wpkh;
+    }
+
+    throw BitcoinBasePluginException('Invalid BitcoinAddressType: $address');
+  }
+
   /// Check if the address type is Pay-to-Script-Hash (P2SH).
   bool get isP2sh;
   int get hashLength;
@@ -41,11 +59,44 @@ abstract class BitcoinAddressType implements Enumerate {
 }
 
 abstract class BitcoinBaseAddress {
+  BitcoinBaseAddress({this.network});
+
   BitcoinAddressType get type;
-  String toAddress(BasedUtxoNetwork network);
+  String toAddress([BasedUtxoNetwork? network]);
   Script toScriptPubKey();
   String pubKeyHash();
   String get addressProgram;
+  BasedUtxoNetwork? network;
+
+  static BitcoinBaseAddress fromString(
+    String address, [
+    BasedUtxoNetwork network = BitcoinNetwork.mainnet,
+  ]) {
+    if (network is BitcoinCashNetwork) {
+      if (!address.startsWith("bitcoincash:") &&
+          (address.startsWith("q") || address.startsWith("p"))) {
+        address = "bitcoincash:$address";
+      }
+
+      return BitcoinCashAddress(address).baseAddress;
+    }
+
+    if (P2pkhAddress.regex.hasMatch(address)) {
+      return P2pkhAddress.fromAddress(address: address, network: network);
+    } else if (P2shAddress.regex.hasMatch(address)) {
+      return P2shAddress.fromAddress(address: address, network: network);
+    } else if (P2wshAddress.regex.hasMatch(address)) {
+      return P2wshAddress.fromAddress(address: address, network: network);
+    } else if (P2trAddress.regex.hasMatch(address)) {
+      return P2trAddress.fromAddress(address: address, network: network);
+    } else if (SilentPaymentAddress.regex.hasMatch(address)) {
+      return SilentPaymentAddress.fromAddress(address);
+    } else if (P2wpkhAddress.regex.hasMatch(address)) {
+      return P2wpkhAddress.fromAddress(address: address, network: network);
+    }
+
+    throw BitcoinBasePluginException('Invalid BitcoinBaseAddress: $address');
+  }
 }
 
 class PubKeyAddressType implements BitcoinAddressType {
