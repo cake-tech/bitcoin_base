@@ -5,6 +5,7 @@ import 'package:bitcoin_base/src/crypto/crypto.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:blockchain_utils/utils/utils.dart';
 import 'package:blockchain_utils/crypto/quick_crypto.dart';
+import 'package:collection/collection.dart';
 import 'input.dart';
 import 'output.dart';
 import 'script.dart';
@@ -96,7 +97,7 @@ class BtcTransaction {
       cursor = inp.item2;
 
       if (canReplaceByFee == false) {
-        canReplaceByFee = input.sequence == BitcoinOpCodeConst.REPLACE_BY_FEE_SEQUENCE;
+        canReplaceByFee = ListEquality().equals(input.sequence, BitcoinOpCodeConst.REPLACE_BY_FEE_SEQUENCE);
       }
     }
 
