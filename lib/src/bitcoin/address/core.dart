@@ -202,8 +202,9 @@ class SegwitAddresType implements BitcoinAddressType {
   int get hashLength {
     switch (this) {
       case SegwitAddresType.p2wpkh:
-      case SegwitAddresType.mweb:
         return 20;
+      case SegwitAddresType.mweb:
+        return 66;
       default:
         return 32;
     }
