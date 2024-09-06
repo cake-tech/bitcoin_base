@@ -101,7 +101,7 @@ class SilentPaymentDestination extends SilentPaymentAddress {
 }
 
 class SilentPaymentAddress implements BitcoinBaseAddress {
-  static RegExp get regex => RegExp(r'(^|\s)t?sp(rt)?1[0-9a-zA-Z]{113}($|\s)');
+  static RegExp get regex => RegExp(r'(tsp|sp|sprt)1[0-9a-zA-Z]{113}');
 
   final int version;
   final ECPublic B_scan;

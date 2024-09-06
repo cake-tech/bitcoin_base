@@ -104,7 +104,7 @@ abstract class LegacyAddress extends BitcoinBaseAddress {
 }
 
 class P2shAddress extends LegacyAddress {
-  static RegExp get regex => RegExp(r'(^|\s)[23M][a-km-zA-HJ-NP-Z1-9]{25,34}($|\s)');
+  static RegExp get regex => RegExp(r'[23M][a-km-zA-HJ-NP-Z1-9]{25,34}');
 
   P2shAddress.fromRedeemScript({
     required super.script,
@@ -155,7 +155,7 @@ class P2shAddress extends LegacyAddress {
 }
 
 class P2pkhAddress extends LegacyAddress {
-  static RegExp get regex => RegExp(r'(^|\s)[1mnL][a-km-zA-HJ-NP-Z1-9]{25,34}($|\s)');
+  static RegExp get regex => RegExp(r'[1mnL][a-km-zA-HJ-NP-Z1-9]{25,34}');
 
   factory P2pkhAddress.fromScriptPubkey({
     required Script script,
@@ -207,7 +207,7 @@ class P2pkhAddress extends LegacyAddress {
 }
 
 class P2pkAddress extends LegacyAddress {
-  static RegExp get regex => RegExp(r'(^|\s)1([A-Za-z0-9]{34})($|\s)');
+  static RegExp get regex => RegExp(r'1([A-Za-z0-9]{34})');
 
   P2pkAddress({required ECPublic publicKey, super.network})
       : _pubkeyHex = publicKey.toHex(),
