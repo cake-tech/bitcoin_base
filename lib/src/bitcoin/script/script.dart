@@ -1,5 +1,6 @@
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
+import 'package:bitcoin_base/src/models/network.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 /// A Script contains just a list of OP_CODES and also knows how to serialize into bytes
@@ -70,9 +71,10 @@ class Script {
   BitcoinAddressType? getAddressType() {
     if (script.isEmpty) return null;
 
-    if (script.every((x) => x is int) && script.length == 66 &&
-       (script[0]  == 2 || script[0]  == 3) &&
-       (script[33] == 2 || script[33] == 3)) {
+    if (script.every((x) => x is int) &&
+        script.length == 66 &&
+        (script[0] == 2 || script[0] == 3) &&
+        (script[33] == 2 || script[33] == 3)) {
       return SegwitAddresType.mweb;
     }
 
@@ -117,6 +119,28 @@ class Script {
     }
 
     return null;
+  }
+
+  String toAddress() {
+    final addressType = getAddressType();
+    if (addressType == null) {
+      throw ArgumentError("Invalid script");
+    }
+
+    switch (addressType) {
+      case P2pkhAddressType.p2pkh:
+        return P2pkhAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
+      case P2shAddressType.p2pkhInP2sh:
+        return P2shAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
+      case SegwitAddresType.p2wpkh:
+        return P2wpkhAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
+      case SegwitAddresType.p2wsh:
+        return P2wshAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
+      case SegwitAddresType.p2tr:
+        return P2trAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
+    }
+
+    throw ArgumentError("Invalid script");
   }
 
   /// returns a serialized byte version of the script

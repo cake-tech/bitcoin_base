@@ -20,16 +20,17 @@ import 'witness.dart';
 /// [hasSegwit] Specifies a tx that includes segwit inputs
 /// [witnesses] The witness structure that corresponds to the inputs
 class BtcTransaction {
-  BtcTransaction(
-      {required List<TxInput> inputs,
-      required List<TxOutput> outputs,
-      List<TxWitnessInput> witnesses = const [],
-      this.hasSegwit = false,
-      this.canReplaceByFee = false,
-      this.mwebBytes,
-      List<int>? lock,
-      List<int>? version})
-      : locktime = List<int>.unmodifiable(lock ?? BitcoinOpCodeConst.DEFAULT_TX_LOCKTIME),
+  BtcTransaction({
+    required List<TxInput> inputs,
+    required List<TxOutput> outputs,
+    List<TxWitnessInput> witnesses = const [],
+    this.hasSegwit = false,
+    this.canReplaceByFee = false,
+    this.mwebBytes,
+    List<int>? lock,
+    List<int>? version,
+    this.hasSilentPayment = false,
+  })  : locktime = List<int>.unmodifiable(lock ?? BitcoinOpCodeConst.DEFAULT_TX_LOCKTIME),
         version = List<int>.unmodifiable(version ?? BitcoinOpCodeConst.DEFAULT_TX_VERSION),
         inputs = List<TxInput>.unmodifiable(inputs),
         outputs = List<TxOutput>.unmodifiable(outputs),
@@ -42,6 +43,7 @@ class BtcTransaction {
   final bool canReplaceByFee;
   final List<TxWitnessInput> witnesses;
   final List<int>? mwebBytes;
+  final bool hasSilentPayment;
 
   BtcTransaction copyWith({
     List<TxInput>? inputs,
@@ -59,6 +61,7 @@ class BtcTransaction {
       mwebBytes: mwebBytes,
       lock: lock ?? List<int>.from(locktime),
       version: version ?? List<int>.from(this.version),
+      hasSilentPayment: hasSilentPayment,
     );
   }
 
@@ -105,7 +108,8 @@ class BtcTransaction {
       cursor = inp.item2;
 
       if (canReplaceByFee == false) {
-        canReplaceByFee = ListEquality().equals(input.sequence, BitcoinOpCodeConst.REPLACE_BY_FEE_SEQUENCE);
+        canReplaceByFee =
+            const ListEquality().equals(input.sequence, BitcoinOpCodeConst.REPLACE_BY_FEE_SEQUENCE);
       }
     }
 

@@ -33,6 +33,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
   final BitcoinOrdering outputOrdering;
   final List<ECPrivateInfo>? inputPrivKeyInfos;
   final List<Outpoint>? vinOutpoints;
+  bool _hasSilentPayment = false;
 
   BitcoinTransactionBuilder({
     required this.outputs,
@@ -424,7 +425,13 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
   // }
 
   List<TxOutput> _buildOutputs() {
-    List<TxOutput> builtOutputs = outputs.map((e) => e.toOutput).toList();
+    List<TxOutput> builtOutputs = outputs.map((e) {
+      if ((e as BitcoinOutput).isSilentPayment) {
+        _hasSilentPayment = true;
+      }
+
+      return e.toOutput;
+    }).toList();
     if (memo != null) {
       builtOutputs.add(TxOutput(amount: BigInt.zero, scriptPubKey: _opReturn(memo!)));
     }
@@ -450,13 +457,20 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
 
     for (final out in outputs as List<BitcoinOutput>) {
       final address = out.address;
-      final amount = out.value;
 
       if (address is SilentPaymentAddress) {
+        try {
+          utxosInfo.firstWhere((utxo) => utxo.ownerDetails.address.type == SegwitAddresType.p2wsh);
+          throw const BitcoinBasePluginException('Silent payments not supported for P2WSH');
+        } catch (_) {}
+
+        out.isSilentPayment = true;
+        _hasSilentPayment = true;
+
         silentPaymentDestinations.add(
           SilentPaymentDestination.fromAddress(
             address.toAddress(network),
-            amount.toInt(),
+            out.value.toInt(),
           ),
         );
       }
@@ -480,6 +494,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
           outputs[i] = BitcoinOutput(
             address: silentOutput.address,
             value: BigInt.from(silentOutput.amount),
+            isSilentPayment: true,
           );
 
           outputsAdded.add(silentOutput);
@@ -543,8 +558,12 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
     }
 
     /// create new transaction with inputs and outputs and isSegwit transaction or not
-    BtcTransaction transaction =
-        BtcTransaction(inputs: inputs, outputs: outputs, hasSegwit: hasSegwit);
+    BtcTransaction transaction = BtcTransaction(
+      inputs: inputs,
+      outputs: outputs,
+      hasSegwit: hasSegwit,
+      hasSilentPayment: _hasSilentPayment,
+    );
 
     /// we define empty witnesses. maybe the transaction is segwit and We need this
     final witnesses = <TxWitnessInput>[];
@@ -694,8 +713,12 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
     }
 
     /// create new transaction with inputs and outputs and isSegwit transaction or not
-    BtcTransaction transaction =
-        BtcTransaction(inputs: inputs, outputs: outputs, hasSegwit: hasSegwit);
+    BtcTransaction transaction = BtcTransaction(
+      inputs: inputs,
+      outputs: outputs,
+      hasSegwit: hasSegwit,
+      hasSilentPayment: _hasSilentPayment,
+    );
 
     /// we define empty witnesses. maybe the transaction is segwit and We need this
     final witnesses = <TxWitnessInput>[];
