@@ -1,3 +1,4 @@
+import 'package:bitcoin_base/src/utils/utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/models/network.dart';
@@ -14,48 +15,20 @@ class BitcoinAddressUtils {
 
   static List<int> addressToOutputScript(
       {required String address, required BasedUtxoNetwork network}) {
-    if (network == BitcoinCashNetwork.mainnet) {
-      return BitcoinCashAddress(address).baseAddress.toScriptPubKey().toBytes();
-    }
+    final addressType = RegexUtils.addressTypeFromStr(address, network);
 
-    if (P2pkhAddress.regex.hasMatch(address)) {
-      return P2pkhAddress.fromAddress(address: address, network: network)
-          .toScriptPubKey()
-          .toBytes();
-    }
-
-    if (P2shAddress.regex.hasMatch(address)) {
-      return P2shAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();
-    }
-
-    if (P2wpkhAddress.regex.hasMatch(address)) {
-      return P2wpkhAddress.fromAddress(address: address, network: network)
-          .toScriptPubKey()
-          .toBytes();
-    }
-
-    if (P2wshAddress.regex.hasMatch(address)) {
-      return P2wshAddress.fromAddress(address: address, network: network)
-          .toScriptPubKey()
-          .toBytes();
-    }
-
-    if (P2trAddress.regex.hasMatch(address)) {
-      return P2trAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();
-    }
-
-    if (MwebAddress.regex.hasMatch(address)) {
+    if (addressType.type == SegwitAddresType.mweb) {
       return BytesUtils.fromHexString(
         MwebAddress.fromAddress(address: address, network: network).addressProgram,
       );
     }
 
-    return P2wpkhAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();
+    return addressType.toScriptPubKey().toBytes();
   }
 
   static String scriptHash(String address, {required BasedUtxoNetwork network}) {
     final outputScript = addressToOutputScript(address: address, network: network);
-    final parts = QuickCrypto.sha256Hash(outputScript).toString().split('');
+    final parts = BytesUtils.toHexString(QuickCrypto.sha256Hash(outputScript)).split('');
     var res = '';
 
     for (var i = parts.length - 1; i >= 0; i--) {

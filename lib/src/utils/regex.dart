@@ -31,6 +31,8 @@ class RegexUtils {
       return P2trAddress.fromAddress(address: address, network: network);
     } else if (stringIsAddress(address, SilentPaymentAddress.regex)) {
       return SilentPaymentAddress.fromAddress(address);
+    } else if (stringIsAddress(address, MwebAddress.regex)) {
+      return MwebAddress.fromAddress(address: address, network: network);
     } else {
       return P2wpkhAddress.fromAddress(address: address, network: network);
     }
