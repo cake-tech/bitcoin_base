@@ -6,4 +6,10 @@ class BtcUtils {
     dec = dec * BigRational(BigInt.from(10).pow(8));
     return dec.toBigInt();
   }
+
+  static String fromSatoshi(BigInt satoshi) {
+    BigRational dec = BigRational(satoshi);
+    dec = dec / BigRational(BigInt.from(10).pow(8));
+    return dec.toString();
+  }
 }

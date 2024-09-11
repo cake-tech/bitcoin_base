@@ -48,8 +48,7 @@ class UtxoWithAddress {
 
   ECPublic public() {
     if (isMultiSig()) {
-      throw const BitcoinBasePluginException(
-          "Cannot access public key in multi-signature address");
+      throw const BitcoinBasePluginException("Cannot access public key in multi-signature address");
     }
     if (ownerDetails._publicKey == null) {
       throw const BitcoinBasePluginException(
@@ -95,15 +94,25 @@ class BitcoinOutput implements BitcoinSpendableBaseOutput {
   /// Value is a pointer to a BigInt representing the amount of bitcoins sent to the recipient.
   @override
   final BigInt value;
+
+  bool isSilentPayment;
+  bool isChange;
+
   // final CashToken? token;
   BitcoinOutput({
     required this.address,
     required this.value,
+    this.isSilentPayment = false,
+    this.isChange = false,
   });
 
   @override
-  TxOutput get toOutput =>
-      TxOutput(amount: value, scriptPubKey: address.toScriptPubKey());
+  TxOutput get toOutput => TxOutput(
+        amount: value,
+        scriptPubKey: address.toScriptPubKey(),
+        isSilentPayment: isSilentPayment,
+        isChange: isChange,
+      );
 }
 
 /// Represents a custom script-based Bitcoin output, implementing BitcoinBaseOutput.
@@ -120,8 +129,7 @@ class BitcoinScriptOutput implements BitcoinBaseOutput {
 
   /// Convert the custom script output to a standard TxOutput.
   @override
-  TxOutput get toOutput =>
-      TxOutput(amount: value, scriptPubKey: script, cashToken: null);
+  TxOutput get toOutput => TxOutput(amount: value, scriptPubKey: script, cashToken: null);
 }
 
 /// BitcoinTokenOutput represents details about a Bitcoin cash transaction with cash token output, including
@@ -143,8 +151,8 @@ class BitcoinTokenOutput implements BitcoinSpendableBaseOutput {
 
   /// Convert the custom script output to a standard TxOutput.
   @override
-  TxOutput get toOutput => TxOutput(
-      amount: value, scriptPubKey: address.toScriptPubKey(), cashToken: token);
+  TxOutput get toOutput =>
+      TxOutput(amount: value, scriptPubKey: address.toScriptPubKey(), cashToken: token);
 }
 
 /// Represents a burnable output, specifically related to [BitcoinTokenOutput] for burning Cash Tokens.
@@ -218,8 +226,7 @@ class BitcoinUtxo {
 
   /// checl if utxos is p2sh neasted segwit
   bool isP2shSegwit() {
-    return scriptType == P2shAddressType.p2wpkhInP2sh ||
-        scriptType == P2shAddressType.p2wshInP2sh;
+    return scriptType == P2shAddressType.p2wpkhInP2sh || scriptType == P2shAddressType.p2wshInP2sh;
   }
 
   /// convert utxos to transaction input with specify sequence like ReplaceByeFee (4Bytes)
