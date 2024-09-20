@@ -1,40 +1,44 @@
-import 'package:convert/convert.dart';
+import 'package:bitcoin_base/src/utils/utils.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/models/network.dart';
 
-bool validateAddress({required String address, required BasedUtxoNetwork network}) {
-  try {
-    addressToOutputScript(address: address, network: network);
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
-
-List<int> addressToOutputScript({required String address, required BasedUtxoNetwork network}) {
-  if (P2pkhAddress.regex.hasMatch(address)) {
-    return P2pkhAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();
+class BitcoinAddressUtils {
+  static bool validateAddress({required String address, required BasedUtxoNetwork network}) {
+    try {
+      addressToOutputScript(address: address, network: network);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
-  if (P2shAddress.regex.hasMatch(address)) {
-    return P2shAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();
+  static List<int> addressToOutputScript(
+      {required String address, required BasedUtxoNetwork network}) {
+    final addressType = RegexUtils.addressTypeFromStr(address, network);
+
+    if (addressType.type == SegwitAddresType.mweb) {
+      return BytesUtils.fromHexString(
+        MwebAddress.fromAddress(address: address, network: network).addressProgram,
+      );
+    }
+
+    return addressType.toScriptPubKey().toBytes();
   }
 
-  if (P2wpkhAddress.regex.hasMatch(address)) {
-    return P2wpkhAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();
-  }
+  static String scriptHash(String address, {required BasedUtxoNetwork network}) {
+    final outputScript = addressToOutputScript(address: address, network: network);
+    final parts = BytesUtils.toHexString(QuickCrypto.sha256Hash(outputScript)).split('');
+    var res = '';
 
-  if (P2wshAddress.regex.hasMatch(address)) {
-    return P2wshAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();
-  }
+    for (var i = parts.length - 1; i >= 0; i--) {
+      final char = parts[i];
+      i--;
+      final nextChar = parts[i];
+      res += nextChar;
+      res += char;
+    }
 
-  if (P2trAddress.regex.hasMatch(address)) {
-    return P2trAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();
+    return res;
   }
-
-  if (MwebAddress.regex.hasMatch(address)) {
-    return hex.decode(MwebAddress.fromAddress(address: address, network: network).addressProgram);
-  }
-
-  return P2wpkhAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();
 }

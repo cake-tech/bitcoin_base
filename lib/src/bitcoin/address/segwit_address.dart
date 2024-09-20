@@ -59,7 +59,7 @@ abstract class SegwitAddress extends BitcoinBaseAddress {
 }
 
 class P2wpkhAddress extends SegwitAddress {
-  static RegExp get regex => RegExp(r'(bc|tb|ltc)1q[ac-hj-np-z02-9]{25,39}($|\s)');
+  static RegExp get regex => RegExp(r'(bc|tb|ltc)1q[ac-hj-np-z02-9]{25,39}');
 
   P2wpkhAddress.fromAddress({required super.address, required super.network})
       : super.fromAddress(segwitVersion: _BitcoinAddressUtils.segwitV0);
@@ -162,7 +162,7 @@ class P2wshAddress extends SegwitAddress {
 }
 
 class MwebAddress extends SegwitAddress {
-  static RegExp get regex => RegExp(r'(ltc|t)mweb1q[ac-hj-np-z02-9]{90,120}($|\s)');
+  static RegExp get regex => RegExp(r'(ltc|t)mweb1q[ac-hj-np-z02-9]{90,120}');
 
   factory MwebAddress.fromAddress({required String address, required BasedUtxoNetwork network}) {
     final decoded = Bech32DecoderBase.decodeBech32(

@@ -8,56 +8,58 @@ import 'package:blockchain_utils/utils/utils.dart';
 /// [amount] the value we want to send to this output in satoshis
 /// [scriptPubKey] the script that will lock this amount
 class TxOutput {
-  const TxOutput(
-      {required this.amount, required this.scriptPubKey, this.cashToken});
+  const TxOutput({
+    required this.amount,
+    required this.scriptPubKey,
+    this.cashToken,
+    this.isSilentPayment = false,
+    this.isChange = false,
+  });
   final CashToken? cashToken;
   final BigInt amount;
   final Script scriptPubKey;
+  final bool isSilentPayment;
+  final bool isChange;
 
   ///  creates a copy of the object
   TxOutput copy() {
     return TxOutput(
-        amount: amount,
-        scriptPubKey: Script(script: List.from(scriptPubKey.script)),
-        cashToken: cashToken);
+      amount: amount,
+      scriptPubKey: Script(script: List.from(scriptPubKey.script)),
+      cashToken: cashToken,
+      isSilentPayment: isSilentPayment,
+      isChange: isChange,
+    );
   }
 
   List<int> toBytes() {
-    final amountBytes =
-        BigintUtils.toBytes(amount, length: 8, order: Endian.little);
-    List<int> scriptBytes = [
-      ...cashToken?.toBytes() ?? <int>[],
-      ...scriptPubKey.toBytes()
-    ];
-    final data = [
-      ...amountBytes,
-      ...IntUtils.encodeVarint(scriptBytes.length),
-      ...scriptBytes
-    ];
+    final amountBytes = BigintUtils.toBytes(amount, length: 8, order: Endian.little);
+    List<int> scriptBytes = [...cashToken?.toBytes() ?? <int>[], ...scriptPubKey.toBytes()];
+    final data = [...amountBytes, ...IntUtils.encodeVarint(scriptBytes.length), ...scriptBytes];
     return data;
   }
 
   static Tuple<TxOutput, int> fromRaw(
       {required String raw, required int cursor, bool hasSegwit = false}) {
     final txBytes = BytesUtils.fromHexString(raw);
-    final value = BigintUtils.fromBytes(txBytes.sublist(cursor, cursor + 8),
-            byteOrder: Endian.little)
-        .toSigned(64);
+    final value =
+        BigintUtils.fromBytes(txBytes.sublist(cursor, cursor + 8), byteOrder: Endian.little)
+            .toSigned(64);
     cursor += 8;
 
     final vi = IntUtils.decodeVarint(txBytes.sublist(cursor, cursor + 9));
     cursor += vi.item2;
     final token = CashToken.fromRaw(txBytes.sublist(cursor));
-    List<int> lockScript =
-        txBytes.sublist(cursor + token.item2, cursor + vi.item1);
+    List<int> lockScript = txBytes.sublist(cursor + token.item2, cursor + vi.item1);
     cursor += vi.item1;
     return Tuple(
         TxOutput(
             amount: value,
             cashToken: token.item1,
             scriptPubKey: Script.fromRaw(
-                hexData: BytesUtils.toHexString(lockScript),
-                hasSegwit: hasSegwit)),
+              hexData: BytesUtils.toHexString(lockScript),
+              hasSegwit: hasSegwit,
+            )),
         cursor);
   }
 
