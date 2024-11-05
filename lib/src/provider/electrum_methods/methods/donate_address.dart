@@ -13,7 +13,7 @@ class ElectrumDonationAddress extends ElectrumRequest<String, String> {
   }
 
   @override
-  String onResonse(result) {
+  String onResponse(result) {
     return result;
   }
 }

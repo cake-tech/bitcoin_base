@@ -22,7 +22,7 @@ class ElectrumMasternodeSubscribe extends ElectrumRequest<String, String> {
   /// the internet connection, the offline time and even the collateral
   /// amount, so this subscription notice these changes to the user.
   @override
-  String onResonse(result) {
+  String onResponse(result) {
     return result;
   }
 }

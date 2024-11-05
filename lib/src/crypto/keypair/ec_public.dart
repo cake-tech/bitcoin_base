@@ -116,6 +116,10 @@ class ECPublic {
     return P2trAddress.fromProgram(program: pubKey, pubkey: ECPublic.fromHex(pubKey));
   }
 
+  P2trAddress toP2trAddress({List<List<Script>>? scripts, bool tweak = true}) {
+    return toTaprootAddress(scripts: scripts, tweak: tweak);
+  }
+
   /// toP2wpkhInP2sh generates a P2SH (Pay-to-Script-Hash) address
   /// wrapping a P2WPKH (Pay-to-Witness-Public-Key-Hash) script derived from the ECPublic key.
   /// If 'compressed' is true, the key is in compressed format.

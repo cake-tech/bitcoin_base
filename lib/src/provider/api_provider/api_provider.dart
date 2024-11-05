@@ -7,10 +7,13 @@ import 'package:blockchain_utils/utils/string/string.dart';
 class ApiProvider {
   ApiProvider({required this.api, Map<String, String>? header, required this.service})
       : _header = header ?? {"Content-Type": "application/json"};
-  factory ApiProvider.fromMempool(BasedUtxoNetwork network, ApiService service,
-      {Map<String, String>? header}) {
-    final api = APIConfig.mempool(network);
-    return ApiProvider(api: api, header: header, service: service);
+  factory ApiProvider.fromMempool(
+    BasedUtxoNetwork network, {
+    Map<String, String>? header,
+    String? baseUrl,
+  }) {
+    final api = APIConfig.mempool(network, baseUrl);
+    return ApiProvider(api: api, header: header, service: BitcoinApiService());
   }
   factory ApiProvider.fromBlocCypher(BasedUtxoNetwork network, ApiService service,
       {Map<String, String>? header}) {
@@ -80,7 +83,7 @@ class ApiProvider {
     }
   }
 
-  Future<BitcoinFeeRate> getNetworkFeeRate({String Function(String)? tokenize}) async {
+  Future<BitcoinFeeRate> getRecommendedFeeRate({String Function(String)? tokenize}) async {
     final apiUrl = api.getFeeApiUrl();
     final url = tokenize?.call(apiUrl) ?? apiUrl;
     final response = await _getRequest<Map<String, dynamic>>(url);

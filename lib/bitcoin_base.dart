@@ -12,11 +12,15 @@ export 'package:bitcoin_base/src/bitcoin/address/util.dart';
 
 export 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
 
+export 'package:bitcoin_base/src/bitcoin/amount/amount.dart';
+
 export 'package:bitcoin_base/src/crypto/crypto.dart';
 
 export 'package:bitcoin_base/src/models/network.dart';
 
 export 'package:bitcoin_base/src/provider/api_provider.dart';
+
+export 'package:bitcoin_base/src/provider/models/electrum/electrum_utxo.dart';
 
 export 'package:bitcoin_base/src/utils/utils.dart';
 

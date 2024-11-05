@@ -15,7 +15,7 @@ class ElectrumRelayFee extends ElectrumRequest<BigInt, dynamic> {
 
   /// relay fee in Bigint(satoshi)
   @override
-  BigInt onResonse(result) {
+  BigInt onResponse(result) {
     return BtcUtils.toSatoshi(result.toString());
   }
 }

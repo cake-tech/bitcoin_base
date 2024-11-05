@@ -71,8 +71,7 @@ class APIConfig {
     }
 
     return APIConfig(
-        url:
-            "$baseUrl/addrs/###/?unspentOnly=true&includeScript=true&limit=2000",
+        url: "$baseUrl/addrs/###/?unspentOnly=true&includeScript=true&limit=2000",
         feeRate: baseUrl,
         transaction: "$baseUrl/txs/###",
         sendTransaction: "$baseUrl/txs/push",
@@ -82,18 +81,19 @@ class APIConfig {
         blockHeight: "$baseUrl/blocks/###");
   }
 
-  factory APIConfig.mempool(BasedUtxoNetwork network) {
-    String baseUrl;
-    switch (network) {
-      case BitcoinNetwork.mainnet:
-        baseUrl = BtcApiConst.mempoolMainBaseURL;
-        break;
-      case BitcoinNetwork.testnet:
-        baseUrl = BtcApiConst.mempoolBaseURL;
-        break;
-      default:
-        throw BitcoinBasePluginException(
-            "mempool does not support ${network.conf.coinName.name}");
+  factory APIConfig.mempool(BasedUtxoNetwork network, [String? baseUrl]) {
+    if (baseUrl == null) {
+      switch (network) {
+        case BitcoinNetwork.mainnet:
+          baseUrl = BtcApiConst.mempoolMainBaseURL;
+          break;
+        case BitcoinNetwork.testnet:
+          baseUrl = BtcApiConst.mempoolBaseURL;
+          break;
+        default:
+          throw BitcoinBasePluginException(
+              "mempool does not support ${network.conf.coinName.name}");
+      }
     }
 
     return APIConfig(

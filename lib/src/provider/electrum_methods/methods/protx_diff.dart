@@ -22,7 +22,7 @@ class ElectrumProtXDiff extends ElectrumRequest<Map<String, dynamic>, dynamic> {
 
   /// A dictionary with deterministic masternode lists diff plus proof data.
   @override
-  Map<String, dynamic> onResonse(result) {
+  Map<String, dynamic> onResponse(result) {
     return Map<String, dynamic>.from(result);
   }
 }

@@ -12,7 +12,7 @@ class ElectrumServerBanner extends ElectrumRequest<String, dynamic> {
   }
 
   @override
-  String onResonse(result) {
+  String onResponse(result) {
     return result.toString();
   }
 }

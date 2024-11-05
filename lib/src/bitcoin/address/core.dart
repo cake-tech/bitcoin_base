@@ -60,14 +60,13 @@ abstract class BitcoinAddressType implements Enumerate {
 }
 
 abstract class BitcoinBaseAddress {
-  BitcoinBaseAddress({this.network});
+  BitcoinBaseAddress();
 
   BitcoinAddressType get type;
-  String toAddress([BasedUtxoNetwork? network]);
+  String toAddress(BasedUtxoNetwork network);
   Script toScriptPubKey();
   String pubKeyHash();
   String get addressProgram;
-  BasedUtxoNetwork? network;
 
   static BitcoinBaseAddress fromString(
     String address, [

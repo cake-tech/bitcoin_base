@@ -2,10 +2,8 @@ import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
 /// Return a concatenated chunk of block headers from the main chain.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumBlockHeaders
-    extends ElectrumRequest<Map<String, dynamic>, Map<String, dynamic>> {
-  ElectrumBlockHeaders(
-      {required this.startHeight, required this.count, required this.cpHeight});
+class ElectrumBlockHeaders extends ElectrumRequest<Map<String, dynamic>, Map<String, dynamic>> {
+  ElectrumBlockHeaders({required this.startHeight, required this.count, required this.cpHeight});
 
   /// The height of the first header requested, a non-negative integer.
   final int startHeight;
@@ -27,7 +25,7 @@ class ElectrumBlockHeaders
 
   /// A dictionary
   @override
-  Map<String, dynamic> onResonse(result) {
+  Map<String, dynamic> onResponse(result) {
     return result;
   }
 }

@@ -30,11 +30,25 @@ class ElectrumUtxo implements UTXO {
   @override
   BitcoinUtxo toUtxo(BitcoinAddressType addressType) {
     return BitcoinUtxo(
-        txHash: txId,
-        value: value,
-        vout: vout,
-        scriptType: addressType,
-        blockHeight: height,
-        token: token);
+      txHash: txId,
+      value: value,
+      vout: vout,
+      scriptType: addressType,
+      blockHeight: height,
+      token: token,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "height": height,
+      "tx_hash": txId,
+      "tx_pos": vout,
+      "value": value.toString(),
+    };
+  }
+
+  static List<ElectrumUtxo> fromJsonList(List<dynamic> json) {
+    return json.map((e) => ElectrumUtxo.fromJson(e)).toList();
   }
 }

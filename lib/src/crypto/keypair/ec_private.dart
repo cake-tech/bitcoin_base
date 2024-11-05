@@ -4,7 +4,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:pointycastle/export.dart';
-import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip32/src/utils/ecurve.dart' as ecc;
 
 /// Represents an ECDSA private key.
@@ -33,6 +32,18 @@ class ECPrivate {
     return ECPrivate.fromBytes(decode.item1);
   }
 
+  factory ECPrivate.fromBip32({required Bip32Base bip32, int? account, int? index}) {
+    if (account != null) {
+      bip32 = bip32.childKey(Bip32KeyIndex(account));
+
+      if (index != null) {
+        bip32 = bip32.childKey(Bip32KeyIndex(index));
+      }
+    }
+
+    return ECPrivate(bip32.privateKey);
+  }
+
   /// returns as WIFC (compressed) or WIF format (string)
   String toWif({bool compressed = true, BitcoinNetwork? network}) {
     List<int> bytes = <int>[...(network ?? BitcoinNetwork.mainnet).wifNetVer, ...toBytes()];
@@ -57,7 +68,6 @@ class ECPrivate {
 
   /// Returns a Bitcoin compact signature in hex
   String signMessage(List<int> message, {String messagePrefix = '\x18Bitcoin Signed Message:\n'}) {
-
     final messageHash =
         QuickCrypto.sha256Hash(BitcoinSignerUtils.magicMessage(message, messagePrefix));
 

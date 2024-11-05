@@ -148,16 +148,17 @@ class BtcTransaction {
       mwebBytes = rawtx.sublist(cursor, rawtx.length - 4);
       cursor = rawtx.length - 4;
     }
-    List<int> lock = rawtx.sublist(cursor, cursor + 4);
+    List<int> lock = rawtx.sublist(rawtx.length - 4);
     return BtcTransaction(
-        inputs: inputs,
-        outputs: outputs,
-        witnesses: witnesses,
-        hasSegwit: hasSegwit,
-        canReplaceByFee: canReplaceByFee,
-        mwebBytes: mwebBytes,
-        version: version,
-        lock: lock);
+      inputs: inputs,
+      outputs: outputs,
+      witnesses: witnesses,
+      hasSegwit: hasSegwit,
+      canReplaceByFee: canReplaceByFee,
+      mwebBytes: mwebBytes,
+      version: version,
+      lock: lock,
+    );
   }
 
   /// returns the transaction input's digest that is to be signed according.
@@ -242,7 +243,7 @@ class BtcTransaction {
     if (mwebBytes != null) {
       data.add(mwebBytes!);
     }
-    data.add(locktime);
+    data.add([0, 0, 0, 0]);
     return data.toBytes();
   }
 

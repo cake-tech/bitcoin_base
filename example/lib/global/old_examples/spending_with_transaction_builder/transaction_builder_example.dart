@@ -1,6 +1,5 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:example/services_examples/explorer_service/explorer_service.dart';
 
 // spend from 8 different address type to 10 different output
 void main() async {
@@ -116,26 +115,16 @@ void main() async {
   // now we have 1,174,140 satoshi for spending let do it
   // we create 10 different output with  different address type like (pt2r, p2sh(p2wpkh), p2sh(p2wsh), p2pkh, etc.)
   // We consider the spendable amount for 10 outputs and divide by 10, each output 117,414
-  final output1 =
-      BitcoinOutput(address: exampleAddr4, value: BigInt.from(117414));
-  final output2 =
-      BitcoinOutput(address: exampleAddr9, value: BigInt.from(117414));
-  final output3 =
-      BitcoinOutput(address: exampleAddr10, value: BigInt.from(117414));
-  final output4 =
-      BitcoinOutput(address: exampleAddr1, value: BigInt.from(117414));
-  final output5 =
-      BitcoinOutput(address: exampleAddr3, value: BigInt.from(117414));
-  final output6 =
-      BitcoinOutput(address: exampleAddr2, value: BigInt.from(117414));
-  final output7 =
-      BitcoinOutput(address: exampleAddr7, value: BigInt.from(117414));
-  final output8 =
-      BitcoinOutput(address: exampleAddr8, value: BigInt.from(117414));
-  final output9 =
-      BitcoinOutput(address: exampleAddr5, value: BigInt.from(117414));
-  final output10 =
-      BitcoinOutput(address: exampleAddr6, value: BigInt.from(117414));
+  final output1 = BitcoinOutput(address: exampleAddr4, value: BigInt.from(117414));
+  final output2 = BitcoinOutput(address: exampleAddr9, value: BigInt.from(117414));
+  final output3 = BitcoinOutput(address: exampleAddr10, value: BigInt.from(117414));
+  final output4 = BitcoinOutput(address: exampleAddr1, value: BigInt.from(117414));
+  final output5 = BitcoinOutput(address: exampleAddr3, value: BigInt.from(117414));
+  final output6 = BitcoinOutput(address: exampleAddr2, value: BigInt.from(117414));
+  final output7 = BitcoinOutput(address: exampleAddr7, value: BigInt.from(117414));
+  final output8 = BitcoinOutput(address: exampleAddr8, value: BigInt.from(117414));
+  final output9 = BitcoinOutput(address: exampleAddr5, value: BigInt.from(117414));
+  final output10 = BitcoinOutput(address: exampleAddr6, value: BigInt.from(117414));
 
   // Well, now it is clear to whom we are going to pay the amount
   // Now let's create the transaction
@@ -183,8 +172,7 @@ void main() async {
   // parameters
   // utxo  infos with owner details
   // trDigest transaction digest of current UTXO (must be sign with correct privateKey)
-  final transaction =
-      transactionBuilder.buildTransaction((trDigest, utxo, publicKey, sighash) {
+  final transaction = transactionBuilder.buildTransaction((trDigest, utxo, publicKey, sighash) {
     late ECPrivate key;
 
     // ok we have the public key of the current UTXO and we use some conditions to find private  key and sign transaction

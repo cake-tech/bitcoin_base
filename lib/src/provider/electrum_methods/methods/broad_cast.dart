@@ -11,7 +11,7 @@ class ElectrumBroadCastTransaction extends ElectrumRequest<String, String> {
 
   /// blockchain.transaction.broadcast
   @override
-  String get method => ElectrumRequestMethods.broadCast.method;
+  String get method => ElectrumRequestMethods.broadcast.method;
 
   @override
   List toJson() {
@@ -20,7 +20,7 @@ class ElectrumBroadCastTransaction extends ElectrumRequest<String, String> {
 
   /// The transaction hash as a hexadecimal string.
   @override
-  String onResonse(result) {
+  String onResponse(result) {
     return result;
   }
 }

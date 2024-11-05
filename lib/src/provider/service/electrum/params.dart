@@ -34,7 +34,7 @@ class ElectrumRequestDetails {
 abstract class ElectrumRequest<RESULT, RESPONSE> implements ElectrumRequestParams {
   String? get validate => null;
 
-  RESULT onResonse(RESPONSE result) {
+  RESULT onResponse(RESPONSE result) {
     return result as RESULT;
   }
 

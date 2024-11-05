@@ -19,7 +19,7 @@ class ElectrumProtXInfo extends ElectrumRequest<Map<String, dynamic>, dynamic> {
 
   /// A dictionary with detailed deterministic masternode data
   @override
-  Map<String, dynamic> onResonse(result) {
+  Map<String, dynamic> onResponse(result) {
     return Map<String, dynamic>.from(result);
   }
 }

@@ -9,7 +9,7 @@ abstract class BitcoinNetworkAddress<T extends BasedUtxoNetwork> {
 
   /// Converts the address to a string representation for the specified network [T].
   String toAddress([T? network]) {
-    return network == null ? address : baseAddress.toAddress();
+    return network == null ? address : baseAddress.toAddress(network);
   }
 
   /// The type of the Bitcoin address.
@@ -28,7 +28,7 @@ class BitcoinAddress extends BitcoinNetworkAddress<BitcoinNetwork> {
   factory BitcoinAddress.fromBaseAddress(BitcoinBaseAddress address,
       {DashNetwork network = DashNetwork.mainnet}) {
     final baseAddress = _BitcoinAddressUtils.validateAddress(address, network);
-    return BitcoinAddress._(baseAddress, baseAddress.toAddress());
+    return BitcoinAddress._(baseAddress, baseAddress.toAddress(network));
   }
   @override
   final BitcoinBaseAddress baseAddress;
@@ -45,7 +45,7 @@ class DogeAddress extends BitcoinNetworkAddress<DogecoinNetwork> {
   factory DogeAddress.fromBaseAddress(BitcoinBaseAddress address,
       {DogecoinNetwork network = DogecoinNetwork.mainnet}) {
     final baseAddress = _BitcoinAddressUtils.validateAddress(address, network);
-    return DogeAddress._(baseAddress, baseAddress.toAddress());
+    return DogeAddress._(baseAddress, baseAddress.toAddress(network));
   }
   @override
   final BitcoinBaseAddress baseAddress;
@@ -63,7 +63,7 @@ class PepeAddress extends BitcoinNetworkAddress<PepeNetwork> {
   factory PepeAddress.fromBaseAddress(BitcoinBaseAddress address,
       {PepeNetwork network = PepeNetwork.mainnet}) {
     final baseAddress = _BitcoinAddressUtils.validateAddress(address, network);
-    return PepeAddress._(baseAddress, baseAddress.toAddress());
+    return PepeAddress._(baseAddress, baseAddress.toAddress(network));
   }
   @override
   final BitcoinBaseAddress baseAddress;
@@ -81,7 +81,7 @@ class LitecoinAddress extends BitcoinNetworkAddress<LitecoinNetwork> {
   factory LitecoinAddress.fromBaseAddress(BitcoinBaseAddress address,
       {LitecoinNetwork network = LitecoinNetwork.mainnet}) {
     final baseAddress = _BitcoinAddressUtils.validateAddress(address, network);
-    return LitecoinAddress._(baseAddress, baseAddress.toAddress());
+    return LitecoinAddress._(baseAddress, baseAddress.toAddress(network));
   }
   @override
   final BitcoinBaseAddress baseAddress;
@@ -108,7 +108,7 @@ class BitcoinCashAddress extends BitcoinNetworkAddress<BitcoinCashNetwork> {
   factory BitcoinCashAddress.fromBaseAddress(BitcoinBaseAddress address,
       {BitcoinCashNetwork network = BitcoinCashNetwork.mainnet}) {
     final baseAddress = _BitcoinAddressUtils.validateAddress(address, network);
-    return BitcoinCashAddress._(baseAddress, baseAddress.toAddress());
+    return BitcoinCashAddress._(baseAddress, baseAddress.toAddress(network));
   }
   @override
   final BitcoinBaseAddress baseAddress;
@@ -133,7 +133,7 @@ class DashAddress extends BitcoinNetworkAddress<DashNetwork> {
   factory DashAddress.fromBaseAddress(BitcoinBaseAddress address,
       {DashNetwork network = DashNetwork.mainnet}) {
     final baseAddress = _BitcoinAddressUtils.validateAddress(address, network);
-    return DashAddress._(baseAddress, baseAddress.toAddress());
+    return DashAddress._(baseAddress, baseAddress.toAddress(network));
   }
   @override
   final BitcoinBaseAddress baseAddress;
@@ -150,7 +150,7 @@ class BitcoinSVAddress extends BitcoinNetworkAddress<DashNetwork> {
   factory BitcoinSVAddress.fromBaseAddress(BitcoinBaseAddress address,
       {BitcoinSVNetwork network = BitcoinSVNetwork.mainnet}) {
     final baseAddress = _BitcoinAddressUtils.validateAddress(address, network);
-    return BitcoinSVAddress._(baseAddress, baseAddress.toAddress());
+    return BitcoinSVAddress._(baseAddress, baseAddress.toAddress(network));
   }
   @override
   final BitcoinBaseAddress baseAddress;

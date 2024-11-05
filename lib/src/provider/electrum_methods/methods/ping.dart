@@ -12,7 +12,7 @@ class ElectrumPing extends ElectrumRequest<dynamic, dynamic> {
   }
 
   @override
-  dynamic onResonse(result) {
+  dynamic onResponse(result) {
     return null;
   }
 }
