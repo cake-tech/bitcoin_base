@@ -202,6 +202,8 @@ class SegwitAddresType implements BitcoinAddressType {
     switch (this) {
       case SegwitAddresType.p2wpkh:
         return 20;
+      case SegwitAddresType.mweb:
+        return 66;
       default:
         return 32;
     }

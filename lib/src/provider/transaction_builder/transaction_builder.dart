@@ -426,7 +426,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
 
   List<TxOutput> _buildOutputs() {
     List<TxOutput> builtOutputs = outputs.map((e) {
-      if ((e as BitcoinOutput).isSilentPayment) {
+      if (e is BitcoinOutput && e.isSilentPayment) {
         _hasSilentPayment = true;
       }
 
