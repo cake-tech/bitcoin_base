@@ -56,8 +56,8 @@ class ElectrumRequestMethods {
       ElectrumRequestMethods._("blockchain.block.headers");
 
   /// Return the estimated transaction fee per kilobyte for a transaction to be confirmed within a certain number of blocks.
-  static const ElectrumRequestMethods estimateFee =
-      ElectrumRequestMethods._("blockchain.estimatefee");
+  static const String estimateFeeMethod = "blockchain.estimatefee";
+  static const ElectrumRequestMethods estimateFee = ElectrumRequestMethods._(estimateFeeMethod);
 
   /// Return the confirmed and unconfirmed history of a script hash.
   static const String getHistoryMethod = "blockchain.scripthash.get_history";
@@ -81,7 +81,8 @@ class ElectrumRequestMethods {
   static const ElectrumRequestMethods ping = ElectrumRequestMethods._("server.ping");
 
   /// Identify the client to the server and negotiate the protocol version. Only the first server.version() message is accepted.
-  static const ElectrumRequestMethods version = ElectrumRequestMethods._("server.version");
+  static const String versionMethod = "server.version";
+  static const ElectrumRequestMethods version = ElectrumRequestMethods._(versionMethod);
 
   /// Subscribe to receive block headers when a new block is found.
   static const String headersSubscribeMethod = "blockchain.headers.subscribe";
