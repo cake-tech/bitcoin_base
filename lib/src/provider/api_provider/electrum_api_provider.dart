@@ -2,6 +2,8 @@ import 'package:bitcoin_base/src/bitcoin/amount/amount.dart';
 import 'package:bitcoin_base/src/provider/api_provider.dart';
 import 'dart:async';
 
+import 'package:rxdart/rxdart.dart';
+
 typedef ListenerCallback<T> = StreamSubscription<T> Function(
   void Function(T)? onData, {
   Function? onError,
@@ -32,34 +34,14 @@ class ElectrumApiProvider {
   }
 
   // Preserving generic type T in subscribe method
-  ListenerCallback<T>? subscribe<T, U>(ElectrumRequest<T, U> request) {
+  BehaviorSubject<U>? subscribe<T, U>(ElectrumRequest<T, U> request) {
     final id = ++_id;
     final params = request.toRequest(id);
     final subscription = rpc.subscribe<U>(params);
 
     if (subscription == null) return null;
 
-    try {
-      // Create a transformer that uses the request's response handler
-      final stream = subscription.subscription.map(request.onResponse);
-
-      // Return a properly typed listener callback
-      return (
-        void Function(T)? onData, {
-        Function? onError,
-        void Function()? onDone,
-        bool? cancelOnError,
-      }) {
-        return stream.listen(
-          onData,
-          onError: onError,
-          onDone: onDone,
-          cancelOnError: cancelOnError,
-        );
-      };
-    } catch (_) {
-      return null;
-    }
+    return subscription.subscription;
   }
 
   Future<List<int>> getFeeRates() async {

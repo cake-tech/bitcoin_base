@@ -85,7 +85,11 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
     final Duration connectionTimeOut = const Duration(seconds: 30),
     void Function(ConnectionStatus)? onConnectionStatusChange,
   }) async {
-    final channel = await SecureSocket.connect(uri.host, uri.port).timeout(connectionTimeOut);
+    final channel = await SecureSocket.connect(
+      uri.host,
+      uri.port,
+      onBadCertificate: (_) => true,
+    ).timeout(connectionTimeOut);
 
     return ElectrumSSLService._(
       uri.toString(),

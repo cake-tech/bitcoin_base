@@ -38,6 +38,15 @@ abstract class BitcoinBaseElectrumRPCService {
   bool get isConnected;
   void disconnect();
   void reconnect();
+  static Future<BitcoinBaseElectrumRPCService> connect(
+    Uri uri, {
+    Iterable<String>? protocols,
+    Duration defaultRequestTimeOut = const Duration(seconds: 30),
+    final Duration connectionTimeOut = const Duration(seconds: 30),
+    void Function(ConnectionStatus)? onConnectionStatusChange,
+  }) {
+    throw UnimplementedError();
+  }
 }
 
 bool isJSONStringCorrect(String source) {

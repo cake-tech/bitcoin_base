@@ -24,7 +24,11 @@ class ElectrumTweaksSubscribeResponse {
   final int block;
   final Map<String, TweakData> blockTweaks;
 
-  ElectrumTweaksSubscribeResponse({required this.block, required this.blockTweaks, this.message});
+  ElectrumTweaksSubscribeResponse({
+    required this.block,
+    required this.blockTweaks,
+    this.message,
+  });
 
   factory ElectrumTweaksSubscribeResponse.fromJson(Map<String, dynamic> json) {
     late int block;
@@ -77,17 +81,22 @@ class ElectrumTweaksSubscribeResponse {
 class ElectrumTweaksSubscribe
     extends ElectrumRequest<ElectrumTweaksSubscribeResponse, Map<String, dynamic>> {
   /// blockchain.tweaks.subscribe
-  ElectrumTweaksSubscribe({required this.height, required this.count});
+  ElectrumTweaksSubscribe({
+    required this.height,
+    required this.count,
+    required this.historicalMode,
+  });
 
   final int height;
   final int count;
+  final bool historicalMode;
 
   @override
   String get method => ElectrumRequestMethods.tweaksSubscribe.method;
 
   @override
   List toJson() {
-    return [height, count];
+    return [height, count, historicalMode];
   }
 
   /// The header of the current block chain tip.
