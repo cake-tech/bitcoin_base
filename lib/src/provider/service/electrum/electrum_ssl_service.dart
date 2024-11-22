@@ -66,7 +66,7 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
     _subscription?.cancel().catchError((e) {});
     _subscription = null;
 
-    onConnectionStatusChange = null;
+    _setConnectionStatus(ConnectionStatus.disconnected);
   }
 
   void _onDone() {
@@ -138,10 +138,26 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
   }
 
   void _handleResponse(Map<String, dynamic> response) {
-    var id = response['id'] as int?;
+    var id = response['id'] == null ? null : int.parse(response['id']!.toString());
+
     if (id == null) {
+      String? method = response['method'];
+
+      if (method == null) {
+        final error = response["error"];
+        if (response["error"] != null) {
+          final message = error["message"];
+          if (message != null) {
+            final isFulcrum = message.toLowerCase().contains("unsupported request");
+            final match = (isFulcrum ? RegExp(r'request:\s*(\S+)') : RegExp(r'"([^"]*)"'))
+                .firstMatch(message);
+            method = match?.group(1) ?? '';
+          }
+        }
+      }
+
       _tasks.forEach((key, value) {
-        if (value.request.method == response['method']) {
+        if (value.request.method == method) {
           id = key;
         }
       });
@@ -149,10 +165,7 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
 
     try {
       final result = _findResult(response, _tasks[id]!.request);
-
-      if (result != null) {
-        _finish(id!, result);
-      }
+      _finish(id!, result);
     } catch (_) {}
   }
 
@@ -186,6 +199,11 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
           data: data["error"]?["data"],
           request: data["request"] ?? request.params,
         );
+
+        if (message.toLowerCase().contains("unknown method") ||
+            message.toLowerCase().contains("unsupported request")) {
+          return <String, dynamic>{};
+        }
       }
 
       throw _errors[request.id]!;

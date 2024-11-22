@@ -30,7 +30,20 @@ class ElectrumTweaksSubscribeResponse {
     this.message,
   });
 
-  factory ElectrumTweaksSubscribeResponse.fromJson(Map<String, dynamic> json) {
+  static ElectrumTweaksSubscribeResponse? fromJson(Map<String, dynamic> json) {
+    if (json.isEmpty) {
+      return null;
+    }
+
+    if (json.containsKey('params')) {
+      final params = json['params'] as List<dynamic>;
+      final message = params.first["message"];
+
+      if (message != null) {
+        return null;
+      }
+    }
+
     late int block;
     final blockTweaks = <String, TweakData>{};
 
@@ -79,7 +92,7 @@ class ElectrumTweaksSubscribeResponse {
 /// Subscribe to receive block headers when a new block is found.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
 class ElectrumTweaksSubscribe
-    extends ElectrumRequest<ElectrumTweaksSubscribeResponse, Map<String, dynamic>> {
+    extends ElectrumRequest<ElectrumTweaksSubscribeResponse?, Map<String, dynamic>> {
   /// blockchain.tweaks.subscribe
   ElectrumTweaksSubscribe({
     required this.height,
@@ -101,7 +114,7 @@ class ElectrumTweaksSubscribe
 
   /// The header of the current block chain tip.
   @override
-  ElectrumTweaksSubscribeResponse onResponse(result) {
+  ElectrumTweaksSubscribeResponse? onResponse(result) {
     return ElectrumTweaksSubscribeResponse.fromJson(result);
   }
 }
