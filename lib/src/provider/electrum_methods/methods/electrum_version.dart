@@ -8,8 +8,7 @@ class ElectrumVersion extends ElectrumRequest<List<String>, List<dynamic>> {
   /// A string identifying the connecting client software.
   final String clientName;
 
-  /// An array [protocol_min, protocol_max], each of which is a string.
-  final List<String> protocolVersion;
+  final String protocolVersion;
 
   /// blockchain.version
   @override
