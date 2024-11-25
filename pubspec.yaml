@@ -24,7 +24,7 @@ dependencies:
       url: https://github.com/cake-tech/blockchain_utils
       ref: cake-update-v3
   rxdart: ^0.28.0
-  intl: ^0.18.0
+  intl: ^0.19.0
   http: ^1.1.0
     
 
