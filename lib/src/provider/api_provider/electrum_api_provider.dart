@@ -15,6 +15,7 @@ class ElectrumApiProvider {
   final BitcoinBaseElectrumRPCService rpc;
   ElectrumApiProvider._(this.rpc);
   int _id = 0;
+  int get id => _id;
   Timer? _aliveTimer;
 
   static Future<ElectrumApiProvider> connect(Future<BitcoinBaseElectrumRPCService> rpc) async {

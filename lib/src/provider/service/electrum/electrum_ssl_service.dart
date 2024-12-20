@@ -145,10 +145,13 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
 
       if (method == null) {
         final error = response["error"];
-        if (response["error"] != null) {
+
+        if (error != null) {
           final message = error["message"];
+
           if (message != null) {
             final isFulcrum = message.toLowerCase().contains("unsupported request");
+
             final match = (isFulcrum ? RegExp(r'request:\s*(\S+)') : RegExp(r'"([^"]*)"'))
                 .firstMatch(message);
             method = match?.group(1) ?? '';
@@ -156,17 +159,17 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
         }
       }
 
-      _tasks.forEach((key, value) {
-        if (value.request.method == method) {
-          id = key;
-        }
-      });
+      if (id == null && method != null) {
+        _tasks.forEach((key, value) {
+          if (value.request.method == method) {
+            id = key;
+          }
+        });
+      }
     }
 
-    try {
-      final result = _findResult(response, _tasks[id]!.request);
-      _finish(id!, result);
-    } catch (_) {}
+    final result = _findResult(response, _tasks[id]!.request);
+    _finish(id!, result);
   }
 
   void _onMessage(List<int> event) {
@@ -182,21 +185,23 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
   }
 
   dynamic _findResult(dynamic data, ElectrumRequestDetails request) {
-    if (data["error"] != null) {
-      if (data["error"] is String) {
+    final error = data["error"];
+
+    if (error != null) {
+      if (error is String) {
         _errors[request.id] = RPCError(
-          data: data["error"],
+          data: error,
           errorCode: 0,
-          message: data["error"],
+          message: error,
           request: request.params,
         );
       } else {
-        final code = int.tryParse(((data["error"]?['code']?.toString()) ?? "0")) ?? 0;
-        final message = data["error"]?['message'] ?? "";
+        final code = int.tryParse(((error['code']?.toString()) ?? "0")) ?? 0;
+        final message = error['message'] ?? "";
         _errors[request.id] = RPCError(
           errorCode: code,
           message: message,
-          data: data["error"]?["data"],
+          data: error["data"],
           request: data["request"] ?? request.params,
         );
 
@@ -205,8 +210,6 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
           return <String, dynamic>{};
         }
       }
-
-      throw _errors[request.id]!;
     }
 
     return data["result"] ?? data["params"]?[0];
@@ -276,5 +279,5 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
     }
   }
 
-  String getErrorMessage(int id) => _errors[id]?.data ?? '';
+  RPCError? getError(int id) => _errors[id];
 }

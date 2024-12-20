@@ -5,6 +5,18 @@ import 'package:bitcoin_base/src/provider/constant/constant.dart';
 enum APIType { mempool, blockCypher }
 
 class APIConfig {
+  APIConfig({
+    required this.url,
+    required this.feeRate,
+    required this.transaction,
+    required this.transactions,
+    required this.sendTransaction,
+    required this.apiType,
+    required this.network,
+    required this.blockHeight,
+    this.block,
+  });
+
   final String url;
   final String feeRate;
   final String transaction;
@@ -13,6 +25,7 @@ class APIConfig {
   final String blockHeight;
   final APIType apiType;
   final BasedUtxoNetwork network;
+  final String? block;
 
   factory APIConfig.selectApi(APIType apiType, BasedUtxoNetwork network) {
     switch (apiType) {
@@ -34,6 +47,15 @@ class APIConfig {
 
   String getTransactionUrl(String transactionId) {
     String baseUrl = transaction;
+    return baseUrl.replaceAll("###", transactionId);
+  }
+
+  String getBlockUrl(String transactionId) {
+    if (block == null) {
+      throw const BitcoinBasePluginException("block url is not available");
+    }
+
+    String baseUrl = block!;
     return baseUrl.replaceAll("###", transactionId);
   }
 
@@ -71,14 +93,15 @@ class APIConfig {
     }
 
     return APIConfig(
-        url: "$baseUrl/addrs/###/?unspentOnly=true&includeScript=true&limit=2000",
-        feeRate: baseUrl,
-        transaction: "$baseUrl/txs/###",
-        sendTransaction: "$baseUrl/txs/push",
-        apiType: APIType.blockCypher,
-        transactions: "$baseUrl/addrs/###/full?limit=200",
-        network: network,
-        blockHeight: "$baseUrl/blocks/###");
+      url: "$baseUrl/addrs/###/?unspentOnly=true&includeScript=true&limit=2000",
+      feeRate: baseUrl,
+      transaction: "$baseUrl/txs/###",
+      sendTransaction: "$baseUrl/txs/push",
+      apiType: APIType.blockCypher,
+      transactions: "$baseUrl/addrs/###/full?limit=200",
+      network: network,
+      blockHeight: "$baseUrl/blocks/###",
+    );
   }
 
   factory APIConfig.mempool(BasedUtxoNetwork network, [String? baseUrl]) {
@@ -97,23 +120,15 @@ class APIConfig {
     }
 
     return APIConfig(
-        url: "$baseUrl/address/###/utxo",
-        feeRate: "$baseUrl/v1/fees/recommended",
-        transaction: "$baseUrl/tx/###",
-        sendTransaction: "$baseUrl/tx",
-        apiType: APIType.mempool,
-        transactions: "$baseUrl/address/###/txs",
-        network: network,
-        blockHeight: "$baseUrl/block-height/###");
+      url: "$baseUrl/address/###/utxo",
+      feeRate: "$baseUrl/fees/recommended",
+      transaction: "$baseUrl/tx/###",
+      sendTransaction: "$baseUrl/tx",
+      apiType: APIType.mempool,
+      transactions: "$baseUrl/address/###/txs",
+      network: network,
+      blockHeight: "$baseUrl/block-height/###",
+      block: "$baseUrl/block/###",
+    );
   }
-
-  APIConfig(
-      {required this.url,
-      required this.feeRate,
-      required this.transaction,
-      required this.transactions,
-      required this.sendTransaction,
-      required this.apiType,
-      required this.network,
-      required this.blockHeight});
 }

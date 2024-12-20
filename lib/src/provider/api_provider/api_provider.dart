@@ -133,6 +133,15 @@ class ApiProvider {
     }
   }
 
+  Future<Map<String, dynamic>> getBlock(
+    String blockHash, {
+    String Function(String)? tokenize,
+  }) async {
+    final apiUrl = api.getBlockUrl(blockHash);
+    final url = tokenize?.call(apiUrl) ?? apiUrl;
+    return await _getRequest<Map<String, dynamic>>(url);
+  }
+
   Future<String> getBlockHeight(int height) async {
     final url = api.getBlockHeight(height);
     final response = await _getRequest<String>(url);
