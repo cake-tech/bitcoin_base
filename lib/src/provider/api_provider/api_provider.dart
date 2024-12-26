@@ -142,6 +142,15 @@ class ApiProvider {
     return await _getRequest<Map<String, dynamic>>(url);
   }
 
+  Future<Map<String, dynamic>> getBlockTimestamp(
+    DateTime date, {
+    String Function(String)? tokenize,
+  }) async {
+    final apiUrl = api.getBlockTimestampUrl((date.millisecondsSinceEpoch / 1000).round());
+    final url = tokenize?.call(apiUrl) ?? apiUrl;
+    return await _getRequest<Map<String, dynamic>>(url);
+  }
+
   Future<String> getBlockHeight(int height) async {
     final url = api.getBlockHeight(height);
     final response = await _getRequest<String>(url);

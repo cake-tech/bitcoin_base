@@ -120,7 +120,7 @@ class P2shAddress extends LegacyAddress {
     required BitcoinDerivationInfo derivationInfo,
     required bool isChange,
     required int index,
-    P2shAddressType type = P2shAddressType.p2pkInP2sh,
+    P2shAddressType type = P2shAddressType.p2wpkhInP2sh,
   }) {
     final fullPath = derivationInfo.derivationPath
         .addElem(Bip32KeyIndex(BitcoinAddressUtils.getAccountFromChange(isChange)))

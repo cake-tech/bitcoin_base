@@ -244,7 +244,7 @@ class BtcTransaction {
     if (mwebBytes != null) {
       data.add(mwebBytes!);
     }
-    data.add([0, 0, 0, 0]);
+    data.add(locktime);
     return data.toBytes();
   }
 

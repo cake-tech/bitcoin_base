@@ -1,4 +1,5 @@
 import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
+import 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
 import 'package:bitcoin_base/src/utils/utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
@@ -47,6 +48,42 @@ class BitcoinAddressUtils {
     } catch (_) {}
 
     return '';
+  }
+
+  static BitcoinAddressType addressTypeFromStr(String address, BasedUtxoNetwork network) {
+    try {
+      return P2pkhAddress.fromAddress(address: address, network: network).type;
+    } catch (_) {}
+
+    try {
+      return P2shAddress.fromAddress(address: address, network: network).type;
+    } catch (_) {}
+
+    try {
+      return P2wpkhAddress.fromAddress(address: address, network: network).type;
+    } catch (_) {}
+
+    try {
+      return P2shAddress.fromAddress(address: address, network: network).type;
+    } catch (_) {}
+
+    try {
+      return P2wshAddress.fromAddress(address: address, network: network).type;
+    } catch (_) {}
+
+    try {
+      return P2trAddress.fromAddress(address: address, network: network).type;
+    } catch (_) {}
+
+    try {
+      return MwebAddress.fromAddress(address: address, network: network).type;
+    } catch (_) {}
+
+    try {
+      return SilentPaymentAddress.fromAddress(address).type;
+    } catch (_) {}
+
+    throw Exception('Invalid address');
   }
 
   static String scriptHash(String address, {required BasedUtxoNetwork network}) {

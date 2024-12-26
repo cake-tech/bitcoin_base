@@ -15,6 +15,7 @@ class APIConfig {
     required this.network,
     required this.blockHeight,
     this.block,
+    this.blockTimestamp,
   });
 
   final String url;
@@ -26,6 +27,7 @@ class APIConfig {
   final APIType apiType;
   final BasedUtxoNetwork network;
   final String? block;
+  final String? blockTimestamp;
 
   factory APIConfig.selectApi(APIType apiType, BasedUtxoNetwork network) {
     switch (apiType) {
@@ -50,13 +52,22 @@ class APIConfig {
     return baseUrl.replaceAll("###", transactionId);
   }
 
-  String getBlockUrl(String transactionId) {
+  String getBlockUrl(String blockHash) {
     if (block == null) {
       throw const BitcoinBasePluginException("block url is not available");
     }
 
     String baseUrl = block!;
-    return baseUrl.replaceAll("###", transactionId);
+    return baseUrl.replaceAll("###", blockHash);
+  }
+
+  String getBlockTimestampUrl(int timestamp) {
+    if (blockTimestamp == null) {
+      throw const BitcoinBasePluginException("block timestamp url is not available");
+    }
+
+    String baseUrl = blockTimestamp!;
+    return baseUrl.replaceAll("###", timestamp.toString());
   }
 
   String getTransactionsUrl(String address) {
@@ -129,6 +140,7 @@ class APIConfig {
       network: network,
       blockHeight: "$baseUrl/block-height/###",
       block: "$baseUrl/block/###",
+      blockTimestamp: "$baseUrl/mining/blocks/timestamp/###",
     );
   }
 }

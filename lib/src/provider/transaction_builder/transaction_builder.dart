@@ -124,7 +124,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
     );
 
     /// 64 byte schnorr signature length
-    const String fakeSchnorSignaturBytes =
+    const String fakeSchnorSignatureBytes =
         "01010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101";
 
     /// 71 bytes (64 byte signature, 6-7 byte Der encoding length)
@@ -134,7 +134,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
     final transaction =
         transactionBuilder.buildTransaction((trDigest, utxo, multiSigPublicKey, int sighash) {
       if (utxo.utxo.isP2tr()) {
-        return fakeSchnorSignaturBytes;
+        return fakeSchnorSignatureBytes;
       } else {
         return fakeECDSASignatureBytes;
       }
@@ -145,6 +145,94 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
     final size = transaction.hasSegwit ? transaction.getVSize() : transaction.getSize();
 
     return size;
+  }
+
+  static int estimateTransactionSizeFromTypes({
+    required List<BitcoinAddressType> inputTypes,
+    required List<BitcoinAddressType> outputTypes,
+    required BasedUtxoNetwork network,
+    String? memo,
+    bool enableRBF = false,
+  }) {
+    final fakePublicKey = ECPrivate.random().getPublic();
+    final fakeUtxos = <UtxoWithAddress>[];
+
+    for (final inputType in inputTypes) {
+      late BitcoinBaseAddress address;
+      switch (inputType) {
+        case P2pkhAddressType.p2pkh:
+          address = fakePublicKey.toP2pkhAddress();
+          break;
+        case P2shAddressType.p2pkInP2sh:
+          address = fakePublicKey.toP2wpkhInP2sh();
+          break;
+        case SegwitAddresType.p2wpkh:
+          address = fakePublicKey.toP2wpkhAddress();
+          break;
+        case P2shAddressType.p2pkhInP2sh:
+          address = fakePublicKey.toP2pkhInP2sh();
+          break;
+        case SegwitAddresType.p2wsh:
+          address = fakePublicKey.toP2wshAddress();
+          break;
+        case SegwitAddresType.p2tr:
+          address = fakePublicKey.toTaprootAddress();
+          break;
+        default:
+          throw const BitcoinBasePluginException("invalid bitcoin address type");
+      }
+
+      final utxo = UtxoWithAddress(
+        utxo: BitcoinUtxo(
+          txHash: "0" * 64,
+          vout: 0,
+          value: BigInt.from(0),
+          scriptType: inputType,
+        ),
+        ownerDetails: UtxoAddressDetails(publicKey: fakePublicKey.toHex(), address: address),
+      );
+
+      fakeUtxos.add(utxo);
+    }
+
+    final fakeOutputs = <BitcoinOutput>[];
+
+    for (final outputType in outputTypes) {
+      late BitcoinBaseAddress address;
+      switch (outputType) {
+        case P2pkhAddressType.p2pkh:
+          address = fakePublicKey.toP2pkhAddress();
+          break;
+        case P2shAddressType.p2pkInP2sh:
+          address = fakePublicKey.toP2pkhInP2sh();
+          break;
+        case SegwitAddresType.p2wpkh:
+          address = fakePublicKey.toP2wpkhAddress();
+          break;
+        case P2shAddressType.p2pkhInP2sh:
+          address = fakePublicKey.toP2pkhInP2sh();
+          break;
+        case SegwitAddresType.p2wsh:
+          address = fakePublicKey.toP2wshAddress();
+          break;
+        case SegwitAddresType.p2tr:
+        case SilentPaymentsAddresType.p2sp:
+          address = fakePublicKey.toTaprootAddress();
+          break;
+        default:
+          throw const BitcoinBasePluginException("invalid bitcoin address type");
+      }
+
+      fakeOutputs.add(BitcoinOutput(address: address, value: BigInt.from(0)));
+    }
+
+    return estimateTransactionSize(
+      utxos: fakeUtxos,
+      outputs: fakeOutputs,
+      network: network,
+      memo: memo,
+      enableRBF: enableRBF,
+    );
   }
 
   /// HasSegwit checks whether any of the unspent transaction outputs (UTXOs) in the BitcoinTransactionBuilder's
