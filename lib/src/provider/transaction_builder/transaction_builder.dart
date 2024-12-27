@@ -155,76 +155,34 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
     bool enableRBF = false,
   }) {
     final fakePublicKey = ECPrivate.random().getPublic();
-    final fakeUtxos = <UtxoWithAddress>[];
 
-    for (final inputType in inputTypes) {
-      late BitcoinBaseAddress address;
-      switch (inputType) {
-        case P2pkhAddressType.p2pkh:
-          address = fakePublicKey.toP2pkhAddress();
-          break;
-        case P2shAddressType.p2pkInP2sh:
-          address = fakePublicKey.toP2wpkhInP2sh();
-          break;
-        case SegwitAddresType.p2wpkh:
-          address = fakePublicKey.toP2wpkhAddress();
-          break;
-        case P2shAddressType.p2pkhInP2sh:
-          address = fakePublicKey.toP2pkhInP2sh();
-          break;
-        case SegwitAddresType.p2wsh:
-          address = fakePublicKey.toP2wshAddress();
-          break;
-        case SegwitAddresType.p2tr:
-          address = fakePublicKey.toTaprootAddress();
-          break;
-        default:
-          throw const BitcoinBasePluginException("invalid bitcoin address type");
-      }
+    final fakeInputAddress = _fakeAddressesFromTypes(inputTypes);
+    final fakeUtxos = fakeInputAddress
+        .map(
+          (e) => UtxoWithAddress(
+            utxo: BitcoinUtxo(
+              txHash: "0" * 64,
+              vout: 0,
+              value: BigInt.from(0),
+              scriptType: e.type,
+            ),
+            ownerDetails: UtxoAddressDetails(
+              publicKey: fakePublicKey.toHex(),
+              address: e,
+            ),
+          ),
+        )
+        .toList();
 
-      final utxo = UtxoWithAddress(
-        utxo: BitcoinUtxo(
-          txHash: "0" * 64,
-          vout: 0,
-          value: BigInt.from(0),
-          scriptType: inputType,
-        ),
-        ownerDetails: UtxoAddressDetails(publicKey: fakePublicKey.toHex(), address: address),
-      );
-
-      fakeUtxos.add(utxo);
-    }
-
-    final fakeOutputs = <BitcoinOutput>[];
-
-    for (final outputType in outputTypes) {
-      late BitcoinBaseAddress address;
-      switch (outputType) {
-        case P2pkhAddressType.p2pkh:
-          address = fakePublicKey.toP2pkhAddress();
-          break;
-        case P2shAddressType.p2pkInP2sh:
-          address = fakePublicKey.toP2pkhInP2sh();
-          break;
-        case SegwitAddresType.p2wpkh:
-          address = fakePublicKey.toP2wpkhAddress();
-          break;
-        case P2shAddressType.p2pkhInP2sh:
-          address = fakePublicKey.toP2pkhInP2sh();
-          break;
-        case SegwitAddresType.p2wsh:
-          address = fakePublicKey.toP2wshAddress();
-          break;
-        case SegwitAddresType.p2tr:
-        case SilentPaymentsAddresType.p2sp:
-          address = fakePublicKey.toTaprootAddress();
-          break;
-        default:
-          throw const BitcoinBasePluginException("invalid bitcoin address type");
-      }
-
-      fakeOutputs.add(BitcoinOutput(address: address, value: BigInt.from(0)));
-    }
+    final fakeOutputAddress = _fakeAddressesFromTypes(outputTypes);
+    final fakeOutputs = fakeOutputAddress
+        .map(
+          (e) => BitcoinOutput(
+            address: e,
+            value: BigInt.from(0),
+          ),
+        )
+        .toList();
 
     return estimateTransactionSize(
       utxos: fakeUtxos,
@@ -923,4 +881,34 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
       }
     }
   }
+}
+
+List<BitcoinBaseAddress> _fakeAddressesFromTypes(List<BitcoinAddressType> types) {
+  final fakePub = ECPrivate.random().getPublic();
+
+  return types.map((e) {
+    switch (e) {
+      case PubKeyAddressType.p2pk:
+        return fakePub.toP2pkAddress();
+      case P2pkhAddressType.p2pkh:
+        return fakePub.toP2pkhAddress();
+      case P2shAddressType.p2pkInP2sh:
+        return fakePub.toP2pkInP2sh();
+      case P2shAddressType.p2pkhInP2sh:
+        return fakePub.toP2pkhInP2sh();
+      case P2shAddressType.p2wpkhInP2sh:
+        return fakePub.toP2wpkhInP2sh();
+      case P2shAddressType.p2wshInP2sh:
+        return fakePub.toP2wshInP2sh();
+      case SegwitAddresType.p2wpkh:
+        return fakePub.toP2wpkhAddress();
+      case SegwitAddresType.p2wsh:
+        return fakePub.toP2wshAddress();
+      case SegwitAddresType.p2tr:
+      case SilentPaymentsAddresType.p2sp:
+        return fakePub.toTaprootAddress();
+      default:
+        throw const BitcoinBasePluginException("invalid bitcoin address type");
+    }
+  }).toList();
 }

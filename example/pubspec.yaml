@@ -38,7 +38,10 @@ dependencies:
   bitcoin_base: 
     path: ../
   blockchain_utils:
-    path: /home/rafael/Working/blockchain_utils/
+    git:		    
+      url: https://github.com/cake-tech/blockchain_utils		
+      ref: cake-update-v2
+
   http: ^1.2.0
 
 dev_dependencies:

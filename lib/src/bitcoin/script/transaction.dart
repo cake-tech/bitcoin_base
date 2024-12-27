@@ -147,7 +147,6 @@ class BtcTransaction {
     if (hasMweb) {
       mwebBytes = rawtx.sublist(cursor, rawtx.length - 4);
     }
-
     cursor = rawtx.length - 4;
     List<int> lock = rawtx.sublist(cursor);
     return BtcTransaction(

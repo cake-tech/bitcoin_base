@@ -34,11 +34,12 @@ class BitcoinAddressUtils {
         case P2pkhAddressType.p2pkh:
           return P2pkhAddress.fromScriptPubkey(script: script).toAddress(network);
         case P2shAddressType.p2pkInP2sh:
+        case P2shAddressType.p2pkhInP2sh:
+        case P2shAddressType.p2wpkhInP2sh:
+        case P2shAddressType.p2wshInP2sh:
           return P2shAddress.fromScriptPubkey(script: script).toAddress(network);
         case SegwitAddresType.p2wpkh:
           return P2wpkhAddress.fromScriptPubkey(script: script).toAddress(network);
-        case P2shAddressType.p2pkhInP2sh:
-          return P2shAddress.fromScriptPubkey(script: script).toAddress(network);
         case SegwitAddresType.p2wsh:
           return P2wshAddress.fromScriptPubkey(script: script).toAddress(network);
         case SegwitAddresType.p2tr:
@@ -131,7 +132,10 @@ class BitcoinAddressUtils {
     switch (scriptType) {
       case P2pkhAddressType.p2pkh:
         return BitcoinDerivationInfos.BIP44;
+      case P2shAddressType.p2pkInP2sh:
+      case P2shAddressType.p2pkhInP2sh:
       case P2shAddressType.p2wpkhInP2sh:
+      case P2shAddressType.p2wshInP2sh:
         return BitcoinDerivationInfos.BIP49;
       case SegwitAddresType.p2wpkh:
         if (isElectrum == true) {
