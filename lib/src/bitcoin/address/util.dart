@@ -21,7 +21,7 @@ class BitcoinAddressUtils {
 
     if (addressType.type == SegwitAddresType.mweb) {
       return BytesUtils.fromHexString(
-        MwebAddress.fromAddress(address: address, network: network).addressProgram,
+        MwebAddress.fromAddress(address: address).addressProgram,
       );
     }
 
@@ -77,7 +77,7 @@ class BitcoinAddressUtils {
     } catch (_) {}
 
     try {
-      return MwebAddress.fromAddress(address: address, network: network).type;
+      return MwebAddress.fromAddress(address: address).type;
     } catch (_) {}
 
     try {

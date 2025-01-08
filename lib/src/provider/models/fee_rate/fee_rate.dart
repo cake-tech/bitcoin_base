@@ -34,10 +34,10 @@ class BitcoinFeeRate {
   /// low fee rate in satoshis per kilobyte
   final BitcoinFee low;
 
-  /// only mnenpool api
+  /// only mempool api
   final BitcoinFee? economyFee;
 
-  /// only mnenpool api
+  /// only mempool api
   final BitcoinFee? minimumFee;
 
   BitcoinFee _feeRate(BitcoinFeeRateType feeRateType) {

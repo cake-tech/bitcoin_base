@@ -1,4 +1,3 @@
-import 'package:bitcoin_base/src/bitcoin/amount/amount.dart';
 import 'package:bitcoin_base/src/provider/api_provider.dart';
 import 'dart:async';
 
@@ -50,15 +49,10 @@ class ElectrumApiProvider {
       final topDoubleString = await request(ElectrumEstimateFee(numberOfBlock: 1));
       final middleDoubleString = await request(ElectrumEstimateFee(numberOfBlock: 5));
       final bottomDoubleString = await request(ElectrumEstimateFee(numberOfBlock: 10));
-      final top =
-          (BitcoinAmountUtils.stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000)
-              .round();
-      final middle =
-          (BitcoinAmountUtils.stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000)
-              .round();
-      final bottom =
-          (BitcoinAmountUtils.stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000)
-              .round();
+
+      final top = (topDoubleString.toInt() / 1000).round();
+      final middle = (middleDoubleString.toInt() / 1000).round();
+      final bottom = (bottomDoubleString.toInt() / 1000).round();
 
       return [bottom, middle, top];
     } catch (_) {

@@ -201,7 +201,7 @@ class P2wshAddress extends SegwitAddress {
 class MwebAddress extends SegwitAddress {
   static RegExp get regex => RegExp(r'(ltc|t)mweb1q[ac-hj-np-z02-9]{90,120}');
 
-  factory MwebAddress.fromAddress({required String address, required BasedUtxoNetwork network}) {
+  factory MwebAddress.fromAddress({required String address}) {
     final decoded = Bech32DecoderBase.decodeBech32(
         address,
         Bech32Const.separator,
