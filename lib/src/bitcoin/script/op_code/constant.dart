@@ -3,6 +3,15 @@
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names, equal_keys_in_map, camel_case_types
 
 class BitcoinOpCodeConst {
+  static const int opPushData1 = 0x4c;
+  static const int opPushData2 = 0x4d;
+  static const int opPushData4 = 0x4e;
+  static bool isOpPushData(int byte) {
+    return byte == BitcoinOpCodeConst.opPushData1 ||
+        byte == BitcoinOpCodeConst.opPushData2 ||
+        byte == BitcoinOpCodeConst.opPushData4;
+  }
+
   static const OP_0 = "OP_0";
   static const OP_FALSE = "OP_FALSE";
   static const OP_PUSHDATA1 = "OP_PUSHDATA1";
@@ -371,9 +380,9 @@ class BitcoinOpCodeConst {
   static const int NEGATIVE_SATOSHI = -1;
 
   /// Bitcoin address types
-  static const String P2PKH_ADDRESS = "p2pkh";
-  static const String P2SH_ADDRESS = "p2sh";
-  static const String P2WPKH_ADDRESS_V0 = "p2wpkhv0";
-  static const String P2WSH_ADDRESS_V0 = "p2wshv0";
-  static const String P2TR_ADDRESS_V1 = "p2trv1";
+  static const String P2PKH_ADDRESS = 'p2pkh';
+  static const String P2SH_ADDRESS = 'p2sh';
+  static const String P2WPKH_ADDRESS_V0 = 'p2wpkhv0';
+  static const String P2WSH_ADDRESS_V0 = 'p2wshv0';
+  static const String P2TR_ADDRESS_V1 = 'p2trv1';
 }

@@ -19,7 +19,7 @@ class BitcoinAddressUtils {
       {required String address, required BasedUtxoNetwork network}) {
     final addressType = RegexUtils.addressTypeFromStr(address, network);
 
-    if (addressType.type == SegwitAddresType.mweb) {
+    if (addressType.type == SegwitAddressType.mweb) {
       return BytesUtils.fromHexString(
         MwebAddress.fromAddress(address: address).addressProgram,
       );
@@ -38,11 +38,11 @@ class BitcoinAddressUtils {
         case P2shAddressType.p2wpkhInP2sh:
         case P2shAddressType.p2wshInP2sh:
           return P2shAddress.fromScriptPubkey(script: script).toAddress(network);
-        case SegwitAddresType.p2wpkh:
+        case SegwitAddressType.p2wpkh:
           return P2wpkhAddress.fromScriptPubkey(script: script).toAddress(network);
-        case SegwitAddresType.p2wsh:
+        case SegwitAddressType.p2wsh:
           return P2wshAddress.fromScriptPubkey(script: script).toAddress(network);
-        case SegwitAddresType.p2tr:
+        case SegwitAddressType.p2tr:
           return P2trAddress.fromScriptPubkey(script: script).toAddress(network);
         default:
       }
@@ -109,15 +109,15 @@ class BitcoinAddressUtils {
     } else if (type is P2shAddress) {
       return P2shAddressType.p2wpkhInP2sh;
     } else if (type is P2wshAddress) {
-      return SegwitAddresType.p2wsh;
+      return SegwitAddressType.p2wsh;
     } else if (type is P2trAddress) {
-      return SegwitAddresType.p2tr;
+      return SegwitAddressType.p2tr;
     } else if (type is MwebAddress) {
-      return SegwitAddresType.mweb;
+      return SegwitAddressType.mweb;
     } else if (type is SilentPaymentsAddresType) {
       return SilentPaymentsAddresType.p2sp;
     } else {
-      return SegwitAddresType.p2wpkh;
+      return SegwitAddressType.p2wpkh;
     }
   }
 
@@ -137,17 +137,17 @@ class BitcoinAddressUtils {
       case P2shAddressType.p2wpkhInP2sh:
       case P2shAddressType.p2wshInP2sh:
         return BitcoinDerivationInfos.BIP49;
-      case SegwitAddresType.p2wpkh:
+      case SegwitAddressType.p2wpkh:
         if (isElectrum == true) {
           return BitcoinDerivationInfos.ELECTRUM;
         } else {
           return BitcoinDerivationInfos.BIP84;
         }
-      case SegwitAddresType.p2tr:
+      case SegwitAddressType.p2tr:
         return BitcoinDerivationInfos.BIP86;
-      case SegwitAddresType.mweb:
+      case SegwitAddressType.mweb:
         return BitcoinDerivationInfos.BIP86;
-      case SegwitAddresType.p2wsh:
+      case SegwitAddressType.p2wsh:
         return BitcoinDerivationInfos.BIP84;
       default:
         throw Exception("Derivation not available for $scriptType");

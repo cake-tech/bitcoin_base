@@ -1,11 +1,11 @@
-import 'package:bitcoin_base/src/provider/service/electrum/methods.dart';
-import 'package:bitcoin_base/src/provider/service/electrum/params.dart';
+import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
+
 
 /// Return the confirmed and unconfirmed balances of a script hash.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumGetScriptHashBalance
+class ElectrumRequestGetScriptHashBalance
     extends ElectrumRequest<Map<String, dynamic>, Map<String, dynamic>> {
-  ElectrumGetScriptHashBalance({required this.scriptHash});
+  ElectrumRequestGetScriptHashBalance({required this.scriptHash});
 
   /// The script hash as a hexadecimal string (BitcoinBaseAddress.pubKeyHash())
   final String scriptHash;

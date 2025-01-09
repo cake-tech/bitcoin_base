@@ -1,19 +1,20 @@
 import 'dart:convert';
 import 'package:bitcoin_base/src/provider/models/models.dart';
-import 'package:bitcoin_base/src/provider/service/http/http_service.dart';
+import 'package:bitcoin_base/src/provider/services/explorer.dart';
 import 'package:bitcoin_base/src/models/network.dart';
 import 'package:blockchain_utils/utils/string/string.dart';
 
 class ApiProvider {
   ApiProvider({required this.api, Map<String, String>? header, required this.service})
-      : _header = header ?? {"Content-Type": "application/json"};
+      : _header = header ?? {'Content-Type': 'application/json'};
   factory ApiProvider.fromMempool(
-    BasedUtxoNetwork network, {
+    BasedUtxoNetwork network,
+    ApiService service, {
     Map<String, String>? header,
     String? baseUrl,
   }) {
     final api = APIConfig.mempool(network, baseUrl);
-    return ApiProvider(api: api, header: header, service: BitcoinApiService());
+    return ApiProvider(api: api, header: header, service: service);
   }
   factory ApiProvider.fromBlocCypher(BasedUtxoNetwork network, ApiService service,
       {Map<String, String>? header}) {
@@ -30,20 +31,20 @@ class ApiProvider {
     return response;
   }
 
-  Future<T> _postReqiest<T>(String url, Object? data) async {
+  Future<T> _postRequest<T>(String url, Object? data) async {
     final response = await service.post<T>(url, body: data, headers: _header);
     return response;
   }
 
   Future<Map<String, dynamic>> testmempool(List<dynamic> params) async {
-    final Map<String, dynamic> data = {
-      "jsonrpc": "2.0",
-      "method": "testmempoolaccept",
-      "id": DateTime.now().millisecondsSinceEpoch.toString(),
-      "params": params
+    final data = <String, dynamic>{
+      'jsonrpc': '2.0',
+      'method': 'testmempoolaccept',
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'params': params
     };
-    final response = await _postReqiest<Map<String, dynamic>>(
-        "https://btc.getblock.io/786c97b8-f53f-427b-80f7-9af7bd5bdb84/testnet/", json.encode(data));
+    final response = await _postRequest<Map<String, dynamic>>(
+        'https://btc.getblock.io/786c97b8-f53f-427b-80f7-9af7bd5bdb84/testnet/', json.encode(data));
     return response;
   }
 
@@ -68,14 +69,14 @@ class ApiProvider {
 
     switch (api.apiType) {
       case APIType.mempool:
-        final response = await _postReqiest<String>(url, txDigest);
+        final response = await _postRequest<String>(url, txDigest);
         return response;
       default:
-        final Map<String, dynamic> digestData = {"tx": txDigest};
-        final response = await _postReqiest<Map<String, dynamic>>(url, json.encode(digestData));
+        final digestData = <String, dynamic>{'tx': txDigest};
+        final response = await _postRequest<Map<String, dynamic>>(url, json.encode(digestData));
         BlockCypherTransaction? tr;
-        if (response["tx"] != null) {
-          tr = BlockCypherTransaction.fromJson(response["tx"]);
+        if (response['tx'] != null) {
+          tr = BlockCypherTransaction.fromJson(response['tx']);
         }
 
         tr ??= BlockCypherTransaction.fromJson(response);
@@ -119,8 +120,8 @@ class ApiProvider {
         return transactions;
       default:
         if (response is Map) {
-          if (response.containsKey("txs")) {
-            final transactions = (response["txs"] as List)
+          if (response.containsKey('txs')) {
+            final transactions = (response['txs'] as List)
                 .map((e) => BlockCypherTransaction.fromJson(e) as T)
                 .toList();
             return transactions;
@@ -159,7 +160,7 @@ class ApiProvider {
         return response;
       default:
         final toJson = StringUtils.toJson<Map<String, dynamic>>(response);
-        return toJson["hash"];
+        return toJson['hash'];
     }
   }
 

@@ -21,7 +21,7 @@ abstract class LegacyAddress extends BitcoinBaseAddress {
     );
 
     if (decode == null) {
-      throw BitcoinBasePluginException("Invalid ${network.conf.coinName} address");
+      throw DartBitcoinPluginException('Invalid ${network.conf.coinName} address');
     }
 
     _addressProgram = decode;
@@ -40,12 +40,12 @@ abstract class LegacyAddress extends BitcoinBaseAddress {
         _signature = script.findScriptParam(0);
         break;
       case P2pkhAddressType.p2pkh:
-        if (script.script.length != 2) throw ArgumentError('Input is invalid');
+        if (script.script.length != 2) throw DartBitcoinPluginException('Input is invalid');
 
         _signature = script.findScriptParam(0);
 
         if (!isCanonicalScriptSignature(BytesUtils.fromHexString(_signature!))) {
-          throw ArgumentError('Input has invalid signature');
+          throw DartBitcoinPluginException('Input has invalid signature');
         }
 
         _pubkey = ECPublic.fromHex(script.findScriptParam(1));
@@ -80,7 +80,7 @@ abstract class LegacyAddress extends BitcoinBaseAddress {
   @override
   String toAddress(BasedUtxoNetwork network) {
     if (!network.supportedAddress.contains(type)) {
-      throw BitcoinBasePluginException("network does not support ${type.value} address");
+      throw DartBitcoinPluginException("network does not support ${type.value} address");
     }
 
     return _BitcoinAddressUtils.legacyToAddress(
@@ -150,7 +150,7 @@ class P2shAddress extends LegacyAddress {
     type = P2shAddressType.p2pkInP2sh,
   }) {
     if (script.getAddressType() is! P2shAddressType) {
-      throw ArgumentError("Invalid scriptPubKey");
+      throw DartBitcoinPluginException("Invalid scriptPubKey");
     }
 
     return P2shAddress.fromHash160(h160: script.findScriptParam(1), type: type);
@@ -182,7 +182,7 @@ class P2pkhAddress extends LegacyAddress {
     P2pkhAddressType type = P2pkhAddressType.p2pkh,
   }) {
     if (script.getAddressType() != P2pkhAddressType.p2pkh) {
-      throw ArgumentError("Invalid scriptPubKey");
+      throw DartBitcoinPluginException("Invalid scriptPubKey");
     }
 
     return P2pkhAddress.fromHash160(h160: script.findScriptParam(2), type: type);
@@ -248,7 +248,7 @@ class P2pkAddress extends LegacyAddress {
 
   factory P2pkAddress.fromScriptPubkey({required Script script}) {
     if (script.getAddressType() is! PubKeyAddressType) {
-      throw ArgumentError("Invalid scriptPubKey");
+      throw DartBitcoinPluginException("Invalid scriptPubKey");
     }
 
     return P2pkAddress.fromPubkey(pubkey: ECPublic.fromHex(script.script[0]));

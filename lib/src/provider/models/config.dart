@@ -5,19 +5,6 @@ import 'package:bitcoin_base/src/provider/constant/constant.dart';
 enum APIType { mempool, blockCypher }
 
 class APIConfig {
-  APIConfig({
-    required this.url,
-    required this.feeRate,
-    required this.transaction,
-    required this.transactions,
-    required this.sendTransaction,
-    required this.apiType,
-    required this.network,
-    required this.blockHeight,
-    this.block,
-    this.blockTimestamp,
-  });
-
   final String url;
   final String feeRate;
   final String transaction;
@@ -39,8 +26,8 @@ class APIConfig {
   }
 
   String getUtxoUrl(String address) {
-    String baseUrl = url;
-    return baseUrl.replaceAll("###", address);
+    final baseUrl = url;
+    return baseUrl.replaceAll('###', address);
   }
 
   String getFeeApiUrl() {
@@ -48,13 +35,13 @@ class APIConfig {
   }
 
   String getTransactionUrl(String transactionId) {
-    String baseUrl = transaction;
-    return baseUrl.replaceAll("###", transactionId);
+    final baseUrl = transaction;
+    return baseUrl.replaceAll('###', transactionId);
   }
 
   String getBlockUrl(String blockHash) {
     if (block == null) {
-      throw const BitcoinBasePluginException("block url is not available");
+      throw const DartBitcoinPluginException("block url is not available");
     }
 
     String baseUrl = block!;
@@ -63,7 +50,7 @@ class APIConfig {
 
   String getBlockTimestampUrl(int timestamp) {
     if (blockTimestamp == null) {
-      throw const BitcoinBasePluginException("block timestamp url is not available");
+      throw const DartBitcoinPluginException("block timestamp url is not available");
     }
 
     String baseUrl = blockTimestamp!;
@@ -71,13 +58,13 @@ class APIConfig {
   }
 
   String getTransactionsUrl(String address) {
-    String baseUrl = transactions;
-    return baseUrl.replaceAll("###", address);
+    final baseUrl = transactions;
+    return baseUrl.replaceAll('###', address);
   }
 
   String getBlockHeight(int blockHaight) {
-    String baseUrl = blockHeight;
-    return baseUrl.replaceAll("###", "$blockHaight");
+    final baseUrl = blockHeight;
+    return baseUrl.replaceAll('###', '$blockHaight');
   }
 
   factory APIConfig.fromBlockCypher(BasedUtxoNetwork network) {
@@ -99,8 +86,8 @@ class APIConfig {
         baseUrl = BtcApiConst.blockCypherLitecoinBaseUri;
         break;
       default:
-        throw BitcoinBasePluginException(
-            "blockcypher does not support ${network.conf.coinName.name}, u must use your own provider");
+        throw DartBitcoinPluginException(
+            'blockcypher does not support ${network.conf.coinName.name}, u must use your own provider');
     }
 
     return APIConfig(
@@ -125,7 +112,7 @@ class APIConfig {
           baseUrl = BtcApiConst.mempoolBaseURL;
           break;
         default:
-          throw BitcoinBasePluginException(
+          throw DartBitcoinPluginException(
               "mempool does not support ${network.conf.coinName.name}");
       }
     }
@@ -143,4 +130,17 @@ class APIConfig {
       blockTimestamp: "$baseUrl/mining/blocks/timestamp/###",
     );
   }
+
+  APIConfig({
+    required this.url,
+    required this.feeRate,
+    required this.transaction,
+    required this.transactions,
+    required this.sendTransaction,
+    required this.apiType,
+    required this.network,
+    required this.blockHeight,
+    this.block,
+    this.blockTimestamp,
+  });
 }

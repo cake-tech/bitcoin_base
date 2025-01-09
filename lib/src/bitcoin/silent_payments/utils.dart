@@ -75,13 +75,13 @@ ECPublic? getPubkeyFromInput(VinInfo vin) {
       break;
     case P2shAddressType.p2pkhInP2sh:
       final redeemScript = vin.scriptSig.sublist(1);
-      if (Script.fromRaw(byteData: redeemScript).getAddressType() == SegwitAddresType.p2wpkh) {
+      if (Script.fromRaw(bytes: redeemScript).getAddressType() == SegwitAddressType.p2wpkh) {
         return ECPublic.fromBytes(vin.txinwitness.scriptWitness.stack.last.buffer.asUint8List());
       }
       break;
-    case SegwitAddresType.p2wpkh:
+    case SegwitAddressType.p2wpkh:
       return ECPublic.fromBytes(vin.txinwitness.scriptWitness.stack.last.buffer.asUint8List());
-    case SegwitAddresType.p2tr:
+    case SegwitAddressType.p2tr:
       final witnessStack = vin.txinwitness.scriptWitness.stack;
       if (witnessStack.isNotEmpty) {
         if (witnessStack.length > 1 && witnessStack.last.buffer.asUint8List()[0] == 0x50) {

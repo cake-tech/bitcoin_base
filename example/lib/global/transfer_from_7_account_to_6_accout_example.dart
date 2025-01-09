@@ -15,15 +15,14 @@ import 'package:example/services_examples/electrum/electrum_ssl_service.dart';
 void main() async {
   /// connect to electrum service with websocket
   /// please see `services_examples` folder for how to create electrum websocket service
-  final service =
-      await ElectrumSSLService.connect("testnet.aranguren.org:51002");
+  final service = await ElectrumSSLService.connect("testnet.aranguren.org:51002");
 
   /// create provider with service
-  final provider = ElectrumApiProvider(service);
+  final provider = ElectrumProvider(service);
 
   /// spender details
-  final privateKey = ECPrivate.fromHex(
-      "76257aafc9b954351c7f6445b2d07277f681a5e83d515a1f32ebf54989c2af4f");
+  final privateKey =
+      ECPrivate.fromHex("76257aafc9b954351c7f6445b2d07277f681a5e83d515a1f32ebf54989c2af4f");
   final examplePublicKey = privateKey.getPublic();
   final spender1 = examplePublicKey.toP2pkhAddress();
   final spender2 = examplePublicKey.toP2wpkhAddress();
@@ -47,17 +46,16 @@ void main() async {
 
   /// loop each spenders address and get utxos and add to accountsUtxos
   for (final i in spenders) {
-    /// Reads all UTXOs (Unspent Transaction outputs) associated with the account
-    final elctrumUtxos = await provider
-        .request(ElectrumScriptHashListUnspent(scriptHash: i.pubKeyHash()));
+    /// Reads all UTXOs (Unspent Transaction Outputs) associated with the account
+    final electrumUtxos =
+        await provider.request(ElectrumRequestScriptHashListUnspent(scriptHash: i.pubKeyHash()));
 
     /// Converts all UTXOs to a list of UtxoWithAddress, containing UTXO information along with address details.
     /// read spender utxos
-    final List<UtxoWithAddress> utxos = elctrumUtxos
+    final List<UtxoWithAddress> utxos = electrumUtxos
         .map((e) => UtxoWithAddress(
             utxo: e.toUtxo(i.type),
-            ownerDetails: UtxoAddressDetails(
-                publicKey: examplePublicKey.toHex(), address: i)))
+            ownerDetails: UtxoAddressDetails(publicKey: examplePublicKey.toHex(), address: i)))
         .toList();
     accountsUtxos.addAll(utxos);
   }
@@ -68,8 +66,8 @@ void main() async {
     return;
   }
 
-  final examplePublicKey2 = ECPublic.fromHex(
-      "02d82c9860e36f15d7b72aa59e29347f951277c21cd4d34822acdeeadbcff8a546");
+  final examplePublicKey2 =
+      ECPublic.fromHex("02d82c9860e36f15d7b72aa59e29347f951277c21cd4d34822acdeeadbcff8a546");
 
   /// When creating outputs with an address, I utilize the public key. Alternatively, an address class, such as
   /// P2pkhAddress.fromAddress(address: ".....", network: network);
@@ -77,28 +75,21 @@ void main() async {
   /// ....
   final List<BitcoinOutput> outputs = [
     BitcoinOutput(
-        address: examplePublicKey2.toP2wpkhAddress(),
-        value: BtcUtils.toSatoshi("0.00001")),
+        address: examplePublicKey2.toP2wpkhAddress(), value: BtcUtils.toSatoshi("0.00001")),
     BitcoinOutput(
-        address: examplePublicKey2.toTaprootAddress(),
-        value: BtcUtils.toSatoshi("0.00001")),
+        address: examplePublicKey2.toTaprootAddress(), value: BtcUtils.toSatoshi("0.00001")),
+    BitcoinOutput(address: examplePublicKey2.toP2pkhInP2sh(), value: BtcUtils.toSatoshi("0.00001")),
+    BitcoinOutput(address: examplePublicKey2.toP2pkInP2sh(), value: BtcUtils.toSatoshi("0.00001")),
     BitcoinOutput(
-        address: examplePublicKey2.toP2pkhInP2sh(),
-        value: BtcUtils.toSatoshi("0.00001")),
-    BitcoinOutput(
-        address: examplePublicKey2.toP2pkInP2sh(),
-        value: BtcUtils.toSatoshi("0.00001")),
-    BitcoinOutput(
-        address: examplePublicKey2.toP2wshAddress(),
-        value: BtcUtils.toSatoshi("0.00001")),
+        address: examplePublicKey2.toP2wshAddress(), value: BtcUtils.toSatoshi("0.00001")),
   ];
 
   /// OP_RETURN
   const String memo = "https://github.com/mrtnetwork";
 
   /// SUM OF OUTOUT AMOUNTS
-  final sumOfOutputs = outputs.fold(
-      BigInt.zero, (previousValue, element) => previousValue + element.value);
+  final sumOfOutputs =
+      outputs.fold(BigInt.zero, (previousValue, element) => previousValue + element.value);
 
   /// Estimate transaction size
   int transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
@@ -107,8 +98,7 @@ void main() async {
         ...outputs,
 
         /// I add more output for change value to get correct transaction size
-        BitcoinOutput(
-            address: examplePublicKey2.toP2pkhAddress(), value: BigInt.zero)
+        BitcoinOutput(address: examplePublicKey2.toP2pkhAddress(), value: BigInt.zero)
       ],
 
       /// network
@@ -121,11 +111,15 @@ void main() async {
       enableRBF: true);
 
   /// get network fee esmtimate (fee per kilobyte)
-  final networkEstimate = await provider.request(ElectrumEstimateFee());
+  final networkEstimate = await provider.request(ElectrumRequestEstimateFee());
+
+  /// the daemon does not have enough information to make an estimate
+  if (networkEstimate == null) {
+    return;
+  }
 
   /// Convert kilobytes to bytes, multiply by the transaction size, and the result yields the transaction fees.
-  final fee =
-      BigInt.from(transactionSize) * (networkEstimate ~/ BigInt.from(1000));
+  final fee = BigInt.from(transactionSize) * (networkEstimate ~/ BigInt.from(1000));
 
   /// change value
   final changeValue = sumOfUtxo - (sumOfOutputs + fee);
@@ -135,8 +129,7 @@ void main() async {
   }
   //// if we have change value we back amount to account
   if (changeValue > BigInt.zero) {
-    outputs.add(BitcoinOutput(
-        address: examplePublicKey2.toP2pkhAddress(), value: changeValue));
+    outputs.add(BitcoinOutput(address: examplePublicKey2.toP2pkhAddress(), value: changeValue));
   }
 
   /// create transaction builder
@@ -151,9 +144,8 @@ void main() async {
       enableRBF: true);
 
   /// create transaction and sign it
-  final transaction =
-      builder.buildTransaction((trDigest, utxo, publicKey, sighash) {
-    if (utxo.utxo.isP2tr()) {
+  final transaction = builder.buildTransaction((trDigest, utxo, publicKey, sighash) {
+    if (utxo.utxo.isP2tr) {
       return privateKey.signTapRoot(trDigest, sighash: sighash);
     }
     return privateKey.signInput(trDigest, sigHash: sighash);
@@ -166,7 +158,7 @@ void main() async {
   final raw = transaction.serialize();
 
   /// send to network
-  await provider.request(ElectrumBroadCastTransaction(transactionRaw: raw));
+  await provider.request(ElectrumRequestBroadCastTransaction(transactionRaw: raw));
 
   /// Once completed, we verify the status by checking the mempool or using another explorer to review the transaction details.
   /// https://mempool.space/testnet/tx/70cf664bba4b5ac9edc6133e9c6891ffaf8a55eaea9d2ac99aceead1c3db8899

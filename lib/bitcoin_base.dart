@@ -4,30 +4,38 @@
 /// including spending transactions, Bitcoin address management,
 ///  Bitcoin Schnorr signatures, BIP-39 mnemonic phrase generation,
 /// hierarchical deterministic (HD) wallet derivation, and Web3 Secret Storage Definition.
-library bitcoin_base;
+library;
 
-export 'package:bitcoin_base/src/bitcoin/address/address.dart';
+export 'src/bitcoin/address/address.dart';
 
-export 'package:bitcoin_base/src/bitcoin/address/util.dart';
+export 'src/bitcoin/address/util.dart';
 
-export 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
+export 'src/bitcoin/script/scripts.dart';
 
-export 'package:bitcoin_base/src/bitcoin/amount/amount.dart';
+export 'src/bitcoin/amount/amount.dart';
 
-export 'package:bitcoin_base/src/crypto/crypto.dart';
+export 'src/crypto/crypto.dart';
 
-export 'package:bitcoin_base/src/models/network.dart';
+export 'src/bitcoin/script/scripts.dart';
 
-export 'package:bitcoin_base/src/provider/api_provider.dart';
+export 'src/crypto/crypto.dart';
 
-export 'package:bitcoin_base/src/provider/models/electrum/electrum_utxo.dart';
+export 'src/models/network.dart';
 
-export 'package:bitcoin_base/src/utils/utils.dart';
+export 'src/provider/api_provider.dart';
 
-export 'package:bitcoin_base/src/cash_token/cash_token.dart';
+export 'src/provider/models/electrum/electrum_utxo.dart';
 
-export 'package:bitcoin_base/src/bitcoin_cash/bitcoin_cash.dart';
+export 'src/utils/utils.dart';
 
-export 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
+export 'src/utils/btc_utils.dart';
 
-export 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';
+export 'src/cash_token/cash_token.dart';
+
+export 'src/bitcoin_cash/bitcoin_cash.dart';
+
+export 'src/transaction_builder/builder.dart';
+
+export 'src/bitcoin/silent_payments/silent_payments.dart';
+
+export 'src/bitcoin/script/op_code/constant.dart';

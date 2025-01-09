@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 import 'package:blockchain_utils/exception/exceptions.dart';
 
 class ElectrumSSLService implements BitcoinBaseElectrumRPCService {

@@ -1,6 +1,7 @@
-import 'package:bitcoin_base/src/provider/api_provider.dart';
 import 'dart:async';
 
+import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 import 'package:rxdart/rxdart.dart';
 
 typedef ListenerCallback<T> = StreamSubscription<T> Function(
@@ -46,13 +47,13 @@ class ElectrumApiProvider {
 
   Future<List<int>> getFeeRates() async {
     try {
-      final topDoubleString = await request(ElectrumEstimateFee(numberOfBlock: 1));
-      final middleDoubleString = await request(ElectrumEstimateFee(numberOfBlock: 5));
-      final bottomDoubleString = await request(ElectrumEstimateFee(numberOfBlock: 10));
+      final topDoubleString = await request(ElectrumRequestEstimateFee(numberOfBlock: 1));
+      final middleDoubleString = await request(ElectrumRequestEstimateFee(numberOfBlock: 5));
+      final bottomDoubleString = await request(ElectrumRequestEstimateFee(numberOfBlock: 10));
 
-      final top = (topDoubleString.toInt() / 1000).round();
-      final middle = (middleDoubleString.toInt() / 1000).round();
-      final bottom = (bottomDoubleString.toInt() / 1000).round();
+      final top = (topDoubleString!.toInt() / 1000).round();
+      final middle = (middleDoubleString!.toInt() / 1000).round();
+      final bottom = (bottomDoubleString!.toInt() / 1000).round();
 
       return [bottom, middle, top];
     } catch (_) {
@@ -67,7 +68,7 @@ class ElectrumApiProvider {
 
   void ping() async {
     try {
-      return await request(ElectrumPing());
+      return await request(ElectrumRequestPing());
     } catch (_) {}
   }
 }

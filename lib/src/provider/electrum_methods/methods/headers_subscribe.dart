@@ -17,7 +17,7 @@ class ElectrumHeaderResponse {
 
 /// Subscribe to receive block headers when a new block is found.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumHeaderSubscribe
+class ElectrumRequestHeaderSubscribe
     extends ElectrumRequest<ElectrumHeaderResponse, Map<String, dynamic>> {
   /// blockchain.headers.subscribe
   @override

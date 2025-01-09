@@ -1,41 +1,41 @@
+import 'dart:typed_data';
+
+import 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:blockchain_utils/utils/utils.dart';
 
 List<int> opPushData(String hexData) {
-  final List<int> dataBytes = BytesUtils.fromHexString(hexData);
-  if (dataBytes.length < 0x4c) {
-    return List<int>.from([dataBytes.length]) + dataBytes;
+  final dataBytes = BytesUtils.fromHexString(hexData);
+  if (dataBytes.length < BitcoinOpCodeConst.opPushData1) {
+    return [dataBytes.length, ...dataBytes];
   } else if (dataBytes.length < mask8) {
-    return List<int>.from([0x4c]) +
-        List<int>.from([dataBytes.length]) +
-        dataBytes;
+    return [BitcoinOpCodeConst.opPushData1, dataBytes.length, ...dataBytes];
   } else if (dataBytes.length < mask16) {
-    var lengthBytes = List<int>.filled(2, 0);
-
-    writeUint16LE(dataBytes.length, lengthBytes);
-    return List<int>.from([0x4d, ...lengthBytes, ...dataBytes]);
+    final lengthBytes =
+        IntUtils.toBytes(dataBytes.length, length: 2, byteOrder: Endian.little);
+    return [BitcoinOpCodeConst.opPushData2, ...lengthBytes, ...dataBytes];
   } else if (dataBytes.length < mask32) {
-    var lengthBytes = List<int>.filled(4, 0);
-    writeUint32LE(lengthBytes.length, lengthBytes);
-    return List<int>.from([0x4e, ...lengthBytes, ...dataBytes]);
+    final lengthBytes =
+        IntUtils.toBytes(dataBytes.length, length: 4, byteOrder: Endian.little);
+    return [BitcoinOpCodeConst.opPushData4, ...lengthBytes, ...dataBytes];
   } else {
-    throw const BitcoinBasePluginException(
-        "Data too large. Cannot push into script");
+    throw const DartBitcoinPluginException(
+        'Data too large. Cannot push into script');
   }
 }
 
 List<int> pushInteger(int integer) {
   if (integer < 0) {
-    throw const BitcoinBasePluginException(
+    throw const DartBitcoinPluginException(
         'Integer is currently required to be positive.');
   }
 
   /// Calculate the number of bytes required to represent the integer
-  int numberOfBytes = (integer.bitLength + 7) ~/ 8;
+  final numberOfBytes = (integer.bitLength + 7) ~/ 8;
 
   /// Convert to little-endian bytes
-  List<int> integerBytes = List<int>.filled(numberOfBytes, 0);
-  for (int i = 0; i < numberOfBytes; i++) {
+  var integerBytes = List<int>.filled(numberOfBytes, 0);
+  for (var i = 0; i < numberOfBytes; i++) {
     integerBytes[i] = (integer >> (i * 8)) & mask8;
   }
 

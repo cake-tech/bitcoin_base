@@ -5,13 +5,15 @@ import 'package:bitcoin_base/src/models/network.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:blockchain_utils/crypto/crypto/cdsa/point/base.dart';
 
+typedef PublicKeyType = PubKeyModes;
+
 class ECPublic {
   final Bip32PublicKey publicKey;
   const ECPublic._(this.publicKey);
 
   factory ECPublic.fromBip32(Bip32PublicKey publicKey) {
     if (publicKey.curveType != EllipticCurveTypes.secp256k1) {
-      throw const BitcoinBasePluginException("invalid public key curve for bitcoin");
+      throw const DartBitcoinPluginException('invalid public key curve for bitcoin');
     }
     return ECPublic._(publicKey);
   }
@@ -30,8 +32,8 @@ class ECPublic {
 
   /// toHex converts the ECPublic key to a hex-encoded string.
   /// If 'compressed' is true, the key is in compressed format.
-  String toHex({bool compressed = true}) {
-    if (compressed) {
+  String toHex({PublicKeyType mode = PublicKeyType.compressed}) {
+    if (mode.isCompressed) {
       return BytesUtils.toHexString(publicKey.compressed);
     }
     return BytesUtils.toHexString(publicKey.uncompressed);
@@ -39,58 +41,71 @@ class ECPublic {
 
   /// _toHash160 computes the RIPEMD160 hash of the ECPublic key.
   /// If 'compressed' is true, the key is in compressed format.
-  List<int> _toHash160({bool compressed = true}) {
-    final bytes = BytesUtils.fromHexString(toHex(compressed: compressed));
+  List<int> _toHash160({PublicKeyType mode = PublicKeyType.compressed}) {
+    final bytes = BytesUtils.fromHexString(toHex(mode: mode));
     return QuickCrypto.hash160(bytes);
   }
 
   /// toHash160 computes the RIPEMD160 hash of the ECPublic key.
   /// If 'compressed' is true, the key is in compressed format.
-  String toHash160({bool compressed = true}) {
-    final bytes = BytesUtils.fromHexString(toHex(compressed: compressed));
+  String toHash160({PublicKeyType mode = PublicKeyType.compressed}) {
+    final bytes = BytesUtils.fromHexString(toHex(mode: mode));
     return BytesUtils.toHexString(QuickCrypto.hash160(bytes));
   }
 
   /// toP2pkhAddress generates a P2PKH (Pay-to-Public-Key-Hash) address from the ECPublic key.
   /// If 'compressed' is true, the key is in compressed format.
-  P2pkhAddress toP2pkhAddress({bool compressed = true}) {
-    final h16 = _toHash160(compressed: compressed);
+  P2pkhAddress toAddress({PublicKeyType mode = PublicKeyType.compressed}) {
+    final h16 = _toHash160(mode: mode);
     final toHex = BytesUtils.toHexString(h16);
     return P2pkhAddress.fromHash160(h160: toHex);
   }
 
+  P2pkhAddress toP2pkhAddress({PublicKeyType mode = PublicKeyType.compressed}) {
+    return toAddress(mode: mode);
+  }
+
   /// toP2wpkhAddress generates a P2WPKH (Pay-to-Witness-Public-Key-Hash) SegWit address
   /// from the ECPublic key. If 'compressed' is true, the key is in compressed format.
-  P2wpkhAddress toP2wpkhAddress({bool compressed = true}) {
-    final h16 = _toHash160(compressed: compressed);
+  P2wpkhAddress toSegwitAddress() {
+    final h16 = _toHash160();
     final toHex = BytesUtils.toHexString(h16);
 
     return P2wpkhAddress.fromProgram(program: toHex);
   }
 
+  P2wpkhAddress toP2wpkhAddress() {
+    return toSegwitAddress();
+  }
+
   /// toP2pkAddress generates a P2PK (Pay-to-Public-Key) address from the ECPublic key.
   /// If 'compressed' is true, the key is in compressed format.
-  P2pkAddress toP2pkAddress({bool compressed = true}) {
-    return P2pkAddress(publicKey: this);
+  P2pkAddress toP2pkAddress({PublicKeyType mode = PublicKeyType.compressed}) {
+    final h = toHex(mode: mode);
+    return P2pkAddress(publicKey: ECPublic.fromHex(h));
   }
 
   /// toRedeemScript generates a redeem script from the ECPublic key.
   /// If 'compressed' is true, the key is in compressed format.
-  Script toRedeemScript({bool compressed = true}) {
-    final redeem = toHex(compressed: compressed);
-    return Script(script: [redeem, "OP_CHECKSIG"]);
+  Script toRedeemScript({PublicKeyType mode = PublicKeyType.compressed}) {
+    final redeem = toHex(mode: mode);
+    return Script(script: [redeem, 'OP_CHECKSIG']);
   }
 
   /// toP2pkhInP2sh generates a P2SH (Pay-to-Script-Hash) address
   /// wrapping a P2PK (Pay-to-Public-Key) script derived from the ECPublic key.
   /// If 'compressed' is true, the key is in compressed format.
-  P2shAddress toP2pkhInP2sh({bool compressed = true, useBCHP2sh32 = false}) {
-    final addr = toP2pkhAddress(compressed: compressed);
+  P2shAddress toP2pkhInP2sh({
+    PublicKeyType mode = PublicKeyType.compressed,
+    useBCHP2sh32 = false,
+  }) {
+    final addr = toAddress(mode: mode);
     final script = addr.toScriptPubKey();
     if (useBCHP2sh32) {
       return P2shAddress.fromHash160(
-          h160: BytesUtils.toHexString(QuickCrypto.sha256DoubleHash(script.toBytes())),
-          type: P2shAddressType.p2pkhInP2sh32);
+        h160: BytesUtils.toHexString(QuickCrypto.sha256DoubleHash(script.toBytes())),
+        type: P2shAddressType.p2pkhInP2sh32,
+      );
     }
     return P2shAddress.fromRedeemScript(script: script, type: P2shAddressType.p2pkhInP2sh);
   }
@@ -98,8 +113,11 @@ class ECPublic {
   /// toP2pkInP2sh generates a P2SH (Pay-to-Script-Hash) address
   /// wrapping a P2PK (Pay-to-Public-Key) script derived from the ECPublic key.
   /// If 'compressed' is true, the key is in compressed format.
-  P2shAddress toP2pkInP2sh({bool compressed = true, bool useBCHP2sh32 = false}) {
-    final script = toRedeemScript(compressed: compressed);
+  P2shAddress toP2pkInP2sh({
+    PublicKeyType mode = PublicKeyType.compressed,
+    bool useBCHP2sh32 = false,
+  }) {
+    final script = toRedeemScript(mode: mode);
     if (useBCHP2sh32) {
       return P2shAddress.fromHash160(
           h160: BytesUtils.toHexString(QuickCrypto.sha256DoubleHash(script.toBytes())),
@@ -123,29 +141,29 @@ class ECPublic {
   /// toP2wpkhInP2sh generates a P2SH (Pay-to-Script-Hash) address
   /// wrapping a P2WPKH (Pay-to-Witness-Public-Key-Hash) script derived from the ECPublic key.
   /// If 'compressed' is true, the key is in compressed format.
-  P2shAddress toP2wpkhInP2sh({bool compressed = true}) {
-    final addr = toP2wpkhAddress(compressed: compressed);
+  P2shAddress toP2wpkhInP2sh() {
+    final addr = toSegwitAddress();
     return P2shAddress.fromRedeemScript(
         script: addr.toScriptPubKey(), type: P2shAddressType.p2wpkhInP2sh);
   }
 
   /// toP2wshScript generates a P2WSH (Pay-to-Witness-Script-Hash) script
   /// derived from the ECPublic key. If 'compressed' is true, the key is in compressed format.
-  Script toP2wshRedeemScript({bool compressed = true}) {
-    return Script(script: ['OP_1', toHex(compressed: compressed), "OP_1", "OP_CHECKMULTISIG"]);
+  Script toP2wshRedeemScript() {
+    return Script(script: ['OP_1', toHex(), 'OP_1', 'OP_CHECKMULTISIG']);
   }
 
   /// toP2wshAddress generates a P2WSH (Pay-to-Witness-Script-Hash) address
   /// from the ECPublic key. If 'compressed' is true, the key is in compressed format.
-  P2wshAddress toP2wshAddress({bool compressed = true}) {
-    return P2wshAddress.fromRedeemScript(script: toP2wshRedeemScript(compressed: compressed));
+  P2wshAddress toP2wshAddress() {
+    return P2wshAddress.fromRedeemScript(script: toP2wshRedeemScript());
   }
 
   /// toP2wshInP2sh generates a P2SH (Pay-to-Script-Hash) address
   /// wrapping a P2WSH (Pay-to-Witness-Script-Hash) script derived from the ECPublic key.
   /// If 'compressed' is true, the key is in compressed format.
-  P2shAddress toP2wshInP2sh({bool compressed = true}) {
-    final p2sh = toP2wshAddress(compressed: compressed);
+  P2shAddress toP2wshInP2sh() {
+    final p2sh = toP2wshAddress();
     return P2shAddress.fromRedeemScript(
         script: p2sh.toScriptPubKey(), type: P2shAddressType.p2wshInP2sh);
   }

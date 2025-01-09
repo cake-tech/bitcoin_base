@@ -17,7 +17,6 @@ class SilentPaymentOwner extends SilentPaymentAddress {
   factory SilentPaymentOwner.fromPrivateKeys({
     required ECPrivate b_scan,
     required ECPrivate b_spend,
-    required BasedUtxoNetwork network,
     int? version,
   }) {
     return SilentPaymentOwner(

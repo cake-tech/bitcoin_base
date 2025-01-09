@@ -64,7 +64,7 @@ abstract class BitcoinDerivationInfos {
     derivationType: BitcoinDerivationType.electrum,
     derivationPath: BitcoinDerivationPaths.ELECTRUM,
     description: "Electrum",
-    scriptType: SegwitAddresType.p2wpkh,
+    scriptType: SegwitAddressType.p2wpkh,
   );
 
   static final BitcoinDerivationInfo BIP44 = BitcoinDerivationInfo(
@@ -83,20 +83,20 @@ abstract class BitcoinDerivationInfos {
     derivationType: BitcoinDerivationType.bip39,
     derivationPath: BitcoinDerivationPaths.BIP84,
     description: "Standard BIP84 native segwit",
-    scriptType: SegwitAddresType.p2wpkh,
+    scriptType: SegwitAddressType.p2wpkh,
   );
   static final BitcoinDerivationInfo BIP86 = BitcoinDerivationInfo(
     derivationType: BitcoinDerivationType.bip39,
     derivationPath: BitcoinDerivationPaths.BIP86,
     description: "Standard BIP86 Taproot",
-    scriptType: SegwitAddresType.p2tr,
+    scriptType: SegwitAddressType.p2tr,
   );
 
   static final BitcoinDerivationInfo LITECOIN = BitcoinDerivationInfo(
     derivationType: BitcoinDerivationType.bip39,
     derivationPath: BitcoinDerivationPaths.LITECOIN,
     description: "Default Litecoin",
-    scriptType: SegwitAddresType.p2wpkh,
+    scriptType: SegwitAddressType.p2wpkh,
   );
 
   static final BitcoinDerivationInfo SILENT_PAYMENTS_SCAN = BitcoinDerivationInfo(
@@ -133,13 +133,13 @@ final Map<BitcoinDerivationType, List<BitcoinDerivationInfo>> BITCOIN_DERIVATION
       derivationType: BitcoinDerivationType.bip39,
       derivationPath: BitcoinDerivationPaths.BIP84,
       description: "Standard BIP84 native segwit",
-      scriptType: SegwitAddresType.p2wpkh,
+      scriptType: SegwitAddressType.p2wpkh,
     ),
     BitcoinDerivationInfo(
       derivationType: BitcoinDerivationType.bip39,
       derivationPath: BitcoinDerivationPaths.BIP86,
       description: "Standard BIP86 Taproot",
-      scriptType: SegwitAddresType.p2tr,
+      scriptType: SegwitAddressType.p2tr,
     ),
     BitcoinDerivationInfo(
       derivationType: BitcoinDerivationType.bip39,
@@ -157,37 +157,37 @@ final Map<BitcoinDerivationType, List<BitcoinDerivationInfo>> BITCOIN_DERIVATION
       derivationType: BitcoinDerivationType.bip39,
       derivationPath: BitcoinDerivationPaths.NON_STANDARD,
       description: "Non-standard native segwit",
-      scriptType: SegwitAddresType.p2wpkh,
+      scriptType: SegwitAddressType.p2wpkh,
     ),
     BitcoinDerivationInfo(
       derivationType: BitcoinDerivationType.bip39,
       derivationPath: BitcoinDerivationPaths.BIP44,
       description: "Samourai Deposit",
-      scriptType: SegwitAddresType.p2wpkh,
+      scriptType: SegwitAddressType.p2wpkh,
     ),
     BitcoinDerivationInfo(
       derivationType: BitcoinDerivationType.bip39,
       derivationPath: BitcoinDerivationPaths.BIP49,
       description: "Samourai Deposit",
-      scriptType: SegwitAddresType.p2wpkh,
+      scriptType: SegwitAddressType.p2wpkh,
     ),
     BitcoinDerivationInfo(
       derivationType: BitcoinDerivationType.bip39,
       derivationPath: BitcoinDerivationPaths.SAMOURAI_BAD_BANK,
       description: "Samourai Bad Bank (toxic change)",
-      scriptType: SegwitAddresType.p2wpkh,
+      scriptType: SegwitAddressType.p2wpkh,
     ),
     BitcoinDerivationInfo(
       derivationType: BitcoinDerivationType.bip39,
       derivationPath: BitcoinDerivationPaths.SAMOURAI_WHIRLPOOL_PREMIX,
       description: "Samourai Whirlpool Pre Mix",
-      scriptType: SegwitAddresType.p2wpkh,
+      scriptType: SegwitAddressType.p2wpkh,
     ),
     BitcoinDerivationInfo(
       derivationType: BitcoinDerivationType.bip39,
       derivationPath: BitcoinDerivationPaths.SAMOURAI_WHIRLPOOL_POSTMIX,
       description: "Samourai Whirlpool Post Mix",
-      scriptType: SegwitAddresType.p2wpkh,
+      scriptType: SegwitAddressType.p2wpkh,
     ),
     BitcoinDerivationInfo(
       derivationType: BitcoinDerivationType.bip39,
@@ -205,7 +205,7 @@ final Map<BitcoinDerivationType, List<BitcoinDerivationInfo>> BITCOIN_DERIVATION
       derivationType: BitcoinDerivationType.bip39,
       derivationPath: BitcoinDerivationPaths.SAMOURAI_RICOCHET_NATIVE_SEGWIT,
       description: "Samourai Ricochet native segwit",
-      scriptType: SegwitAddresType.p2wpkh,
+      scriptType: SegwitAddressType.p2wpkh,
     ),
     BitcoinDerivationInfos.LITECOIN,
     BitcoinDerivationInfos.SILENT_PAYMENTS_SCAN,

@@ -1,9 +1,9 @@
-import 'package:bitcoin_base/src/provider/service/electrum/methods.dart';
-import 'package:bitcoin_base/src/provider/service/electrum/params.dart';
+import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
+
 
 /// Return a histogram of the fee rates paid by transactions in the memory pool, weighted by transaction size.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumGetFeeHistogram extends ElectrumRequest<List<List<int>>, List<dynamic>> {
+class ElectrumRequestGetFeeHistogram extends ElectrumRequest<List<List<double>>, List<dynamic>> {
   /// mempool.get_fee_histogram
   @override
   String get method => ElectrumRequestMethods.getFeeHistogram.method;
@@ -18,7 +18,7 @@ class ElectrumGetFeeHistogram extends ElectrumRequest<List<List<int>>, List<dyna
   /// fee uses sat/vbyte as unit, and must be a non-negative integer or float.
   /// vsize uses vbyte as unit, and must be a non-negative integer.
   @override
-  List<List<int>> onResponse(result) {
-    return result.map((e) => List<int>.from(e)).toList();
+  List<List<double>> onResponse(result) {
+    return result.map((e) => (e as List).map((e) => (e as num).toDouble()).toList()).toList();
   }
 }
