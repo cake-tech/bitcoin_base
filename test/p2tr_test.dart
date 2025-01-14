@@ -1,7 +1,4 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_base/src/provider/api_provider/electrum_api_provider.dart';
-import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:test/test.dart';
 
 void main() {

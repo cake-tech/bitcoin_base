@@ -44,15 +44,10 @@ class UtxoWithAddress {
   /// OwnerDetails is a UtxoAddressDetails instance containing information about the UTXO owner.
   final UtxoAddressDetails ownerDetails;
 
-  const UtxoWithAddress._({required this.utxo, required this.ownerDetails, required this.keyType});
-  factory UtxoWithAddress({required BitcoinUtxo utxo, required UtxoAddressDetails ownerDetails}) {
-    return UtxoWithAddress._(
-        utxo: utxo,
-        ownerDetails: ownerDetails,
-        keyType: ownerDetails.publicKey != null && !utxo.isSegwit
+  UtxoWithAddress({required this.utxo, required this.ownerDetails})
+      : keyType = ownerDetails.publicKey != null && !utxo.isSegwit
             ? BtcUtils.isCompressedPubKey(ownerDetails.publicKey!)
-            : PublicKeyType.compressed);
-  }
+            : PublicKeyType.compressed;
 
   ECPublic public() {
     if (isMultiSig()) {
@@ -213,25 +208,29 @@ class BitcoinUtxo {
     required this.isSegwit,
     this.isSilentPayment,
   });
-  factory BitcoinUtxo(
-      {required String txHash,
-      required BigInt value,
-      required int vout,
-      required BitcoinAddressType scriptType,
-      int? blockHeight,
-      CashToken? token}) {
+  factory BitcoinUtxo({
+    required String txHash,
+    required BigInt value,
+    required int vout,
+    required BitcoinAddressType scriptType,
+    int? blockHeight,
+    CashToken? token,
+    bool? isSilentPayment,
+  }) {
     final isP2shSegwit =
         scriptType == P2shAddressType.p2wpkhInP2sh || scriptType == P2shAddressType.p2wshInP2sh;
     return BitcoinUtxo._(
-        txHash: txHash,
-        value: value,
-        blockHeight: blockHeight,
-        token: token,
-        vout: vout,
-        scriptType: scriptType,
-        isP2tr: scriptType == SegwitAddressType.p2tr,
-        isP2shSegwit: isP2shSegwit,
-        isSegwit: isP2shSegwit || scriptType.isSegwit);
+      txHash: txHash,
+      value: value,
+      blockHeight: blockHeight,
+      token: token,
+      vout: vout,
+      scriptType: scriptType,
+      isP2tr: scriptType == SegwitAddressType.p2tr,
+      isP2shSegwit: isP2shSegwit,
+      isSegwit: isP2shSegwit || scriptType.isSegwit,
+      isSilentPayment: isSilentPayment,
+    );
   }
 
   /// check if utxos is p2tr

@@ -276,3 +276,9 @@ class ECPublic {
     return ECPublic.fromBytes(publicKey.uncompressed);
   }
 }
+
+extension Bip32Slip10Secp256k1Ext on Bip32Slip10Secp256k1 {
+  ECPublic toECPublic() {
+    return ECPublic.fromBip32(publicKey);
+  }
+}

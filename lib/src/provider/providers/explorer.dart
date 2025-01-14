@@ -8,13 +8,12 @@ class ApiProvider {
   ApiProvider({required this.api, Map<String, String>? header, required this.service})
       : _header = header ?? {'Content-Type': 'application/json'};
   factory ApiProvider.fromMempool(
-    BasedUtxoNetwork network,
-    ApiService service, {
+    BasedUtxoNetwork network, {
     Map<String, String>? header,
     String? baseUrl,
   }) {
     final api = APIConfig.mempool(network, baseUrl);
-    return ApiProvider(api: api, header: header, service: service);
+    return ApiProvider(api: api, header: header, service: BitcoinApiService());
   }
   factory ApiProvider.fromBlocCypher(BasedUtxoNetwork network, ApiService service,
       {Map<String, String>? header}) {

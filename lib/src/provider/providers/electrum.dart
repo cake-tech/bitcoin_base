@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 import 'package:rxdart/rxdart.dart';
 
 typedef ListenerCallback<T> = StreamSubscription<T> Function(
@@ -11,15 +10,15 @@ typedef ListenerCallback<T> = StreamSubscription<T> Function(
   bool? cancelOnError,
 });
 
-class ElectrumApiProvider {
+class ElectrumProvider {
   final BitcoinBaseElectrumRPCService rpc;
-  ElectrumApiProvider._(this.rpc);
+  ElectrumProvider._(this.rpc);
   int _id = 0;
   int get id => _id;
   Timer? _aliveTimer;
 
-  static Future<ElectrumApiProvider> connect(Future<BitcoinBaseElectrumRPCService> rpc) async {
-    final provider = ElectrumApiProvider._(await rpc);
+  static Future<ElectrumProvider> connect(Future<BitcoinBaseElectrumRPCService> rpc) async {
+    final provider = ElectrumProvider._(await rpc);
     provider.keepAlive();
     return provider;
   }

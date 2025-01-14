@@ -16,10 +16,6 @@ export 'src/bitcoin/amount/amount.dart';
 
 export 'src/crypto/crypto.dart';
 
-export 'src/bitcoin/script/scripts.dart';
-
-export 'src/crypto/crypto.dart';
-
 export 'src/models/network.dart';
 
 export 'src/provider/api_provider.dart';

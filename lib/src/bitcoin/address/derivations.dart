@@ -46,8 +46,8 @@ abstract class BitcoinDerivationPaths {
   static const String BIP86 = "m/86'/0'/0'";
   static const String NON_STANDARD = "m/0'";
 
-  static const String SILENT_PAYMENTS_SCAN = "m/352'/0'/0'/1'";
-  static const String SILENT_PAYMENTS_SPEND = "m/352'/0'/0'/0'";
+  static const String SILENT_PAYMENTS_SCAN = "m/352'/0'/0'/1'/0";
+  static const String SILENT_PAYMENTS_SPEND = "m/352'/0'/0'/0'/0";
 
   static const String LITECOIN = "m/84'/2'/0'";
 
