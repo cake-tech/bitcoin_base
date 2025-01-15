@@ -13,7 +13,7 @@ class ElectrumRequestScriptHashSubscribe extends ElectrumRequest<Map<String, dyn
   String get method => ElectrumRequestMethods.scriptHashSubscribe.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [scriptHash];
   }
 

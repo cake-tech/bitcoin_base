@@ -116,9 +116,18 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
       }
 
       if (isJSONStringCorrect(unterminatedString)) {
-        final response = json.decode(unterminatedString) as Map<String, dynamic>;
-        _handleResponse(response);
-        unterminatedString = '';
+        try {
+          final response = json.decode(unterminatedString) as Map<String, dynamic>;
+          _handleResponse(response);
+          unterminatedString = '';
+        } catch (_) {
+          final response = json.decode(unterminatedString) as List<dynamic>;
+          for (final element in response) {
+            _handleResponse(element as Map<String, dynamic>);
+          }
+
+          unterminatedString = '';
+        }
       }
     } on TypeError catch (e) {
       if (!e.toString().contains('Map<String, Object>') &&
@@ -129,10 +138,17 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
       unterminatedString += message;
 
       if (isJSONStringCorrect(unterminatedString)) {
-        final response = json.decode(unterminatedString) as Map<String, dynamic>;
-        _handleResponse(response);
-        // unterminatedString = null;
-        unterminatedString = '';
+        try {
+          final response = json.decode(unterminatedString) as Map<String, dynamic>;
+          _handleResponse(response);
+          unterminatedString = '';
+        } catch (_) {
+          final response = json.decode(unterminatedString) as List<dynamic>;
+          for (final element in response) {
+            _handleResponse(element as Map<String, dynamic>);
+          }
+          unterminatedString = '';
+        }
       }
     } catch (_) {}
   }
@@ -168,8 +184,10 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
       }
     }
 
-    final result = _findResult(response, _tasks[id]!.request);
-    _finish(id!, result);
+    try {
+      final result = _findResult(response, _tasks[id]!.request);
+      _finish(id!, result);
+    } catch (_) {}
   }
 
   void _onMessage(List<int> event) {
@@ -184,12 +202,13 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
     }
   }
 
-  dynamic _findResult(dynamic data, ElectrumRequestDetails request) {
+  dynamic _findResult(dynamic data, BaseElectrumRequestDetails request) {
     final error = data["error"];
 
     if (error != null) {
+      final id = request.params["id"];
       if (error is String) {
-        _errors[request.id] = RPCError(
+        _errors[id] = RPCError(
           data: error,
           errorCode: 0,
           message: error,
@@ -198,7 +217,7 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
       } else {
         final code = int.tryParse(((error['code']?.toString()) ?? "0")) ?? 0;
         final message = error['message'] ?? "";
-        _errors[request.id] = RPCError(
+        _errors[id] = RPCError(
           errorCode: code,
           message: message,
           data: error["data"],
@@ -276,6 +295,36 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
       return result;
     } finally {
       _tasks.remove(params.id);
+    }
+  }
+
+  List<AsyncRequestCompleter<T>> _registerBatchTask<T>(ElectrumBatchRequestDetails mainParams) {
+    return mainParams.params.map((params) {
+      final completer = AsyncRequestCompleter<T>(params);
+
+      final id = params["id"] as int;
+      _tasks[id] = SocketTask(
+        completer: completer.completer,
+        request: mainParams,
+        isSubscription: false,
+      );
+
+      return completer;
+    }).toList();
+  }
+
+  @override
+  Future<List<T>> batchCall<T>(ElectrumBatchRequestDetails params, [Duration? timeout]) async {
+    try {
+      final completers = _registerBatchTask<T>(params);
+      add(params.toTCPParams());
+      final result = await Future.wait(completers.map((e) => e.completer.future))
+          .timeout(timeout ?? defaultRequestTimeOut);
+      return result;
+    } finally {
+      for (final id in params.idsToParams.keys) {
+        _tasks.remove(id);
+      }
     }
   }
 

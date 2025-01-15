@@ -13,7 +13,7 @@ class ElectrumRequestGetTransactionHex extends ElectrumRequest<String, String> {
   String get method => ElectrumRequestMethods.getTransaction.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [transactionHash, false];
   }
 
@@ -40,7 +40,7 @@ class ElectrumRequestGetTransactionVerbose
   String get method => ElectrumRequestMethods.getTransaction.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [transactionHash, true];
   }
 

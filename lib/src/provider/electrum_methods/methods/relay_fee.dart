@@ -10,7 +10,7 @@ class ElectrumRequestRelayFee extends ElectrumRequest<BigInt, dynamic> {
   String get method => ElectrumRequestMethods.relayFee.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [];
   }
 

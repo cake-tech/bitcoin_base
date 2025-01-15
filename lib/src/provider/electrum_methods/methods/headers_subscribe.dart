@@ -24,7 +24,7 @@ class ElectrumRequestHeaderSubscribe
   String get method => ElectrumRequestMethods.headersSubscribe.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [];
   }
 

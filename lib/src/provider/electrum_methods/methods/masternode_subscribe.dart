@@ -1,10 +1,8 @@
 import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
-
 /// Returns the status of masternode.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumRequestMasternodeSubscribe
-    extends ElectrumRequest<String, String> {
+class ElectrumRequestMasternodeSubscribe extends ElectrumRequest<String, String> {
   ElectrumRequestMasternodeSubscribe({required this.collateral});
 
   /// The txId and the index of the collateral. Example ("8c59133e714797650cf69043d05e409bbf45670eed7c4e4a386e52c46f1b5e24-0")
@@ -15,7 +13,7 @@ class ElectrumRequestMasternodeSubscribe
   String get method => ElectrumRequestMethods.masternodeSubscribe.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [collateral];
   }
 

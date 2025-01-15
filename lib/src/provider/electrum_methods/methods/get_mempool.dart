@@ -1,6 +1,5 @@
 import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
-
 /// Return the unconfirmed transactions of a script hash.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
 class ElectrumRequestScriptHashGetMempool
@@ -15,7 +14,7 @@ class ElectrumRequestScriptHashGetMempool
   String get method => ElectrumRequestMethods.getMempool.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [scriptHash];
   }
 

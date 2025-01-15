@@ -18,7 +18,7 @@ class SocketTask {
   final Completer<dynamic>? completer;
   final BehaviorSubject<dynamic>? subject;
   final bool isSubscription;
-  final ElectrumRequestDetails request;
+  final BaseElectrumRequestDetails request;
 }
 
 /// Abstract class for providing JSON-RPC service functionality.
@@ -45,6 +45,10 @@ abstract class BitcoinBaseElectrumRPCService {
     final Duration connectionTimeOut = const Duration(seconds: 30),
     void Function(ConnectionStatus)? onConnectionStatusChange,
   }) {
+    throw UnimplementedError();
+  }
+
+  Future<List<T>> batchCall<T>(ElectrumBatchRequestDetails params, [Duration? timeout]) async {
     throw UnimplementedError();
   }
 }

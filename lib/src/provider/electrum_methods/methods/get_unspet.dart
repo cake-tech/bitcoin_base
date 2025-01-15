@@ -1,7 +1,6 @@
 import 'package:bitcoin_base/src/provider/models/electrum/electrum_utxo.dart';
 import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
-
 /// Return an ordered list of UTXOs sent to a script hash.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
 class ElectrumRequestScriptHashListUnspent
@@ -19,7 +18,7 @@ class ElectrumRequestScriptHashListUnspent
   String get method => ElectrumRequestMethods.listunspent.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [scriptHash, if (includeTokens) 'include_tokens'];
   }
 

@@ -23,6 +23,16 @@ class ElectrumProvider {
     return provider;
   }
 
+  Future<List<ElectrumBatchRequestResult<T>>> batchRequest<T, U>(
+    ElectrumBatchRequest<T, U> request, [
+    Duration? timeout,
+  ]) async {
+    final id = ++_id;
+    final params = request.toRequest(id);
+    final result = await rpc.batchCall<U>(params as ElectrumBatchRequestDetails, timeout);
+    return result.map((r) => request.onResponse(r, params)).toList();
+  }
+
   /// Sends a request to the Electrum server using the specified [request] parameter.
   ///
   /// The [timeout] parameter, if provided, sets the maximum duration for the request.

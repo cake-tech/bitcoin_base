@@ -13,7 +13,7 @@ class ElectrumRequestBroadCastTransaction extends ElectrumRequest<String?, Strin
   String get method => ElectrumRequestMethods.broadcast.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [transactionRaw];
   }
 

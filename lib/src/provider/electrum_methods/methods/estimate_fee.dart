@@ -14,7 +14,7 @@ class ElectrumRequestEstimateFee extends ElectrumRequest<BigInt?, dynamic> {
   String get method => ElectrumRequestMethods.estimateFee.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [numberOfBlock];
   }
 

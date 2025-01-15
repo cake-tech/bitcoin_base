@@ -18,7 +18,7 @@ class ElectrumRequestProtXDiff
   String get method => ElectrumRequestMethods.protxDiff.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [baseHeight, height];
   }
 

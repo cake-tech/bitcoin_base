@@ -108,7 +108,7 @@ class ElectrumTweaksSubscribe
   String get method => ElectrumRequestMethods.tweaksSubscribe.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [height, count, historicalMode];
   }
 

@@ -1,12 +1,9 @@
 import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
-
 /// Identify the client to the server and negotiate the protocol version. Only the first server.version() message is accepted.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumRequestVersion
-    extends ElectrumRequest<List<String>, List<dynamic>> {
-  ElectrumRequestVersion(
-      {required this.clientName, required this.protocolVersion});
+class ElectrumRequestVersion extends ElectrumRequest<List<String>, List<dynamic>> {
+  ElectrumRequestVersion({required this.clientName, required this.protocolVersion});
 
   /// A string identifying the connecting client software.
   final String clientName;
@@ -18,7 +15,7 @@ class ElectrumRequestVersion
   String get method => ElectrumRequestMethods.version.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [clientName, protocolVersion];
   }
 

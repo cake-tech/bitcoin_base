@@ -1,6 +1,5 @@
 import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
-
 /// Return a histogram of the fee rates paid by transactions in the memory pool, weighted by transaction size.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
 class ElectrumRequestGetFeeHistogram extends ElectrumRequest<List<List<double>>, List<dynamic>> {
@@ -9,7 +8,7 @@ class ElectrumRequestGetFeeHistogram extends ElectrumRequest<List<List<double>>,
   String get method => ElectrumRequestMethods.getFeeHistogram.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [];
   }
 

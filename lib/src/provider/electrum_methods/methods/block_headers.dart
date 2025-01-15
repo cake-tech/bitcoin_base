@@ -22,7 +22,7 @@ class ElectrumRequestBlockHeaders
   String get method => ElectrumRequestMethods.blockHeaders.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [startHeight, count, cpHeight];
   }
 

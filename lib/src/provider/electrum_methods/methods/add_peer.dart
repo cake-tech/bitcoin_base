@@ -14,7 +14,7 @@ class ElectrumRequestAddPeer extends ElectrumRequest<bool, bool> {
   String get method => ElectrumRequestMethods.serverAddPeer.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [features];
   }
 

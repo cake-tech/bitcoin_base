@@ -1,6 +1,5 @@
 import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
-
 /// Returns the list of masternodes.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
 class ElectrumRequestMasternodeList extends ElectrumRequest<List<String>, List<dynamic>> {
@@ -14,7 +13,7 @@ class ElectrumRequestMasternodeList extends ElectrumRequest<List<String>, List<d
   String get method => ElectrumRequestMethods.masternodeList.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [payees];
   }
 

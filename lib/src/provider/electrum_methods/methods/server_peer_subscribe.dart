@@ -1,6 +1,5 @@
 import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
-
 /// Return a list of peer servers. Despite the name this is not a subscription and the server must send no notifications..
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
 class ElectrumRequestServerPeersSubscribe extends ElectrumRequest<List<dynamic>, List<dynamic>> {
@@ -9,7 +8,7 @@ class ElectrumRequestServerPeersSubscribe extends ElectrumRequest<List<dynamic>,
   String get method => ElectrumRequestMethods.serverPeersSubscribe.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [];
   }
 

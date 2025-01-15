@@ -1,6 +1,5 @@
 import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
-
 /// Return the confirmed and unconfirmed history of a script hash.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
 class ElectrumRequestScriptHashGetHistory
@@ -15,7 +14,7 @@ class ElectrumRequestScriptHashGetHistory
   String get method => ElectrumRequestMethods.getHistory.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [scriptHash];
   }
 
@@ -25,5 +24,38 @@ class ElectrumRequestScriptHashGetHistory
   @override
   List<Map<String, dynamic>> onResponse(List<dynamic> result) {
     return result.map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+}
+
+class ElectrumBatchRequestScriptHashGetHistory
+    extends ElectrumBatchRequest<List<Map<String, dynamic>>, List<dynamic>> {
+  ElectrumBatchRequestScriptHashGetHistory({required this.scriptHashes});
+
+  /// The script hash as a hexadecimal string (BitcoinBaseAddress.pubKeyHash())
+  final List<String> scriptHashes;
+
+  /// blockchain.scripthash.get_history
+  @override
+  String get method => ElectrumRequestMethods.getHistory.method;
+
+  @override
+  List<List> toParams() {
+    return [
+      ...scriptHashes.map((e) => [e])
+    ];
+  }
+
+  /// A list of confirmed transactions in blockchain order,
+  ///  with the output of blockchain.scripthash.get_mempool() appended to the list.
+  ///  Each confirmed transaction is a dictionary
+  @override
+  ElectrumBatchRequestResult<List<Map<String, dynamic>>> onResponse(
+    List<dynamic> result,
+    ElectrumBatchRequestDetails details,
+  ) {
+    return ElectrumBatchRequestResult(
+      details,
+      result.map((e) => Map<String, dynamic>.from(e)).toList(),
+    );
   }
 }

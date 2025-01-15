@@ -1,6 +1,5 @@
 import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
-
 /// Return a server donation address.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
 class ElectrumRequestDonationAddress extends ElectrumRequest<String, String> {
@@ -9,7 +8,7 @@ class ElectrumRequestDonationAddress extends ElectrumRequest<String, String> {
   String get method => ElectrumRequestMethods.serverDontionAddress.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [];
   }
 
