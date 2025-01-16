@@ -11,6 +11,7 @@ class SocketTask {
   SocketTask({
     required this.isSubscription,
     required this.request,
+    this.isBatchRequest = false,
     this.completer,
     this.subject,
   });
@@ -18,6 +19,7 @@ class SocketTask {
   final Completer<dynamic>? completer;
   final BehaviorSubject<dynamic>? subject;
   final bool isSubscription;
+  final bool isBatchRequest;
   final BaseElectrumRequestDetails request;
 }
 

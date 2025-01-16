@@ -315,7 +315,7 @@ class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
           .timeout(timeout ?? defaultRequestTimeOut);
       return result;
     } finally {
-      for (final id in params.idsToParams.keys) {
+      for (final id in params.paramsById.keys) {
         _tasks.remove(id);
       }
     }

@@ -28,7 +28,7 @@ class ElectrumRequestScriptHashGetHistory
 }
 
 class ElectrumBatchRequestScriptHashGetHistory
-    extends ElectrumBatchRequest<List<Map<String, dynamic>>, List<dynamic>> {
+    extends ElectrumBatchRequest<List<Map<String, dynamic>>, Map<String, dynamic>> {
   ElectrumBatchRequestScriptHashGetHistory({required this.scriptHashes});
 
   /// The script hash as a hexadecimal string (BitcoinBaseAddress.pubKeyHash())
@@ -50,12 +50,15 @@ class ElectrumBatchRequestScriptHashGetHistory
   ///  Each confirmed transaction is a dictionary
   @override
   ElectrumBatchRequestResult<List<Map<String, dynamic>>> onResponse(
-    List<dynamic> result,
-    ElectrumBatchRequestDetails details,
+    Map<String, dynamic> data,
+    ElectrumBatchRequestDetails request,
   ) {
+    final id = data['id'] as int;
+    final result = data['result'] as List<dynamic>;
     return ElectrumBatchRequestResult(
-      details,
-      result.map((e) => Map<String, dynamic>.from(e)).toList(),
+      request: request,
+      id: id,
+      result: result.map((e) => Map<String, dynamic>.from(e)).toList(),
     );
   }
 }

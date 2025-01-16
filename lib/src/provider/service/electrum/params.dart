@@ -79,12 +79,12 @@ abstract class ElectrumBatchRequestParams implements BaseElectrumRequestParams {
 
 class ElectrumBatchRequestDetails implements BaseElectrumRequestDetails {
   const ElectrumBatchRequestDetails({
-    required this.idsToParams,
+    required this.paramsById,
     required this.method,
     required this.params,
   });
 
-  final Map<int, List<dynamic>> idsToParams;
+  final Map<int, List<dynamic>> paramsById;
 
   @override
   final String method;
@@ -107,23 +107,28 @@ class ElectrumBatchRequestDetails implements BaseElectrumRequestDetails {
 class ElectrumBatchRequestResult<RESULT> {
   final ElectrumBatchRequestDetails request;
   final RESULT result;
+  final int id;
 
-  ElectrumBatchRequestResult(this.request, this.result);
+  ElectrumBatchRequestResult({
+    required this.request,
+    required this.id,
+    required this.result,
+  });
 }
 
 abstract class ElectrumBatchRequest<RESULT, RESPONSE> extends BaseElectrumRequest<RESULT, RESPONSE>
     implements ElectrumBatchRequestParams {
   ElectrumBatchRequestResult<RESULT> onResponse(
     RESPONSE result,
-    ElectrumBatchRequestDetails details,
+    ElectrumBatchRequestDetails request,
   ) {
-    return ElectrumBatchRequestResult<RESULT>(details, result as RESULT);
+    throw UnimplementedError();
   }
 
   @override
   BaseElectrumRequestDetails toRequest(int requestId) {
     List<List<dynamic>> params = toParams();
-    final idsToParams = <int, List<dynamic>>{};
+    final paramsById = <int, List<dynamic>>{};
 
     final json = params.map((e) {
       final json = {
@@ -132,12 +137,12 @@ abstract class ElectrumBatchRequest<RESULT, RESPONSE> extends BaseElectrumReques
         "params": e,
         "id": requestId,
       };
-      idsToParams[requestId] = e;
+      paramsById[requestId] = e;
 
       requestId++;
       return json;
     }).toList();
 
-    return ElectrumBatchRequestDetails(idsToParams: idsToParams, params: json, method: method);
+    return ElectrumBatchRequestDetails(paramsById: paramsById, params: json, method: method);
   }
 }

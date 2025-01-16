@@ -242,7 +242,11 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
 
     final notCompleted = task.completer != null && task.completer!.isCompleted == false;
     if (notCompleted) {
-      task.completer!.complete(result);
+      if (task.isBatchRequest) {
+        task.completer!.complete({"id": id, "result": result});
+      } else {
+        task.completer!.complete(result);
+      }
     }
 
     if (!task.isSubscription) {
@@ -307,6 +311,7 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
         completer: completer.completer,
         request: mainParams,
         isSubscription: false,
+        isBatchRequest: true,
       );
 
       return completer;
@@ -322,7 +327,7 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
           .timeout(timeout ?? defaultRequestTimeOut);
       return result;
     } finally {
-      for (final id in params.idsToParams.keys) {
+      for (final id in params.paramsById.keys) {
         _tasks.remove(id);
       }
     }

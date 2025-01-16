@@ -49,9 +49,14 @@ class ElectrumBatchRequestGetScriptHashBalance
   ///  Each confirmed transaction is a dictionary
   @override
   ElectrumBatchRequestResult<Map<String, dynamic>> onResponse(
-    Map<String, dynamic> result,
-    ElectrumBatchRequestDetails details,
+    Map<String, dynamic> data,
+    ElectrumBatchRequestDetails request,
   ) {
-    return ElectrumBatchRequestResult(details, Map<String, dynamic>.from(result));
+    final id = data['id'] as int;
+    return ElectrumBatchRequestResult(
+      request: request,
+      id: id,
+      result: Map<String, dynamic>.from(data['result']),
+    );
   }
 }
