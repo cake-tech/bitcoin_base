@@ -153,4 +153,13 @@ class BitcoinAddressUtils {
         throw Exception("Derivation not available for $scriptType");
     }
   }
+
+  static Bip32KeyNetVersions? getKeyNetVersion(BasedUtxoNetwork network) {
+    switch (network) {
+      case LitecoinNetwork.mainnet:
+        return Bip44Conf.litecoinMainNet.altKeyNetVer;
+      default:
+        return null;
+    }
+  }
 }
