@@ -61,7 +61,7 @@ main() {
 
           inputPrivKeyInfos.add(ECPrivateInfo(
             privkey,
-            prevoutScript.getAddressType() == SegwitAddresType.p2tr,
+            prevoutScript.getAddressType() == SegwitAddressType.p2tr,
             tweak: false,
           ));
           inputPubKeys.add(pubkey);
@@ -115,8 +115,9 @@ main() {
         final List<SilentPaymentOwner> receivingAddresses = [];
 
         final silentPaymentOwner = SilentPaymentOwner.fromPrivateKeys(
-            b_scan: ECPrivate.fromHex(given["key_material"]["scan_priv_key"]),
-            b_spend: ECPrivate.fromHex(given["key_material"]["spend_priv_key"]));
+          b_scan: ECPrivate.fromHex(given["key_material"]["scan_priv_key"]),
+          b_spend: ECPrivate.fromHex(given["key_material"]["spend_priv_key"]),
+        );
 
         // Add change address
         receivingAddresses.add(silentPaymentOwner);
@@ -195,8 +196,12 @@ main() {
 
             // Sign the message with schnorr
             final btcSigner = BitcoinSigner.fromKeyBytes(fullPrivateKey.toBytes());
-            List<int> sig =
-                btcSigner.signSchnorrTransaction(msg, tapScripts: [], tweak: false, aux: aux);
+            List<int> sig = btcSigner.signSchnorrTransaction(
+              msg,
+              tapScripts: [],
+              tweak: false,
+              auxRand: aux,
+            );
 
             // Verify the message is correct
             expect(btcSigner.verifyKey.verifySchnorr(msg, sig, isTweak: false), true);

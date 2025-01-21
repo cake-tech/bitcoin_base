@@ -314,7 +314,7 @@ class NftCategoryField {
   const NftCategoryField({required this.identifier});
   final Map<String, NftCategoryFieldType> identifier;
   factory NftCategoryField.fromJson(Map<String, dynamic> json) {
-    final Map<String, NftCategoryFieldType> parsedIdentifier = {};
+    final parsedIdentifier = <String, NftCategoryFieldType>{};
     json.forEach((key, value) {
       parsedIdentifier[key] = NftCategoryFieldType.fromJson(value);
     });
@@ -700,26 +700,16 @@ class ChainSnapshot extends IdentitySnapshot {
     );
   }
   const ChainSnapshot({
-    required String name,
-    required TokenCategory token,
-    String? description,
-    List<String>? tags,
-    String? migrated,
-    String? status,
-    String? splitId,
-    URIs? uris,
-    Extensions? extensions,
-  }) : super(
-          name: name,
-          description: description,
-          tags: tags,
-          migrated: migrated,
-          token: token,
-          status: status,
-          splitId: splitId,
-          uris: uris,
-          extensions: extensions,
-        );
+    required super.name,
+    required TokenCategory super.token,
+    super.description,
+    super.tags,
+    super.migrated,
+    super.status,
+    super.splitId,
+    super.uris,
+    super.extensions,
+  });
 }
 
 class RegistryTimestampKeyedValues<T extends IdentitySnapshot> {
@@ -732,8 +722,7 @@ class RegistryTimestampKeyedValues<T extends IdentitySnapshot> {
 }
 
 class ChainHistory extends RegistryTimestampKeyedValues<ChainSnapshot> {
-  const ChainHistory({required Map<String, ChainSnapshot> timestampMap})
-      : super(timestampMap: timestampMap);
+  const ChainHistory({required super.timestampMap});
 
   factory ChainHistory.fromJson(Map<String, dynamic> json) {
     return ChainHistory(
@@ -745,8 +734,7 @@ class ChainHistory extends RegistryTimestampKeyedValues<ChainSnapshot> {
 }
 
 class IdentityHistory extends RegistryTimestampKeyedValues<IdentitySnapshot> {
-  const IdentityHistory({required Map<String, IdentitySnapshot> timestampMap})
-      : super(timestampMap: timestampMap);
+  const IdentityHistory({required super.timestampMap});
 
   factory IdentityHistory.fromJson(Map<String, dynamic> json) {
     return IdentityHistory(
@@ -989,7 +977,7 @@ class Registry {
   });
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> js = {
+    final js = <String, dynamic>{
       r'$schema': schema,
       'version': version.toJson(),
       'latestRevision': latestRevision,
@@ -1006,21 +994,21 @@ class Registry {
       for (final i in identities!.entries) {
         jsIdentities[i.key] = i.value.toJson();
       }
-      js["identities"] = jsIdentities;
+      js['identities'] = jsIdentities;
     }
     if (chains != null) {
       final jsChains = {};
       for (final i in chains!.entries) {
         jsChains[i.key] = i.value.toJson();
       }
-      js["chains"] = jsChains;
+      js['chains'] = jsChains;
     }
     if (tags != null) {
       final jsTags = {};
       for (final i in tags!.entries) {
         jsTags[i.key] = i.value.toJson();
       }
-      js["tags"] = jsTags;
+      js['tags'] = jsTags;
     }
     return js..removeWhere((key, value) => value == null);
   }

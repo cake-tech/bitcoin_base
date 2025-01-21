@@ -1,4 +1,4 @@
-library bitcoin_crypto;
+library;
 
 import 'package:bitcoin_base/src/bitcoin/script/op_code/constant_lib.dart';
 import 'package:blockchain_utils/crypto/quick_crypto.dart';
@@ -9,9 +9,9 @@ export 'keypair/ec_public.dart';
 /// Function: taggedHash
 /// Description: Computes a tagged hash of the input data with a provided tag.
 /// Input:
-///   - List<int> data - The data to be hashed.
+///   - `List<int>` data - The data to be hashed.
 ///   - String tag - A unique tag to differentiate the hash.
-/// Output: List<int> - The resulting tagged hash.
+/// Output: `List<int>` - The resulting tagged hash.
 /// Note: This function combines the provided tag with the input data to create a unique
 /// hash by applying a double SHA-256 hash.
 List<int> taggedHash(List<int> data, String tag) {
@@ -30,5 +30,5 @@ List<int> toTapleafTaggedHash(List<int> scriptBytes) {
     BitcoinOpCodeConst.LEAF_VERSION_TAPSCRIPT,
     ...IntUtils.prependVarint(scriptBytes)
   ];
-  return taggedHash(leafVarBytes, "TapLeaf");
+  return taggedHash(leafVarBytes, 'TapLeaf');
 }

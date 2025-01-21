@@ -2,9 +2,8 @@ import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
 /// Returns the list of masternodes.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumMasternodeList
-    extends ElectrumRequest<List<String>, List<dynamic>> {
-  ElectrumMasternodeList({required this.payees});
+class ElectrumRequestMasternodeList extends ElectrumRequest<List<String>, List<dynamic>> {
+  ElectrumRequestMasternodeList({required this.payees});
 
   /// An array of masternode payee addresses.
   final List<String> payees;
@@ -14,13 +13,13 @@ class ElectrumMasternodeList
   String get method => ElectrumRequestMethods.masternodeList.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [payees];
   }
 
   /// An array with the masternodes information.
   @override
-  List<String> onResonse(result) {
+  List<String> onResponse(result) {
     return List<String>.from(result);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
+import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/models/network.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
@@ -14,43 +15,64 @@ class Script {
           }
           return true;
         }(),
-            "A valid script is a composition of opcodes, hexadecimal strings, and integers arranged in a structured list."),
+            'A valid script is a composition of opcodes, hexadecimal strings, and integers arranged in a structured list.'),
         script = List.unmodifiable(script);
   final List<dynamic> script;
 
-  static Script fromRaw({List<int>? byteData, String? hexData, bool hasSegwit = false}) {
-    List<String> commands = [];
-    int index = 0;
-    final scriptBytes = byteData ?? (hexData != null ? BytesUtils.fromHexString(hexData) : null);
+  static Script deserialize({
+    List<int>? bytes,
+    String? hexData,
+    bool hasSegwit = false,
+  }) {
+    return fromRaw(bytes: bytes, hexData: hexData, hasSegwit: hasSegwit);
+  }
+
+  static Script fromRaw({
+    List<int>? bytes,
+    String? hexData,
+    bool hasSegwit = false,
+  }) {
+    final commands = <String>[];
+    var index = 0;
+    final scriptBytes = bytes ?? (hexData != null ? BytesUtils.fromHexString(hexData) : null);
     if (scriptBytes == null) {
-      throw ArgumentError("Invalid script");
+      throw DartBitcoinPluginException("Invalid script");
     }
     while (index < scriptBytes.length) {
-      int byte = scriptBytes[index];
+      final byte = scriptBytes[index];
       if (BitcoinOpCodeConst.CODE_OPS.containsKey(byte)) {
-        commands.add(BitcoinOpCodeConst.CODE_OPS[byte]!);
-        index = index + 1;
-      } else if (!hasSegwit && byte == 0x4c) {
-        int bytesToRead = scriptBytes[index + 1];
-        index = index + 1;
-        commands.add(BytesUtils.toHexString(scriptBytes.sublist(index, index + bytesToRead)));
-        index = index + bytesToRead;
-      } else if (!hasSegwit && byte == 0x4d) {
-        int bytesToRead = readUint16LE(scriptBytes, index + 1);
+        if (!BitcoinOpCodeConst.isOpPushData(byte)) {
+          commands.add(BitcoinOpCodeConst.CODE_OPS[byte]!);
+        }
 
-        index = index + 3;
-        commands.add(BytesUtils.toHexString(scriptBytes.sublist(index, index + bytesToRead)));
-        index = index + bytesToRead;
-      } else if (!hasSegwit && byte == 0x4e) {
-        int bytesToRead = readUint32LE(scriptBytes, index + 1);
+        /// skip op
+        index = index + 1;
+        if (byte == BitcoinOpCodeConst.opPushData1) {
+          // get len
+          final bytesToRead = scriptBytes[index];
+          // skip len
+          index = index + 1;
+          commands.add(BytesUtils.toHexString(scriptBytes.sublist(index, index + bytesToRead)));
 
-        index = index + 5;
-        commands.add(BytesUtils.toHexString(scriptBytes.sublist(index, index + bytesToRead)));
-        index = index + bytesToRead;
+          /// add length
+          index = index + bytesToRead;
+        } else if (byte == BitcoinOpCodeConst.opPushData2) {
+          /// get len
+          final bytesToRead = readUint16LE(scriptBytes, index);
+          index = index + 2;
+          commands.add(BytesUtils.toHexString(scriptBytes.sublist(index, index + bytesToRead)));
+          index = index + bytesToRead;
+        } else if (byte == BitcoinOpCodeConst.opPushData4) {
+          final bytesToRead = readUint32LE(scriptBytes, index);
+
+          index = index + 4;
+          commands.add(BytesUtils.toHexString(scriptBytes.sublist(index, index + bytesToRead)));
+          index = index + bytesToRead;
+        }
       } else {
-        final viAndSize = IntUtils.decodeVarint(scriptBytes.sublist(index, index + 9));
-        int dataSize = viAndSize.item1;
-        int size = viAndSize.item2;
+        final viAndSize = IntUtils.decodeVarint(scriptBytes.sublist(index));
+        final dataSize = viAndSize.item1;
+        final size = viAndSize.item2;
         final lastIndex = (index + size + dataSize) > scriptBytes.length
             ? scriptBytes.length
             : (index + size + dataSize);
@@ -75,7 +97,7 @@ class Script {
         script.length == 66 &&
         (script[0] == 2 || script[0] == 3) &&
         (script[33] == 2 || script[33] == 3)) {
-      return SegwitAddresType.mweb;
+      return SegwitAddressType.mweb;
     }
 
     final first = findScriptParam(0);
@@ -88,15 +110,15 @@ class Script {
       final lockingScriptBytes = opPushData(sec);
 
       if (lockingScriptBytes.length == 21) {
-        return SegwitAddresType.p2wpkh;
+        return SegwitAddressType.p2wpkh;
       } else if (lockingScriptBytes.length == 33) {
-        return SegwitAddresType.p2wsh;
+        return SegwitAddressType.p2wsh;
       }
     } else if (first == "OP_1") {
       final lockingScriptBytes = opPushData(sec);
 
       if (lockingScriptBytes.length == 33) {
-        return SegwitAddresType.p2tr;
+        return SegwitAddressType.p2tr;
       }
     }
 
@@ -124,7 +146,7 @@ class Script {
   String toAddress() {
     final addressType = getAddressType();
     if (addressType == null) {
-      throw ArgumentError("Invalid script");
+      throw DartBitcoinPluginException("Invalid script");
     }
 
     switch (addressType) {
@@ -132,23 +154,22 @@ class Script {
         return P2pkhAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
       case P2shAddressType.p2pkhInP2sh:
         return P2shAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
-      case SegwitAddresType.p2wpkh:
+      case SegwitAddressType.p2wpkh:
         return P2wpkhAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
-      case SegwitAddresType.p2wsh:
+      case SegwitAddressType.p2wsh:
         return P2wshAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
-      case SegwitAddresType.p2tr:
+      case SegwitAddressType.p2tr:
         return P2trAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
     }
 
-    throw ArgumentError("Invalid script");
+    throw DartBitcoinPluginException("Invalid script");
   }
 
   /// returns a serialized byte version of the script
   List<int> toBytes() {
     if (script.isEmpty) return <int>[];
-    if (script.every((x) => x is int)) return script.cast();
-    DynamicByteTracker scriptBytes = DynamicByteTracker();
-    for (var token in script) {
+    final scriptBytes = DynamicByteTracker();
+    for (final token in script) {
       if (BitcoinOpCodeConst.OP_CODES.containsKey(token)) {
         scriptBytes.add(BitcoinOpCodeConst.OP_CODES[token]!);
       } else if (token is int && token >= 0 && token <= 16) {

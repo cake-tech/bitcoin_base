@@ -1,13 +1,11 @@
 import 'package:bitcoin_base/src/provider/models/electrum/electrum_utxo.dart';
-import 'package:bitcoin_base/src/provider/service/electrum/methods.dart';
-import 'package:bitcoin_base/src/provider/service/electrum/params.dart';
+import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
 /// Return an ordered list of UTXOs sent to a script hash.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumScriptHashListUnspent
+class ElectrumRequestScriptHashListUnspent
     extends ElectrumRequest<List<ElectrumUtxo>, List<dynamic>> {
-  ElectrumScriptHashListUnspent(
-      {required this.scriptHash, this.includeTokens = false});
+  ElectrumRequestScriptHashListUnspent({required this.scriptHash, this.includeTokens = false});
 
   /// The script hash as a hexadecimal string (BitcoinBaseAddress.pubKeyHash())
   final String scriptHash;
@@ -20,8 +18,8 @@ class ElectrumScriptHashListUnspent
   String get method => ElectrumRequestMethods.listunspent.method;
 
   @override
-  List toJson() {
-    return [scriptHash, if (includeTokens) "include_tokens"];
+  List toParams() {
+    return [scriptHash, if (includeTokens) 'include_tokens'];
   }
 
   /// A list of unspent outputs in blockchain order.
@@ -29,9 +27,8 @@ class ElectrumScriptHashListUnspent
   /// Mempool transactions paying to the address are included at the end of the list in an undefined order.
   /// Any output that is spent in the mempool does not appear.
   @override
-  List<ElectrumUtxo> onResonse(result) {
-    final List<ElectrumUtxo> utxos =
-        result.map((e) => ElectrumUtxo.fromJson(e)).toList();
+  List<ElectrumUtxo> onResponse(result) {
+    final utxos = result.map((e) => ElectrumUtxo.fromJson(e)).toList();
     return utxos;
   }
 }

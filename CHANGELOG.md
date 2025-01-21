@@ -1,3 +1,33 @@
+## 5.0.0
+* Update dependencies
+* Minimum required Dart SDK version updated to 3.3.
+
+## 4.9.4
+
+* Improved serialization process for large transaction scripts.
+* Added support for the Electra network.
+* Create and spent from uncompressed public key format.
+* Important Notice: This is the final version supporting Dart v2. The next release will require Dart v3.3 or higher.
+
+## 4.9.2
+
+* Update dependencies
+* Resolved issue with transaction deserialization (unsigned tx)
+
+## 4.9.1
+
+* Resolved issue with transaction deserialization (Issue #9)
+
+## 4.9.0
+
+* Correct Bitcoin address network configuration.
+* Resolve issue with Electrum fee estimation results.
+
+
+## 4.8.0
+
+* Update dependencies
+
 ## 4.7.0
 
 * Update dependencies
