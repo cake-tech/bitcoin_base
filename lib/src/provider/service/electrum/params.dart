@@ -109,6 +109,8 @@ class ElectrumBatchRequestResult<RESULT> {
   final RESULT result;
   final int id;
 
+  List<dynamic>? get paramForRequest => request.paramsById[id];
+
   ElectrumBatchRequestResult({
     required this.request,
     required this.id,
@@ -124,6 +126,8 @@ abstract class ElectrumBatchRequest<RESULT, RESPONSE> extends BaseElectrumReques
   ) {
     throw UnimplementedError();
   }
+
+  int finalId = 0;
 
   @override
   BaseElectrumRequestDetails toRequest(int requestId) {
@@ -142,6 +146,8 @@ abstract class ElectrumBatchRequest<RESULT, RESPONSE> extends BaseElectrumReques
       requestId++;
       return json;
     }).toList();
+
+    finalId = requestId;
 
     return ElectrumBatchRequestDetails(paramsById: paramsById, params: json, method: method);
   }

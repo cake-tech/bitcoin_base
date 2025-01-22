@@ -32,10 +32,14 @@ abstract class BitcoinBaseElectrumRPCService {
 
   AsyncBehaviorSubject<T>? subscribe<T>(ElectrumRequestDetails params);
 
+  List<AsyncBehaviorSubject<T>>? batchSubscribe<T>(ElectrumBatchRequestDetails params);
+
   /// Makes an HTTP GET request with the specified [params].
   ///
   /// The optional [timeout] parameter sets the maximum duration for the request.
   Future<T> call<T>(ElectrumRequestDetails params, [Duration? timeout]);
+
+  Future<List<T>> batchCall<T>(ElectrumBatchRequestDetails params, [Duration? timeout]);
 
   bool get isConnected;
   void disconnect();
@@ -47,10 +51,6 @@ abstract class BitcoinBaseElectrumRPCService {
     final Duration connectionTimeOut = const Duration(seconds: 30),
     void Function(ConnectionStatus)? onConnectionStatusChange,
   }) {
-    throw UnimplementedError();
-  }
-
-  Future<List<T>> batchCall<T>(ElectrumBatchRequestDetails params, [Duration? timeout]) async {
     throw UnimplementedError();
   }
 }

@@ -22,6 +22,10 @@ export 'src/provider/api_provider.dart';
 
 export 'src/provider/models/electrum/electrum_utxo.dart';
 
+export 'src/provider/service/electrum/electrum.dart';
+
+export 'src/provider/service/electrum/electrum_version.dart';
+
 export 'src/utils/utils.dart';
 
 export 'src/utils/btc_utils.dart';

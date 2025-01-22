@@ -3,6 +3,13 @@ import 'dart:async';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:rxdart/rxdart.dart';
 
+class BatchSubscription<T> {
+  final BehaviorSubject<T> subscription;
+  final ElectrumBatchRequestDetails params;
+
+  BatchSubscription(this.subscription, this.params);
+}
+
 typedef ListenerCallback<T> = StreamSubscription<T> Function(
   void Function(T)? onData, {
   Function? onError,
@@ -28,9 +35,11 @@ class ElectrumProvider {
     Duration? timeout,
   ]) async {
     final id = ++_id;
-    final params = request.toRequest(id);
-    final result = await rpc.batchCall<U>(params as ElectrumBatchRequestDetails, timeout);
-    return result.map((r) => request.onResponse(r, params)).toList();
+    final params = request.toRequest(id) as ElectrumBatchRequestDetails;
+    _id = request.finalId;
+
+    final results = await rpc.batchCall<U>(params, timeout);
+    return results.map((r) => request.onResponse(r, params)).toList();
   }
 
   /// Sends a request to the Electrum server using the specified [request] parameter.
@@ -41,6 +50,20 @@ class ElectrumProvider {
     final params = request.toRequest(id);
     final result = await rpc.call<U>(params, timeout);
     return request.onResponse(result);
+  }
+
+  Future<List<BatchSubscription<U>>?> batchSubscribe<T, U>(
+    ElectrumBatchRequest<T, U> request, [
+    Duration? timeout,
+  ]) async {
+    final id = ++_id;
+    final params = request.toRequest(id) as ElectrumBatchRequestDetails;
+    _id = request.finalId;
+    final subscriptions = rpc.batchSubscribe<U>(params);
+
+    if (subscriptions == null) return null;
+
+    return subscriptions.map((s) => BatchSubscription(s.subscription, params)).toList();
   }
 
   // Preserving generic type T in subscribe method

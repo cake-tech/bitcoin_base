@@ -177,49 +177,73 @@ class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
       });
     }
 
-    try {
-      final result = _findResult(response, _tasks[id]!.request);
-      _finish(id!, result);
-    } catch (_) {}
+    final result = _findResult(response, _tasks[id]!.request);
+    _finish(id!, result);
   }
 
   void _onMessage(List<int> event) {
-    final msg = utf8.decode(event.toList());
-    final messagesList = msg.split("\n");
-    for (var message in messagesList) {
-      if (message.isEmpty) {
-        continue;
-      }
+    try {
+      final msg = utf8.decode(event.toList());
+      final messagesList = msg.split("\n");
+      for (var message in messagesList) {
+        if (message.isEmpty) {
+          continue;
+        }
 
-      _parseResponse(message);
-    }
+        _parseResponse(message);
+      }
+    } catch (_) {}
   }
 
-  dynamic _findResult(dynamic data, BaseElectrumRequestDetails request) {
+  dynamic _findResult(dynamic data, BaseElectrumRequestDetails? request) {
     final error = data["error"];
+    int? id;
+    try {
+      id = request?.params["id"];
+    } catch (_) {}
+    final requestParams = data["request"] ?? request?.params;
 
     if (error != null) {
-      final id = request.params["id"];
       if (error is String) {
-        _errors[id] = RPCError(
-          data: error,
-          errorCode: 0,
-          message: error,
-          request: request.params,
-        );
+        if (id != null) {
+          _errors[id] = RPCError(
+            data: error,
+            errorCode: 0,
+            message: error,
+            request: requestParams,
+          );
+        }
       } else {
         final code = int.tryParse(((error['code']?.toString()) ?? "0")) ?? 0;
         final message = error['message'] ?? "";
-        _errors[id] = RPCError(
-          errorCode: code,
-          message: message,
-          data: error["data"],
-          request: data["request"] ?? request.params,
-        );
+
+        if (id != null) {
+          _errors[id] = RPCError(
+            errorCode: code,
+            message: message,
+            data: error["data"],
+            request: requestParams,
+          );
+        }
 
         if (message.toLowerCase().contains("unknown method") ||
             message.toLowerCase().contains("unsupported request")) {
           return <String, dynamic>{};
+        }
+
+        if (message.toLowerCase().contains("batch limit")) {
+          for (final k in _tasks.keys) {
+            if (_tasks[k]?.isBatchRequest ?? false) {
+              _errors[k] = RPCError(
+                errorCode: code,
+                message: message,
+                data: error["data"],
+                request: requestParams,
+              );
+
+              _tasks[k]!.completer?.completeError(_errors[k]!);
+            }
+          }
         }
       }
     }
@@ -233,15 +257,23 @@ class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
       return;
     }
 
-    final notCompleted = task.completer != null && task.completer!.isCompleted == false;
-    if (notCompleted) {
-      task.completer!.complete(result);
-    }
-
     if (!task.isSubscription) {
+      final notCompleted = task.completer != null && task.completer!.isCompleted == false;
+      if (notCompleted) {
+        if (task.isBatchRequest) {
+          task.completer!.complete({"id": id, "result": result});
+        } else {
+          task.completer!.complete(result);
+        }
+      }
+
       _tasks.remove(id);
     } else {
-      task.subject?.add(result);
+      if (task.isBatchRequest) {
+        task.subject?.add({"id": id, "result": result});
+      } else {
+        task.subject?.add(result);
+      }
     }
   }
 
@@ -262,6 +294,36 @@ class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
       add(params.toTCPParams());
 
       return subscription;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<AsyncBehaviorSubject<T>> _registerBatchSubscription<T>(
+    ElectrumBatchRequestDetails mainParams,
+  ) {
+    return mainParams.params.map((params) {
+      final subscription = AsyncBehaviorSubject<T>(params);
+
+      final id = params["id"] as int;
+      _tasks[id] = SocketTask(
+        subject: subscription.subscription,
+        request: mainParams,
+        isSubscription: true,
+        isBatchRequest: true,
+      );
+
+      return subscription;
+    }).toList();
+  }
+
+  @override
+  List<AsyncBehaviorSubject<T>>? batchSubscribe<T>(ElectrumBatchRequestDetails params) {
+    try {
+      final subscriptions = _registerBatchSubscription<T>(params);
+      add(params.toTCPParams());
+
+      return subscriptions;
     } catch (e) {
       return null;
     }
