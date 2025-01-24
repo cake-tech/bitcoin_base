@@ -41,4 +41,9 @@ class ElectrumVersion {
 
     return 0;
   }
+
+  @override
+  String toString() {
+    return '$major.$minor.$patch';
+  }
 }

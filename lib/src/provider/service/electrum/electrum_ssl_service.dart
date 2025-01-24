@@ -240,7 +240,9 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
 
         if (message.toLowerCase().contains("batch limit")) {
           for (final k in _tasks.keys) {
-            if (_tasks[k]?.isBatchRequest ?? false) {
+            final task = _tasks[k];
+
+            if (task?.isBatchRequest ?? false) {
               _errors[k] = RPCError(
                 errorCode: code,
                 message: message,
@@ -248,7 +250,11 @@ class ElectrumSSLService implements BitcoinBaseElectrumRPCService {
                 request: requestParams,
               );
 
-              _tasks[k]!.completer?.completeError(_errors[k]!);
+              if (task!.isSubscription) {
+                task.subject?.addError(_errors[k]!);
+              } else {
+                task.completer?.completeError(_errors[k]!);
+              }
             }
           }
         }

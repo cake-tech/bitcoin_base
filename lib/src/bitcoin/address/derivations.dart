@@ -14,6 +14,20 @@ class BitcoinDerivationInfo {
   final BitcoinAddressType scriptType;
   final String? description;
 
+  static BitcoinDerivationInfo fromDerivationAndAddress(
+    BitcoinDerivationType derivationType,
+    String address,
+    BasedUtxoNetwork network,
+  ) {
+    final derivations = BITCOIN_DERIVATIONS[derivationType]!;
+    final scriptType = BitcoinAddressUtils.addressTypeFromStr(address, network);
+
+    return derivations.firstWhere(
+      (element) => element.scriptType == scriptType,
+      orElse: () => derivations.first,
+    );
+  }
+
   factory BitcoinDerivationInfo.fromJSON(Map<String, dynamic> json) {
     return BitcoinDerivationInfo(
       derivationType: BitcoinDerivationType.values[json['derivationType']],
