@@ -64,6 +64,7 @@ abstract class BitcoinDerivationPaths {
   static const String SILENT_PAYMENTS_SPEND = "m/352'/0'/0'/0'/0";
 
   static const String LITECOIN = "m/84'/2'/0'";
+  static const String LITECOIN_MWEB = "m/1000'";
 
   static const String SAMOURAI_BAD_BANK = "m/84'/0'/2147483644'";
   static const String SAMOURAI_WHIRLPOOL_PREMIX = "m/84'/0'/2147483645'";
@@ -111,6 +112,13 @@ abstract class BitcoinDerivationInfos {
     derivationPath: BitcoinDerivationPaths.LITECOIN,
     description: "Default Litecoin",
     scriptType: SegwitAddressType.p2wpkh,
+  );
+
+  static final BitcoinDerivationInfo LITECOIN_MWEB = BitcoinDerivationInfo(
+    derivationType: BitcoinDerivationType.bip39,
+    derivationPath: BitcoinDerivationPaths.LITECOIN_MWEB,
+    description: "Litecoin MWEB",
+    scriptType: SegwitAddressType.mweb,
   );
 
   static final BitcoinDerivationInfo SILENT_PAYMENTS_SCAN = BitcoinDerivationInfo(
