@@ -251,12 +251,13 @@ class BtcTransaction {
   /// [script] The scriptCode (template) that corresponds to the segwit, transaction output type that we want to spend.
   /// [amount] The amount of the UTXO to spend is included in the signature for segwit (in satoshis).
   /// [sighash] The type of the signature hash to be created.
-  List<int> getTransactionSegwitDigit(
-      {required int txInIndex,
-      required Script script,
-      int sighash = BitcoinOpCodeConst.SIGHASH_ALL,
-      required BigInt amount,
-      CashToken? token}) {
+  List<int> getTransactionSegwitDigit({
+    required int txInIndex,
+    required Script script,
+    int sighash = BitcoinOpCodeConst.SIGHASH_ALL,
+    required BigInt amount,
+    CashToken? token,
+  }) {
     final tx = copy(this);
     var hashPrevouts = List<int>.filled(32, 0);
     var hashSequence = List<int>.filled(32, 0);
@@ -321,6 +322,7 @@ class BtcTransaction {
     txForSigning.add(hashOutputs);
     txForSigning.add(locktime);
     txForSigning.add(IntUtils.toBytes(sighash, length: 4, byteOrder: Endian.little));
+
     return QuickCrypto.sha256DoubleHash(txForSigning.toBytes());
   }
 

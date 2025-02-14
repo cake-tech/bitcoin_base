@@ -193,7 +193,7 @@ class ForkedTransactionBuilder implements BasedBitcoinTransacationBuilder {
       case P2pkhAddressType.p2pkhwt:
       case P2shAddressType.p2pkhInP2shwt:
       case P2shAddressType.p2pkhInP2sh32wt:
-        return senderPub.toP2pkAddress(mode: utxo.keyType).toScriptPubKey();
+        return senderPub.toP2pkhAddress(mode: utxo.keyType).toScriptPubKey();
       default:
         throw DartBitcoinPluginException(
             '${utxo.utxo.scriptType} does not sudpport on ${network.conf.coinName.name}');
@@ -215,18 +215,18 @@ class ForkedTransactionBuilder implements BasedBitcoinTransacationBuilder {
 //
   /// Returns:
   /// - `List<int>`: representing the transaction digest to be used for signing the input.
-  List<int> _generateTransactionDigest(
-      {required Script scriptPubKeys,
-      required int input,
-      required UtxoWithAddress utox,
-      required BtcTransaction transaction,
-      int sighash = BitcoinOpCodeConst.SIGHASH_ALL | BitcoinOpCodeConst.SIGHASH_FORKED}) {
+  List<int> _generateTransactionDigest({
+    required Script scriptPubKeys,
+    required int input,
+    required UtxoWithAddress utox,
+    required BtcTransaction transaction,
+  }) {
     return transaction.getTransactionSegwitDigit(
         txInIndex: input,
         script: scriptPubKeys,
         amount: utox.utxo.value,
         token: utox.utxo.token,
-        sighash: sighash);
+        sighash: BitcoinOpCodeConst.SIGHASH_ALL | BitcoinOpCodeConst.SIGHASH_FORKED);
   }
 
   /// buildP2wshOrP2shScriptSig constructs and returns a script signature (represented as a List of strings)
@@ -499,11 +499,11 @@ be retrieved by anyone who examines the blockchain's history.
 
       /// We generate transaction digest for current input
       final digest = _generateTransactionDigest(
-          scriptPubKeys: script,
-          input: i,
-          utox: indexUtxo,
-          transaction: transaction,
-          sighash: sighash);
+        scriptPubKeys: script,
+        input: i,
+        utox: indexUtxo,
+        transaction: transaction,
+      );
 
       /// handle multisig address
       if (indexUtxo.isMultiSig()) {
@@ -585,11 +585,11 @@ be retrieved by anyone who examines the blockchain's history.
 
       /// We generate transaction digest for current input
       final digest = _generateTransactionDigest(
-          scriptPubKeys: script,
-          input: i,
-          utox: indexUtxo,
-          transaction: transaction,
-          sighash: sighash);
+        scriptPubKeys: script,
+        input: i,
+        utox: indexUtxo,
+        transaction: transaction,
+      );
 
       /// handle multisig address
       if (indexUtxo.isMultiSig()) {
@@ -629,8 +629,11 @@ be retrieved by anyone who examines the blockchain's history.
     return transaction;
   }
 
-  void _addScripts(
-      {required UtxoWithAddress utxo, required TxInput input, required List<String> signatures}) {
+  void _addScripts({
+    required UtxoWithAddress utxo,
+    required TxInput input,
+    required List<String> signatures,
+  }) {
     /// ok we signed, now we need unlocking script for this input
     final scriptSig = utxo.isMultiSig()
         ? _buildMiltisigUnlockingScript(signatures, utxo)

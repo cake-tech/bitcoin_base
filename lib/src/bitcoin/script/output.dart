@@ -99,6 +99,6 @@ class TxOutput {
 
   @override
   String toString() {
-    return 'TxOutput{cashToken: ${cashToken?.toString()}}, amount: $amount, script: ${scriptPubKey.toString()}}';
+    return 'TxOutput{cashToken: ${cashToken?.toString()}, amount: $amount, script: ${scriptPubKey.toString()}}';
   }
 }
