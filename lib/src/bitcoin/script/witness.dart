@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:blockchain_utils/helper/extensions/extensions.dart';
 import 'package:blockchain_utils/utils/utils.dart';
 
 class ScriptWitness {
@@ -17,7 +18,7 @@ class ScriptWitness {
 /// [stack] the witness items (hex str) list
 class TxWitnessInput {
   TxWitnessInput({required List<String> stack, ScriptWitness? scriptWitness})
-      : stack = List.unmodifiable(stack),
+      : stack = stack.immutable,
         scriptWitness = scriptWitness ?? ScriptWitness();
 
   final List<String> stack;
@@ -30,14 +31,18 @@ class TxWitnessInput {
 
   /// returns a serialized byte version of the witness items list
   List<int> toBytes() {
-    List<int> stackBytes = [];
+    var stackBytes = <int>[];
 
-    for (String item in stack) {
-      List<int> itemBytes = IntUtils.prependVarint(BytesUtils.fromHexString(item));
+    for (final item in stack) {
+      final itemBytes = IntUtils.prependVarint(BytesUtils.fromHexString(item));
       stackBytes = [...stackBytes, ...itemBytes];
     }
 
     return stackBytes;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'stack': stack};
   }
 
   @override

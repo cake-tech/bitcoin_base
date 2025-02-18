@@ -4,13 +4,12 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:pointycastle/export.dart';
-import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip32/src/utils/ecurve.dart' as ecc;
 
 /// Represents an ECDSA private key.
 class ECPrivate {
   final Bip32PrivateKey prive;
-  ECPrivate(this.prive);
+  const ECPrivate(this.prive);
 
   /// creates an object from hex
   factory ECPrivate.fromHex(String keyHex) {
@@ -33,13 +32,23 @@ class ECPrivate {
     return ECPrivate.fromBytes(decode.item1);
   }
 
-  /// returns as WIFC (compressed) or WIF format (string)
-  String toWif({bool compressed = true, BitcoinNetwork? network}) {
-    List<int> bytes = <int>[...(network ?? BitcoinNetwork.mainnet).wifNetVer, ...toBytes()];
-    if (compressed) {
-      bytes = <int>[...bytes, 0x01];
+  factory ECPrivate.fromBip32({required Bip32Base bip32, int? account, int? index}) {
+    if (account != null) {
+      bip32 = bip32.childKey(Bip32KeyIndex(account));
+
+      if (index != null) {
+        bip32 = bip32.childKey(Bip32KeyIndex(index));
+      }
     }
-    return Base58Encoder.checkEncode(bytes);
+
+    return ECPrivate(bip32.privateKey);
+  }
+
+  /// returns as WIFC (compressed) or WIF format (string)
+  String toWif(
+      {PubKeyModes pubKeyMode = PubKeyModes.compressed,
+      BitcoinNetwork network = BitcoinNetwork.mainnet}) {
+    return WifEncoder.encode(toBytes(), netVer: network.wifNetVer, pubKeyMode: pubKeyMode);
   }
 
   /// returns the key's raw bytes
@@ -57,7 +66,6 @@ class ECPrivate {
 
   /// Returns a Bitcoin compact signature in hex
   String signMessage(List<int> message, {String messagePrefix = '\x18Bitcoin Signed Message:\n'}) {
-
     final messageHash =
         QuickCrypto.sha256Hash(BitcoinSignerUtils.magicMessage(message, messagePrefix));
 
@@ -86,9 +94,18 @@ class ECPrivate {
   /// sign transaction digest  and returns the signature.
   String signInput(List<int> txDigest, {int sigHash = BitcoinOpCodeConst.SIGHASH_ALL}) {
     final btcSigner = BitcoinSigner.fromKeyBytes(toBytes());
-    List<int> signature = btcSigner.signTransaction(txDigest);
+    var signature = btcSigner.signTransaction(txDigest);
     signature = <int>[...signature, sigHash];
     return BytesUtils.toHexString(signature);
+  }
+
+  String signSchnorr(List<int> txDigest, {int sighash = BitcoinOpCodeConst.TAPROOT_SIGHASH_ALL}) {
+    final btcSigner = BitcoinSigner.fromKeyBytes(toBytes());
+    var signatur = btcSigner.signSchnorrTransaction(txDigest, tapScripts: [], tweak: false);
+    if (sighash != BitcoinOpCodeConst.TAPROOT_SIGHASH_ALL) {
+      signatur = <int>[...signatur, sighash];
+    }
+    return BytesUtils.toHexString(signatur);
   }
 
   /// sign taproot transaction digest and returns the signature.
@@ -102,16 +119,16 @@ class ECPrivate {
       }
       return true;
     }(),
-        "When the tweak is false, the `tapScripts` are ignored, to use the tap script path, you need to consider the tweak value to be true.");
+        'When the tweak is false, the `tapScripts` are ignored, to use the tap script path, you need to consider the tweak value to be true.');
     final tapScriptBytes =
         !tweak ? [] : tapScripts.map((e) => e.map((e) => e.toBytes()).toList()).toList();
     final btcSigner = BitcoinSigner.fromKeyBytes(toBytes());
-    List<int> signatur =
+    var signature =
         btcSigner.signSchnorrTransaction(txDigest, tapScripts: tapScriptBytes, tweak: tweak);
     if (sighash != BitcoinOpCodeConst.TAPROOT_SIGHASH_ALL) {
-      signatur = <int>[...signatur, sighash];
+      signature = <int>[...signature, sighash];
     }
-    return BytesUtils.toHexString(signatur);
+    return BytesUtils.toHexString(signature);
   }
 
   ECPrivate toTweakedTaprootKey() {
