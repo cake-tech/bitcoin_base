@@ -274,7 +274,6 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
             .toScriptPubKey();
       case SegwitAddressType.mweb:
         return Script(script: []);
-        return senderPub.toAddress().toScriptPubKey();
       case P2shAddressType.p2pkhInP2sh:
         if (isTaproot) {
           return senderPub.toP2pkhInP2sh(mode: utxo.keyType).toScriptPubKey();
@@ -903,6 +902,8 @@ List<BitcoinBaseAddress> _fakeAddressesFromTypes(List<BitcoinAddressType> types)
       case SegwitAddressType.p2tr:
       case SilentPaymentsAddresType.p2sp:
         return fakePub.toTaprootAddress();
+      case SegwitAddressType.mweb:
+        return fakePub.toMwebAddress();
       default:
         throw const DartBitcoinPluginException("invalid bitcoin address type");
     }

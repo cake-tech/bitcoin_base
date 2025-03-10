@@ -168,6 +168,10 @@ class ECPublic {
         script: p2sh.toScriptPubKey(), type: P2shAddressType.p2wshInP2sh);
   }
 
+  MwebAddress toMwebAddress() {
+    return MwebAddress.fromRedeemScript(script: toRedeemScript());
+  }
+
   bool compareToAddress(BitcoinBaseAddress other, BasedUtxoNetwork network) {
     late BitcoinBaseAddress address;
 
