@@ -19,11 +19,9 @@ class MultiSignatureSigner {
 
   /// creates a new instance of a multi-signature signer with the
   /// specified public key and weight.
-  factory MultiSignatureSigner(
-      {required String publicKey, required int weight}) {
+  factory MultiSignatureSigner({required String publicKey, required int weight}) {
     ECPublic.fromHex(publicKey);
-    return MultiSignatureSigner._(
-        publicKey, weight, BtcUtils.isCompressedPubKey(publicKey));
+    return MultiSignatureSigner._(publicKey, weight, BtcUtils.isCompressedPubKey(publicKey));
   }
 }
 
@@ -71,8 +69,7 @@ class MultiSignatureAddress {
         script: p2wsh.toScriptPubKey(), type: P2shAddressType.p2wshInP2sh);
   }
 
-  BitcoinBaseAddress toP2shAddress(
-      [P2shAddressType addressType = P2shAddressType.p2pkhInP2sh]) {
+  BitcoinBaseAddress toP2shAddress([P2shAddressType addressType = P2shAddressType.p2pkhInP2sh]) {
     if (!legacySupportP2shTypes.contains(addressType)) {
       throw DartBitcoinPluginException(
           "invalid p2sh type please use one of them ${legacySupportP2shTypes.map((e) => "$e").join(", ")}");
@@ -80,16 +77,14 @@ class MultiSignatureAddress {
 
     if (addressType.hashLength == 32) {
       return P2shAddress.fromHash160(
-          h160: BytesUtils.toHexString(
-              QuickCrypto.sha256DoubleHash(multiSigScript.toBytes())),
+          h160: BytesUtils.toHexString(QuickCrypto.sha256DoubleHash(multiSigScript.toBytes())),
           type: addressType);
     }
     return P2shAddress.fromScriptPubkey(script: multiSigScript, type: addressType);
   }
 
   BitcoinBaseAddress fromType(
-      {required BasedUtxoNetwork network,
-      required BitcoinAddressType addressType}) {
+      {required BasedUtxoNetwork network, required BitcoinAddressType addressType}) {
     switch (addressType) {
       case SegwitAddressType.p2wsh:
         return toP2wshAddress(network: network);
@@ -118,15 +113,12 @@ class MultiSignatureAddress {
   /// multi-signature scheme, and specify the address type.
   factory MultiSignatureAddress(
       {required int threshold, required List<MultiSignatureSigner> signers}) {
-    final sumWeight =
-        signers.fold<int>(0, (sum, signer) => sum + signer.weight);
+    final sumWeight = signers.fold<int>(0, (sum, signer) => sum + signer.weight);
     if (threshold > 16 || threshold < 1) {
-      throw const DartBitcoinPluginException(
-          'The threshold should be between 1 and 16');
+      throw const DartBitcoinPluginException('The threshold should be between 1 and 16');
     }
     if (sumWeight > 16) {
-      throw const DartBitcoinPluginException(
-          'The total weight of the owners should not exceed 16');
+      throw const DartBitcoinPluginException('The total weight of the owners should not exceed 16');
     }
     if (sumWeight < threshold) {
       throw const DartBitcoinPluginException(

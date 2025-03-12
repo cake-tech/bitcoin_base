@@ -21,17 +21,17 @@ import 'witness.dart';
 /// [hasSegwit] Specifies a tx that includes segwit inputs
 /// [witnesses] The witness structure that corresponds to the inputs
 class BtcTransaction {
-  BtcTransaction({
-    required List<TxInput> inputs,
-    required List<TxOutput> outputs,
-    List<TxWitnessInput> witnesses = const [],
-    this.hasSegwit = false,
-    this.canReplaceByFee = false,
-    this.mwebBytes,
-    List<int>? lock,
-    List<int>? version,
-    this.hasSilentPayment = false,
-  })  : locktime = lock?.immutable ?? BitcoinOpCodeConst.DEFAULT_TX_LOCKTIME,
+  BtcTransaction(
+      {required List<TxInput> inputs,
+      required List<TxOutput> outputs,
+      List<TxWitnessInput> witnesses = const [],
+      this.hasSegwit = false,
+      this.canReplaceByFee = false,
+      this.mwebBytes,
+      List<int>? lock,
+      List<int>? version,
+      this.hasSilentPayment = false})
+      : locktime = lock?.immutable ?? BitcoinOpCodeConst.DEFAULT_TX_LOCKTIME,
         version = version?.immutable ?? BitcoinOpCodeConst.DEFAULT_TX_VERSION,
         inputs = inputs.immutable,
         outputs = outputs.immutable,
@@ -55,15 +55,14 @@ class BtcTransaction {
     List<int>? version,
   }) {
     return BtcTransaction(
-      inputs: inputs ?? this.inputs,
-      outputs: outputs ?? this.outputs,
-      witnesses: witnesses ?? this.witnesses,
-      hasSegwit: hasSegwit ?? this.hasSegwit,
-      mwebBytes: mwebBytes,
-      lock: lock ?? locktime,
-      version: version ?? this.version,
-      hasSilentPayment: hasSilentPayment,
-    );
+        inputs: inputs ?? this.inputs,
+        outputs: outputs ?? this.outputs,
+        witnesses: witnesses ?? this.witnesses,
+        hasSegwit: hasSegwit ?? this.hasSegwit,
+        mwebBytes: mwebBytes,
+        lock: lock ?? locktime,
+        version: version ?? this.version,
+        hasSilentPayment: hasSilentPayment);
   }
 
   /// creates a copy of the object (classmethod)
@@ -206,7 +205,10 @@ class BtcTransaction {
     }
     var txForSign = tx.toBytes(segwit: false);
 
-    txForSign = [...txForSign, ...IntUtils.toBytes(sighash, length: 4, byteOrder: Endian.little)];
+    txForSign = [
+      ...txForSign,
+      ...IntUtils.toBytes(sighash, length: 4, byteOrder: Endian.little),
+    ];
     return QuickCrypto.sha256DoubleHash(txForSign);
   }
 

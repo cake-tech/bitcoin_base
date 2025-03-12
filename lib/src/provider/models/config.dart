@@ -91,15 +91,14 @@ class APIConfig {
     }
 
     return APIConfig(
-      url: "$baseUrl/addrs/###/?unspentOnly=true&includeScript=true&limit=2000",
-      feeRate: baseUrl,
-      transaction: "$baseUrl/txs/###",
-      sendTransaction: "$baseUrl/txs/push",
-      apiType: APIType.blockCypher,
-      transactions: "$baseUrl/addrs/###/full?limit=200",
-      network: network,
-      blockHeight: "$baseUrl/blocks/###",
-    );
+        url: "$baseUrl/addrs/###/?unspentOnly=true&includeScript=true&limit=2000",
+        feeRate: baseUrl,
+        transaction: "$baseUrl/txs/###",
+        sendTransaction: "$baseUrl/txs/push",
+        apiType: APIType.blockCypher,
+        transactions: "$baseUrl/addrs/###/full?limit=200",
+        network: network,
+        blockHeight: "$baseUrl/blocks/###");
   }
 
   factory APIConfig.mempool(BasedUtxoNetwork network, [String? baseUrl]) {
@@ -118,29 +117,27 @@ class APIConfig {
     }
 
     return APIConfig(
-      url: "$baseUrl/address/###/utxo",
-      feeRate: "$baseUrl/fees/recommended",
-      transaction: "$baseUrl/tx/###",
-      sendTransaction: "$baseUrl/tx",
-      apiType: APIType.mempool,
-      transactions: "$baseUrl/address/###/txs",
-      network: network,
-      blockHeight: "$baseUrl/block-height/###",
-      block: "$baseUrl/block/###",
-      blockTimestamp: "$baseUrl/mining/blocks/timestamp/###",
-    );
+        url: "$baseUrl/address/###/utxo",
+        feeRate: "$baseUrl/fees/recommended",
+        transaction: "$baseUrl/tx/###",
+        sendTransaction: "$baseUrl/tx",
+        apiType: APIType.mempool,
+        transactions: "$baseUrl/address/###/txs",
+        network: network,
+        blockHeight: "$baseUrl/block-height/###",
+        block: "$baseUrl/block/###",
+        blockTimestamp: "$baseUrl/mining/blocks/timestamp/###");
   }
 
-  APIConfig({
-    required this.url,
-    required this.feeRate,
-    required this.transaction,
-    required this.transactions,
-    required this.sendTransaction,
-    required this.apiType,
-    required this.network,
-    required this.blockHeight,
-    this.block,
-    this.blockTimestamp,
-  });
+  APIConfig(
+      {required this.url,
+      required this.feeRate,
+      required this.transaction,
+      required this.transactions,
+      required this.sendTransaction,
+      required this.apiType,
+      required this.network,
+      required this.blockHeight,
+      this.block,
+      this.blockTimestamp});
 }

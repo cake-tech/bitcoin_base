@@ -51,8 +51,13 @@ class TxInput {
     // writeUint32LE(txIndex, txoutBytes);
     final scriptSigBytes = scriptSig.toBytes();
     final scriptSigLengthVarint = IntUtils.encodeVarint(scriptSigBytes.length);
-    final data = List<int>.from(
-        [...txidBytes, ...txoutBytes, ...scriptSigLengthVarint, ...scriptSigBytes, ...sequence]);
+    final data = List<int>.from([
+      ...txidBytes,
+      ...txoutBytes,
+      ...scriptSigLengthVarint,
+      ...scriptSigBytes,
+      ...sequence,
+    ]);
     return data;
   }
 
@@ -85,14 +90,10 @@ class TxInput {
     cursor += 4;
     return Tuple(
         TxInput(
-          txId: BytesUtils.toHexString(inpHash),
-          txIndex: outputN,
-          scriptSig: Script.deserialize(
-            bytes: unlockingScript,
-            hasSegwit: hasSegwit,
-          ),
-          sequence: sequenceNumberData,
-        ),
+            txId: BytesUtils.toHexString(inpHash),
+            txIndex: outputN,
+            scriptSig: Script.deserialize(bytes: unlockingScript, hasSegwit: hasSegwit),
+            sequence: sequenceNumberData),
         cursor);
   }
 

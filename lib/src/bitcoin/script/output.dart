@@ -90,10 +90,7 @@ class TxOutput {
         TxOutput(
             amount: value,
             cashToken: token.item1,
-            scriptPubKey: Script.deserialize(
-              bytes: lockScript,
-              hasSegwit: hasSegwit,
-            )),
+            scriptPubKey: Script.deserialize(bytes: lockScript, hasSegwit: hasSegwit)),
         cursor);
   }
 

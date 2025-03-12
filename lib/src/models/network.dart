@@ -241,7 +241,11 @@ class LitecoinNetwork implements BasedUtxoNetwork {
     if (isMainnet) {
       return [Bip44Coins.litecoin, Bip49Coins.litecoin, Bip84Coins.litecoin];
     }
-    return [Bip44Coins.litecoinTestnet, Bip49Coins.litecoinTestnet, Bip84Coins.litecoinTestnet];
+    return [
+      Bip44Coins.litecoinTestnet,
+      Bip49Coins.litecoinTestnet,
+      Bip84Coins.litecoinTestnet,
+    ];
   }
 }
 
@@ -540,7 +544,11 @@ class ElectraProtocolNetwork implements BasedUtxoNetwork {
   @override
   List<BipCoins> get coins {
     if (isMainnet) {
-      return [Bip44Coins.electraProtocol, Bip49Coins.electraProtocol, Bip84Coins.electraProtocol];
+      return [
+        Bip44Coins.electraProtocol,
+        Bip49Coins.electraProtocol,
+        Bip84Coins.electraProtocol,
+      ];
     }
     return [
       Bip44Coins.electraProtocolTestnet,
