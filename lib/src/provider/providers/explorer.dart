@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
 import 'package:bitcoin_base/src/provider/models/models.dart';
 import 'package:bitcoin_base/src/provider/services/explorer.dart';
 import 'package:bitcoin_base/src/models/network.dart';
+import 'package:blockchain_utils/utils/binary/utils.dart';
 import 'package:blockchain_utils/utils/string/string.dart';
 
 class ApiProvider {
@@ -25,7 +27,15 @@ class ApiProvider {
 
   final Map<String, String> _header;
 
-  Future<T> _getRequest<T>(String url) async {
+  Future<T> _getRequest<T>(String url, {Map<String, String> queryParameters = const {}}) async {
+    if (queryParameters.isNotEmpty) {
+      Uri uri = Uri.parse(url);
+      uri = uri.replace(queryParameters: {
+        ...uri.queryParameters,
+        ...queryParameters,
+      });
+      url = uri.normalizePath().toString();
+    }
     final response = await service.get<T>(url);
     return response;
   }
@@ -165,5 +175,25 @@ class ApiProvider {
 
   Future<String> genesis() async {
     return getBlockHeight(0);
+  }
+
+  Future<BtcTransaction> getRawTransaction(String transactionId,
+      {String Function(String)? tokenize}) async {
+    final apiUrl = api.getRawTransactionUrl(transactionId);
+    final url = tokenize?.call(apiUrl) ?? apiUrl;
+
+    switch (api.apiType) {
+      case APIType.mempool:
+        final response = await _getRequest<String>(url);
+        final tx = BtcTransaction.deserialize(BytesUtils.fromHexString(response));
+        assert(tx.serialize() == StringUtils.strip0x(response.toLowerCase()));
+        return tx;
+      default:
+        final response =
+            await _getRequest<Map<String, dynamic>>(url, queryParameters: {"includeHex": 'true'});
+        final tx = BtcTransaction.deserialize(BytesUtils.fromHexString(response["hex"]));
+        assert(tx.serialize() == StringUtils.strip0x(response["hex"].toLowerCase()));
+        return tx;
+    }
   }
 }

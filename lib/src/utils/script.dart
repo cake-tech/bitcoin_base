@@ -1,9 +1,9 @@
 import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
 
 bool isDefinedHashType(sighash) {
-  final hashTypeMod = sighash & ~BitcoinOpCodeConst.SIGHASH_ANYONECANPAY;
-  return hashTypeMod > BitcoinOpCodeConst.SIGHASH_ALL &&
-      hashTypeMod < BitcoinOpCodeConst.SIGHASH_SINGLE;
+  final hashTypeMod = sighash & ~BitcoinOpCodeConst.sighashAnyoneCanPay;
+  return hashTypeMod > BitcoinOpCodeConst.sighashAll &&
+      hashTypeMod < BitcoinOpCodeConst.sighashSingle;
 }
 
 bool bip66check(buffer) {

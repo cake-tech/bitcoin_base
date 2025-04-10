@@ -48,6 +48,18 @@ abstract class SegwitAddress extends BitcoinBaseAddress {
   String pubKeyHash() {
     return _BitcoinAddressUtils.pubKeyHash(toScriptPubKey());
   }
+
+  @override
+  operator ==(other) {
+    if (identical(this, other)) return true;
+    if (other is! SegwitAddress) return false;
+    if (runtimeType != other.runtimeType) return false;
+    if (type != other.type) return false;
+    return addressProgram == addressProgram && segwitVersion == other.segwitVersion;
+  }
+
+  @override
+  int get hashCode => HashCodeGenerator.generateHashCode([addressProgram, segwitVersion, type]);
 }
 
 class P2wpkhAddress extends SegwitAddress {
@@ -104,6 +116,26 @@ class P2wpkhAddress extends SegwitAddress {
 class P2trAddress extends SegwitAddress {
   static final regex =
       RegExp(r'(bc|tb)1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89})');
+
+  P2trAddress.fromInternalKey({
+    required List<int> internalKey,
+    TaprootTree? treeScript,
+    List<int>? merkleRoot,
+    bool tweak = true,
+  }) : super.fromProgram(
+          program: tweak
+              ? BytesUtils.toHexString(
+                  TaprootUtils.tweakPublicKey(
+                    internalKey,
+                    treeScript: treeScript,
+                    merkleRoot: merkleRoot,
+                  ).toXonly(),
+                )
+              : BytesUtils.toHexString(internalKey),
+          pubkey: ECPublic.fromBytes(internalKey),
+          segwitVersion: _BitcoinAddressUtils.segwitV1,
+          addressType: SegwitAddressType.p2tr,
+        );
 
   P2trAddress.fromAddress({required super.address, required super.network})
       : super.fromAddress(segwitVersion: _BitcoinAddressUtils.segwitV1);

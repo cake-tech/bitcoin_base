@@ -94,6 +94,18 @@ abstract class LegacyAddress extends BitcoinBaseAddress {
   String pubKeyHash() {
     return _BitcoinAddressUtils.pubKeyHash(toScriptPubKey());
   }
+
+  @override
+  operator ==(other) {
+    if (identical(this, other)) return true;
+    if (other is! LegacyAddress) return false;
+    if (runtimeType != other.runtimeType) return false;
+    if (type != other.type) return false;
+    return _addressProgram == other._addressProgram;
+  }
+
+  @override
+  int get hashCode => HashCodeGenerator.generateHashCode([_addressProgram, type]);
 }
 
 class P2shAddress extends LegacyAddress {
@@ -103,6 +115,19 @@ class P2shAddress extends LegacyAddress {
     required super.script,
     this.type = P2shAddressType.p2pkInP2sh,
   }) : super.fromRedeemScript();
+
+  factory P2shAddress.fromRedeemScript32({
+    required Script script,
+    P2shAddressType type = P2shAddressType.p2pkInP2sh32,
+  }) {
+    if (type.hashLength != 32) {
+      throw DartBitcoinPluginException("Invalid P2sh 32 address type.");
+    }
+
+    return P2shAddress.fromHash160(
+      h160: BytesUtils.toHexString(QuickCrypto.sha256DoubleHash(script.toBytes())),
+    );
+  }
 
   P2shAddress.fromAddress({
     required super.address,
@@ -159,6 +184,14 @@ class P2shAddress extends LegacyAddress {
   @override
   final P2shAddressType type;
 
+  @override
+  String toAddress(BasedUtxoNetwork network) {
+    if (!network.supportedAddress.contains(type)) {
+      throw DartBitcoinPluginException('network does not support ${type.value} address.');
+    }
+    return super.toAddress(network);
+  }
+
   /// Returns the scriptPubKey (P2SH) that corresponds to this address
   @override
   Script toScriptPubKey() {
@@ -172,6 +205,17 @@ class P2shAddress extends LegacyAddress {
       );
     }
   }
+
+  @override
+  operator ==(other) {
+    if (identical(this, other)) return true;
+    if (other is! LegacyAddress) return false;
+    if (runtimeType != other.runtimeType) return false;
+    return _addressProgram == other._addressProgram;
+  }
+
+  @override
+  int get hashCode => HashCodeGenerator.generateHashCode([_addressProgram]);
 }
 
 class P2pkhAddress extends LegacyAddress {
@@ -272,4 +316,14 @@ class P2pkAddress extends LegacyAddress {
 
   @override
   final PubKeyAddressType type = PubKeyAddressType.p2pk;
+
+  @override
+  operator ==(other) {
+    if (identical(this, other)) return true;
+    if (other is! P2pkAddress) return false;
+    return _pubkeyHex == other._pubkeyHex;
+  }
+
+  @override
+  int get hashCode => HashCodeGenerator.generateHashCode([_pubkeyHex, type]);
 }

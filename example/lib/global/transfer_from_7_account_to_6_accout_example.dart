@@ -1,5 +1,4 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:example/services_examples/electrum/electrum_ssl_service.dart';
 
 /// If you are working with different networks,
 /// you can apply this tutorial universally.
@@ -15,10 +14,10 @@ import 'package:example/services_examples/electrum/electrum_ssl_service.dart';
 void main() async {
   /// connect to electrum service with websocket
   /// please see `services_examples` folder for how to create electrum websocket service
-  final service = await ElectrumSSLService.connect("testnet.aranguren.org:51002");
+  final service = ElectrumSSLService.connect(Uri.parse("testnet.aranguren.org:51002"));
 
   /// create provider with service
-  final provider = ElectrumProvider(service);
+  final provider = await ElectrumProvider.connect(service);
 
   /// spender details
   final privateKey =

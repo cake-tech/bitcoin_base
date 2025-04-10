@@ -66,6 +66,23 @@ Using this package, you can create a Bitcoin transaction in two ways: either thr
 
 - BitcoinTransactionBuilder: Even with limited prior knowledge, you can utilize this class to send various types of transactions. Below, I've provided an example in which a transaction features 8 distinct input addresses with different types and private keys, as well as 10 different output addresses. Furthermore, additional examples have been prepared, which you can find in the [`example`](https://github.com/mrtnetwork/bitcoin_base/tree/main/example) folder.
 
+### PSBT
+  Find example implementations [here](https://github.com/mrtnetwork/bitcoin_base/tree/main/example/lib/psbt)
+
+- BIP-0174: Partially Signed Bitcoin Transaction Format
+- BIP-0370: PSBT Version 2
+- BIP-0371: Taproot Fields for PSBT
+- BIP-0373: MuSig2 PSBT Fields
+
+### MuSig2 (BIP-327):
+  Find example implementations [here](https://github.com/mrtnetwork/bitcoin_base/tree/main/example/lib/musig)
+
+ - Sign/Verify: Supports signing and verifying multisignature transactions using MuSig2
+ - NonceAgg: Aggregates nonces from multiple participants for secure signature generation.
+ - KeyAgg: Combines multiple public keys into a single aggregated public key for efficient multisignature verification
+
+
+
 ### Addresses
 
 - P2PKH A P2PKH (Pay-to-Public-Key-Hash) address in Bitcoin represents ownership of a cryptocurrency wallet by encoding a hashed public key
@@ -217,11 +234,11 @@ We have integrated three APIs—Mempool, BlockCypher, and Electrum—into the pl
       Script(script: ["OP_2", public1, public2, "OP_2", "OP_CHECKMULTISIG"]);
 
   /// Generate a P2WSH 3-of-5 address.
-  final p2wsh3of5Address = P2wshAddress.fromScript(script: newScript);
+  final p2wsh3of5Address = P2wshAddress.fromRedeemScript(script: newScript);
 
   /// Generate a P2SH 3-of-5 address from the P2WSH address.
   final p2sh3Of5 =
-      P2shAddress.fromScript(script: p2wsh3of5Address.toScriptPubKey());
+      P2shAddress.fromRedeemScript(script: p2wsh3of5Address.toScriptPubKey());
 
   /// Implemented classes for each network to better manage network-specific addresses.
   /// Integrated these classes to eliminate the necessity of using the main class and type for each address.

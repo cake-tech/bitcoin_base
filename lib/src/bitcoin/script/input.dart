@@ -17,7 +17,7 @@ class TxInput {
     Script? scriptSig,
     List<int>? sequence,
   })  : sequence = List.unmodifiable(
-          sequence ?? BitcoinOpCodeConst.DEFAULT_TX_SEQUENCE,
+          sequence ?? BitcoinOpCodeConst.defaultTxSequence,
         ),
         scriptSig = scriptSig ?? Script(script: []);
   TxInput copyWith({
@@ -39,6 +39,10 @@ class TxInput {
   List<int> sequence;
 
   /// creates a copy of the object
+  TxInput clone() {
+    return copy();
+  }
+
   TxInput copy() {
     return TxInput(txId: txId, txIndex: txIndex, scriptSig: scriptSig, sequence: sequence);
   }
@@ -76,17 +80,16 @@ class TxInput {
     int cursor = 0,
     bool hasSegwit = false,
   }) {
-    final txInputRaw = bytes ?? BytesUtils.fromHexString(raw!);
-    final inpHash = txInputRaw.sublist(cursor, cursor + 32).reversed.toList();
+    bytes ??= BytesUtils.fromHexString(raw!);
+    final inpHash = bytes.sublist(cursor, cursor + 32).reversed.toList();
     cursor += 32;
-    final outputN =
-        IntUtils.fromBytes(txInputRaw.sublist(cursor, cursor + 4), byteOrder: Endian.little);
+    final outputN = IntUtils.fromBytes(bytes.sublist(cursor, cursor + 4), byteOrder: Endian.little);
     cursor += 4;
-    final vi = IntUtils.decodeVarint(txInputRaw.sublist(cursor));
+    final vi = IntUtils.decodeVarint(bytes.sublist(cursor));
     cursor += vi.item2;
-    final unlockingScript = txInputRaw.sublist(cursor, cursor + vi.item1);
+    final unlockingScript = bytes.sublist(cursor, cursor + vi.item1);
     cursor += vi.item1;
-    final sequenceNumberData = txInputRaw.sublist(cursor, cursor + 4);
+    final sequenceNumberData = bytes.sublist(cursor, cursor + 4);
     cursor += 4;
     return Tuple(
         TxInput(
@@ -97,12 +100,20 @@ class TxInput {
         cursor);
   }
 
+  List<int> txIdBytes() {
+    return BytesUtils.fromHexString(txId).reversed.toList();
+  }
+
+  int sequenceAsNumber() {
+    return IntUtils.fromBytes(sequence, byteOrder: Endian.little);
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'txid': txId,
       'txIndex': txIndex,
-      'scriptSig': scriptSig.script,
-      'sequance': BytesUtils.toHexString(sequence),
+      'scriptSig': scriptSig.toJson(),
+      'sequence': BytesUtils.toHexString(sequence),
     };
   }
 
@@ -110,4 +121,16 @@ class TxInput {
   String toString() {
     return 'TxInput{txId: $txId, txIndex: $txIndex, scriptSig: $scriptSig, sequence: ${BytesUtils.toHexString(sequence)}}';
   }
+
+  @override
+  operator ==(other) {
+    if (identical(this, other)) return true;
+    if (other is! TxInput) return false;
+    return txIndex == other.txIndex &&
+        txId == other.txId &&
+        BytesUtils.bytesEqual(sequence, other.sequence);
+  }
+
+  @override
+  int get hashCode => HashCodeGenerator.generateHashCode([txIndex, txId, sequence]);
 }

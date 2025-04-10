@@ -1,5 +1,4 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:example/services_examples/electrum/electrum_ssl_service.dart';
 
 void main() async {
   final one = ECPrivate.fromBytes(List<int>.filled(32, 12));
@@ -11,43 +10,35 @@ void main() async {
   final seven = ECPrivate.fromBytes(List<int>.filled(32, 18));
   final eight = ECPrivate.fromBytes(List<int>.filled(32, 19));
   final Map<String, ECPrivate> keys = {
-    for (final i in [one, two, three, four, five, six, seven, eight])
-      i.getPublic().toHex(): i
+    for (final i in [one, two, three, four, five, six, seven, eight]) i.getPublic().toHex(): i
   };
   final account = MultiSignatureAddress(threshold: 8, signers: [
     MultiSignatureSigner(
-        publicKey: one.getPublic().toHex(mode: PublicKeyType.uncompressed),
-        weight: 1),
+        publicKey: one.getPublic().toHex(mode: PublicKeyType.uncompressed), weight: 1),
     MultiSignatureSigner(publicKey: two.getPublic().toHex(), weight: 1),
     MultiSignatureSigner(publicKey: three.getPublic().toHex(), weight: 1),
     MultiSignatureSigner(
-        publicKey: four.getPublic().toHex(mode: PublicKeyType.uncompressed),
-        weight: 1),
+        publicKey: four.getPublic().toHex(mode: PublicKeyType.uncompressed), weight: 1),
     MultiSignatureSigner(publicKey: five.getPublic().toHex(), weight: 1),
     MultiSignatureSigner(publicKey: six.getPublic().toHex(), weight: 1),
     MultiSignatureSigner(
-        publicKey: seven.getPublic().toHex(mode: PublicKeyType.uncompressed),
-        weight: 1),
+        publicKey: seven.getPublic().toHex(mode: PublicKeyType.uncompressed), weight: 1),
     MultiSignatureSigner(publicKey: eight.getPublic().toHex(), weight: 1),
   ]);
 
   /// connect to electrum service with websocket
   /// please see `services_examples` folder for how to create electrum websocket service
-  final service = await ElectrumSSLService.connect(
-      "testnet4-electrumx.wakiyamap.dev:51002");
+  final service = ElectrumSSLService.connect(Uri.parse("testnet4-electrumx.wakiyamap.dev:51002"));
 
   /// create provider with service
-  final provider = ElectrumProvider(service);
+  final provider = await ElectrumProvider.connect(service);
 
-  final addrOne =
-      one.getPublic().toP2pkAddress(mode: PublicKeyType.uncompressed);
+  final addrOne = one.getPublic().toP2pkAddress(mode: PublicKeyType.uncompressed);
 
   final addrTwo = two.getPublic().toAddress(mode: PublicKeyType.uncompressed);
 
-  final addrThree =
-      three.getPublic().toP2pkInP2sh(mode: PublicKeyType.uncompressed);
-  final addrFour =
-      four.getPublic().toP2pkhInP2sh(mode: PublicKeyType.uncompressed);
+  final addrThree = three.getPublic().toP2pkInP2sh(mode: PublicKeyType.uncompressed);
+  final addrFour = four.getPublic().toP2pkhInP2sh(mode: PublicKeyType.uncompressed);
   final addrFive = four.getPublic().toSegwitAddress();
   final addrSix = account.toP2shAddress();
   final addr7 = eight.getPublic().toTaprootAddress();
@@ -80,22 +71,20 @@ void main() async {
   List<UtxoWithAddress> utxos = [];
   for (int i = 0; i < addresses.length; i++) {
     final address = addresses[i];
-    final elctrumUtxos = await provider.request(
-        ElectrumRequestScriptHashListUnspent(
-            scriptHash: address.pubKeyHash(), includeTokens: false));
+    final elctrumUtxos = await provider.request(ElectrumRequestScriptHashListUnspent(
+        scriptHash: address.pubKeyHash(), includeTokens: false));
     if (elctrumUtxos.isEmpty) continue;
     if (i == 6) {
       utxos.addAll(elctrumUtxos.map((e) => UtxoWithAddress(
           utxo: e.toUtxo(address.type),
-          ownerDetails: UtxoAddressDetails.multiSigAddress(
-              multiSigAddress: account, address: address))));
+          ownerDetails:
+              UtxoAddressDetails.multiSigAddress(multiSigAddress: account, address: address))));
       continue;
     }
     utxos.addAll(elctrumUtxos
         .map((e) => UtxoWithAddress(
             utxo: e.toUtxo(address.type),
-            ownerDetails:
-                UtxoAddressDetails(publicKey: pubkys[i], address: address)))
+            ownerDetails: UtxoAddressDetails(publicKey: pubkys[i], address: address)))
         .toList());
   }
 
@@ -104,9 +93,8 @@ void main() async {
   if (sumOfUtxo == BigInt.zero) {
     return;
   }
-  final change =
-      sumOfUtxo - (BigInt.from(1000) * BigInt.from(11) + BigInt.from(4295));
-  final bchTransaction = BitcoinTransactionBuilder(outPuts: [
+  final change = sumOfUtxo - (BigInt.from(1000) * BigInt.from(11) + BigInt.from(4295));
+  final bchTransaction = BitcoinTransactionBuilder(outputs: [
     /// change input (sumofutxos - spend)
     BitcoinOutput(address: addrOne, value: change),
     BitcoinOutput(address: addrOne, value: BigInt.from(1000)),
@@ -121,8 +109,7 @@ void main() async {
     BitcoinOutput(address: addr8, value: BigInt.from(1000)),
     BitcoinOutput(address: addr9, value: BigInt.from(1000)),
   ], fee: BigInt.from(4295), network: BitcoinNetwork.testnet, utxos: utxos);
-  final transaaction =
-      bchTransaction.buildTransaction((trDigest, utxo, publicKey, sighash) {
+  final transaaction = bchTransaction.buildTransaction((trDigest, utxo, publicKey, sighash) {
     final pk = ECPublic.fromHex(publicKey);
     if (utxo.utxo.isP2tr) {
       return keys[pk.toHex()]!.signTapRoot(trDigest, sighash: sighash);
@@ -131,8 +118,7 @@ void main() async {
   });
 
   final transactionRaw = transaaction.toHex();
-  await provider.request(
-      ElectrumRequestBroadCastTransaction(transactionRaw: transactionRaw));
+  await provider.request(ElectrumRequestBroadCastTransaction(transactionRaw: transactionRaw));
 }
 
 /// https://mempool.space/testnet4/tx/a7f08f07739de45a6a4f8871f8e6ad79e0aefbc940086df76571354ba22263fa

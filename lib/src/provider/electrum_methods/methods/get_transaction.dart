@@ -1,4 +1,6 @@
 import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
+import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 
 /// Return a raw transaction.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
@@ -126,5 +128,31 @@ class ElectrumBatchRequestGetTransactionVerbose
       id: id,
       result: data['result'] as Map<String, dynamic>,
     );
+  }
+}
+
+/// Return a raw transaction.
+/// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
+class ElectrumRequestGetRawTransaction extends ElectrumRequest<BtcTransaction, String> {
+  ElectrumRequestGetRawTransaction(this.transactionHash);
+
+  /// The transaction hash as a hexadecimal string.
+  final String transactionHash;
+
+  /// blockchain.transaction.get
+  @override
+  String get method => ElectrumRequestMethods.getTransaction.method;
+
+  @override
+  List toParams() {
+    return [transactionHash, false];
+  }
+
+  @override
+  BtcTransaction onResponse(String result) {
+    final txBytes = BytesUtils.fromHexString(result);
+    final tx = BtcTransaction.deserialize(txBytes);
+    assert(BytesUtils.bytesEqual(tx.toBytes(), txBytes), result);
+    return tx;
   }
 }

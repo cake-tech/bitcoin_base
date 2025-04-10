@@ -1,12 +1,14 @@
 /// library bitcoin_base
-/// a comprehensive and versatile Go library for all your Bitcoin transaction needs.
+/// a comprehensive and versatile Dart library for all your Bitcoin transaction needs.
 /// offers robust support for various Bitcoin transaction types,
 /// including spending transactions, Bitcoin address management,
 ///  Bitcoin Schnorr signatures, BIP-39 mnemonic phrase generation,
 /// hierarchical deterministic (HD) wallet derivation, and Web3 Secret Storage Definition.
 library;
 
-export 'src/bitcoin/address/address.dart';
+export 'src/bitcoin/bitcoin.dart';
+
+export 'src/exception/exception.dart';
 
 export 'src/bitcoin/address/util.dart';
 
@@ -36,6 +38,6 @@ export 'src/bitcoin_cash/bitcoin_cash.dart';
 
 export 'src/transaction_builder/builder.dart';
 
-export 'src/bitcoin/silent_payments/silent_payments.dart';
+export 'src/psbt/psbt.dart';
 
-export 'src/bitcoin/script/op_code/constant.dart';
+export 'src/bitcoin/silent_payments/silent_payments.dart';

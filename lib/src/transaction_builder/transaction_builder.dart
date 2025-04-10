@@ -1,5 +1,11 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base/src/bitcoin/address/address.dart';
+import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
+import 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
+import 'package:bitcoin_base/src/crypto/keypair/ec_private.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
+import 'package:bitcoin_base/src/models/network.dart';
+import 'package:bitcoin_base/src/provider/models/utxo_details.dart';
+import 'package:bitcoin_base/src/transaction_builder/builder.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 /// A versatile transaction builder designed to support various plugin-supported networks
@@ -134,7 +140,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
     final transaction =
         transactionBuilder.buildTransaction((trDigest, utxo, multiSigPublicKey, int sighash) {
       if (utxo.utxo.isP2tr) {
-        if (sighash != BitcoinOpCodeConst.TAPROOT_SIGHASH_ALL) {
+        if (sighash != BitcoinOpCodeConst.sighashDefault) {
           return '${fakeSchnorSignaturBytes}01';
         }
         return fakeSchnorSignaturBytes;
@@ -145,7 +151,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
 
     /// Now we need the size of the transaction. If the transaction is a SegWit transaction,
     /// we use the getVSize method; otherwise, we use the getSize method to obtain the transaction size
-    final size = transaction.hasSegwit ? transaction.getVSize() : transaction.getSize();
+    final size = transaction.hasWitness ? transaction.getVSize() : transaction.getSize();
 
     return size;
   }
@@ -365,8 +371,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
     if (utxo.isMultiSig()) {
       switch (utxo.utxo.scriptType) {
         case P2shAddressType.p2wshInP2sh:
-          final script = Script.deserialize(
-              bytes: utxo.multiSigAddress.multiSigScript.toBytes(), hasSegwit: true);
+          final script = Script.deserialize(bytes: utxo.multiSigAddress.multiSigScript.toBytes());
           final p2wsh = P2wshAddress.fromRedeemScript(script: script);
           return [p2wsh.toScriptPubKey().toHex()];
         default:
@@ -452,7 +457,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
     }
     final inputs = sortedUtxos.map((e) => e.utxo.toInput()).toList();
     if (enableRBF && inputs.isNotEmpty) {
-      inputs[0] = inputs[0].copyWith(sequence: BitcoinOpCodeConst.REPLACE_BY_FEE_SEQUENCE);
+      inputs[0] = inputs[0].copyWith(sequence: BitcoinOpCodeConst.replaceByFeeSequence);
     }
     return Tuple(
         List<TxInput>.unmodifiable(inputs), List<UtxoWithAddress>.unmodifiable(sortedUtxos));
@@ -534,7 +539,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
 
           outputs[i] = BitcoinOutput(
             address: silentOutput.address,
-            value: BigInt.from(silentOutput.amount),
+            value: BigInt.from(silentOutput.amount ?? 0),
             isSilentPayment: true,
           );
 
@@ -599,12 +604,11 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
     }
 
     /// create new transaction with inputs and outputs and isSegwit transaction or not
-    var transaction = BtcTransaction(
-      inputs: inputs,
-      outputs: outputs,
-      hasSegwit: hasSegwit,
-      hasSilentPayment: _hasSilentPayment,
-    );
+    BtcTransaction transaction = BtcTransaction(
+        inputs: inputs,
+        outputs: outputs,
+        hasSegwit: hasSegwit,
+        hasSilentPayment: _hasSilentPayment);
 
     /// we define empty witnesses. maybe the transaction is segwit and We need this
     final witnesses = <TxWitnessInput>[];
@@ -627,9 +631,8 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
       /// We generate transaction digest for current input
       final digest = _generateTransactionDigest(
           script, i, utxos[i], transaction, taprootAmounts, taprootScripts);
-      final sighash = utxos[i].utxo.isP2tr
-          ? BitcoinOpCodeConst.TAPROOT_SIGHASH_ALL
-          : BitcoinOpCodeConst.SIGHASH_ALL;
+      final sighash =
+          utxos[i].utxo.isP2tr ? BitcoinOpCodeConst.sighashDefault : BitcoinOpCodeConst.sighashAll;
 
       /// handle multisig address
       if (utxos[i].isMultiSig()) {
@@ -754,12 +757,11 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
     }
 
     /// create new transaction with inputs and outputs and isSegwit transaction or not
-    var transaction = BtcTransaction(
-      inputs: inputs,
-      outputs: outputs,
-      hasSegwit: hasSegwit,
-      hasSilentPayment: _hasSilentPayment,
-    );
+    BtcTransaction transaction = BtcTransaction(
+        inputs: inputs,
+        outputs: outputs,
+        hasSegwit: hasSegwit,
+        hasSilentPayment: _hasSilentPayment);
 
     /// we define empty witnesses. maybe the transaction is segwit and We need this
     final witnesses = <TxWitnessInput>[];
@@ -782,9 +784,8 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
       /// We generate transaction digest for current input
       final digest = _generateTransactionDigest(
           script, i, utxos[i], transaction, taprootAmounts, taprootScripts);
-      final sighash = utxos[i].utxo.isP2tr
-          ? BitcoinOpCodeConst.TAPROOT_SIGHASH_ALL
-          : BitcoinOpCodeConst.SIGHASH_ALL;
+      final sighash =
+          utxos[i].utxo.isP2tr ? BitcoinOpCodeConst.sighashDefault : BitcoinOpCodeConst.sighashAll;
 
       /// handle multisig address
       if (utxos[i].isMultiSig()) {
@@ -868,9 +869,9 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
       input.scriptSig = Script(script: scriptSig);
 
       /// the concept of an "empty witness" is related to Segregated Witness (SegWit) transactions
-      ///  and the way transaction data is structured. When a transaction input is not associated
-      ///  with a SegWit UTXO, it still needs to be compatible with
-      ///  the SegWit transaction format. This is achieved through the use of an "empty witness."
+      /// and the way transaction data is structured. When a transaction input is not associated
+      /// with a SegWit UTXO, it still needs to be compatible with
+      /// the SegWit transaction format. This is achieved through the use of an "empty witness."
       if (hasSegwit) {
         witnesses.add(TxWitnessInput(stack: []));
       }

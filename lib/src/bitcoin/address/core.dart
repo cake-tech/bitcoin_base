@@ -7,9 +7,9 @@ abstract class BitcoinAddressType implements Enumerate {
   const BitcoinAddressType._(this.value);
 
   /// Factory method to create a BitcoinAddressType enum value from a name or value.
-  static BitcoinAddressType fromValue(String value) {
+  static BitcoinAddressType fromValue(String? value) {
     return values.firstWhere((element) => element.value == value,
-        orElse: () => throw DartBitcoinPluginException('Invalid BitcoinAddressType: $value'));
+        orElse: () => throw DartBitcoinPluginException('Unknown address type. $value'));
   }
 
   static BitcoinAddressType fromAddress(BitcoinBaseAddress address) {
@@ -34,6 +34,8 @@ abstract class BitcoinAddressType implements Enumerate {
   bool get isP2sh;
   int get hashLength;
   bool get isSegwit;
+  bool get isP2tr => false;
+  bool get isP2sh32 => isP2sh && hashLength == 32;
 
   // Enum values as a list for iteration
   static const List<BitcoinAddressType> values = [
@@ -57,8 +59,9 @@ abstract class BitcoinAddressType implements Enumerate {
   ];
   T cast<T extends BitcoinAddressType>() {
     if (this is! T) {
-      throw DartBitcoinPluginException('BitcoinAddressType casting failed.',
-          details: {'excepted': '$T', 'type': value});
+      throw DartBitcoinPluginException(
+          "Invalid cast: expected ${T.runtimeType}, but found $runtimeType.",
+          details: {'expected': '$T', 'type': value});
     }
     return this as T;
   }
@@ -68,8 +71,24 @@ abstract class BitcoinAddressType implements Enumerate {
 }
 
 abstract class BitcoinBaseAddress {
-  BitcoinBaseAddress();
+  const BitcoinBaseAddress();
 
+  factory BitcoinBaseAddress.fromProgram(
+      {required String addressProgram, required BitcoinAddressType type}) {
+    if (type.isP2sh) {
+      return P2shAddress.fromHash160(h160: addressProgram, type: type.cast());
+    }
+    return switch (type) {
+      PubKeyAddressType.p2pk => P2pkAddress(publicKey: ECPublic.fromHex(addressProgram)),
+      P2pkhAddressType.p2pkh ||
+      P2pkhAddressType.p2pkhwt =>
+        P2pkhAddress.fromHash160(h160: addressProgram, type: type.cast()),
+      SegwitAddressType.p2wpkh => P2wpkhAddress.fromProgram(program: addressProgram),
+      SegwitAddressType.p2wsh => P2wshAddress.fromProgram(program: addressProgram),
+      SegwitAddressType.p2tr => P2trAddress.fromProgram(program: addressProgram),
+      _ => throw DartBitcoinPluginException("Unsuported bitcoin address type."),
+    };
+  }
   BitcoinAddressType get type;
   String toAddress(BasedUtxoNetwork network);
   Script toScriptPubKey();
@@ -194,6 +213,9 @@ class SegwitAddressType extends BitcoinAddressType {
   bool get isP2sh => false;
   @override
   bool get isSegwit => true;
+
+  @override
+  bool get isP2tr => this == p2tr;
 
   @override
   int get hashLength {

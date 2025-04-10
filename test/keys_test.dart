@@ -124,8 +124,8 @@ void main() {
       final pub1 = ECPublic.fromHex(publicKeyHex);
       expect(pub1.toAddress(mode: PublicKeyType.uncompressed).toAddress(BitcoinNetwork.mainnet),
           unCompressedAddress);
-      expect(pub1.toBytes(whitPrefix: false), publicKeyBytes);
-      expect(pub1.toHash160(), pub1.toAddress().addressProgram);
+      expect(pub1.toBytes().sublist(1), publicKeyBytes);
+      expect(pub1.toHash160Hex(), pub1.toAddress().addressProgram);
     });
   });
 
@@ -170,7 +170,10 @@ void main() {
     final pub = priv.getPublic();
     const p2shaddress = '2NDkr9uD2MSY5em3rsjkff8fLZcJzCfY3W1';
     test('test create', () {
-      final script = Script(script: [pub.toHex(), 'OP_CHECKSIG']);
+      final script = Script(script: [
+        pub.toHex(),
+        BitcoinOpcode.opCheckSig,
+      ]);
       final addr = P2shAddress.fromRedeemScript(script: script, type: P2shAddressType.p2pkInP2sh);
       expect(addr.toAddress(BitcoinNetwork.testnet), p2shaddress);
     });
@@ -200,19 +203,19 @@ void main() {
     test('test3', () {
       final prive = ECPrivate.fromWif('cNn8itYxAng4xR4eMtrPsrPpDpTdVNuw7Jb6kfhFYZ8DLSZBCg37',
           netVersion: BitcoinNetwork.testnet.wifNetVer);
-      final script =
-          Script(script: ['OP_1', prive.getPublic().toHex(), 'OP_1', 'OP_CHECKMULTISIG']);
+      final script = Script(
+          script: ['OP_1', prive.getPublic().toHex(), 'OP_1', BitcoinOpcode.opCheckMultiSig]);
       final pw = P2wshAddress.fromRedeemScript(script: script);
       expect(pw.toAddress(BitcoinNetwork.testnet), correctP2wshAddress);
     });
     test('test4', () {
       final prive = ECPrivate.fromWif('cNn8itYxAng4xR4eMtrPsrPpDpTdVNuw7Jb6kfhFYZ8DLSZBCg37',
           netVersion: BitcoinNetwork.testnet.wifNetVer);
-      final script =
-          Script(script: ['OP_1', prive.getPublic().toHex(), 'OP_1', 'OP_CHECKMULTISIG']);
+      final script = Script(
+          script: ['OP_1', prive.getPublic().toHex(), 'OP_1', BitcoinOpcode.opCheckMultiSig]);
       final pw = P2wshAddress.fromRedeemScript(script: script);
-      final p2sh = P2shAddress.fromRedeemScript(
-          script: pw.toScriptPubKey(), type: P2shAddressType.p2pkInP2sh);
+      final p2sh =
+          P2shAddress.fromRedeemScript(script: pw.toScriptPubKey(), type: P2shAddressType.p2pkInP2sh);
       expect(p2sh.toAddress(BitcoinNetwork.testnet), correctP2shP2wshAddress);
     });
   });

@@ -1,5 +1,5 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
+import 'package:bitcoin_base/src/models/network.dart';
 import 'package:bitcoin_base/src/provider/constant/constant.dart';
 
 enum APIType { mempool, blockCypher }
@@ -12,6 +12,7 @@ class APIConfig {
   final String sendTransaction;
   final String blockHeight;
   final APIType apiType;
+  final String rawTransaction;
   final BasedUtxoNetwork network;
   final String? block;
   final String? blockTimestamp;
@@ -36,6 +37,11 @@ class APIConfig {
 
   String getTransactionUrl(String transactionId) {
     final baseUrl = transaction;
+    return baseUrl.replaceAll('###', transactionId);
+  }
+
+  String getRawTransactionUrl(String transactionId) {
+    final baseUrl = rawTransaction;
     return baseUrl.replaceAll('###', transactionId);
   }
 
@@ -94,6 +100,7 @@ class APIConfig {
         url: "$baseUrl/addrs/###/?unspentOnly=true&includeScript=true&limit=2000",
         feeRate: baseUrl,
         transaction: "$baseUrl/txs/###",
+        rawTransaction: '$baseUrl/txs/###',
         sendTransaction: "$baseUrl/txs/push",
         apiType: APIType.blockCypher,
         transactions: "$baseUrl/addrs/###/full?limit=200",
@@ -120,6 +127,7 @@ class APIConfig {
         url: "$baseUrl/address/###/utxo",
         feeRate: "$baseUrl/fees/recommended",
         transaction: "$baseUrl/tx/###",
+        rawTransaction: '$baseUrl/tx/###/hex',
         sendTransaction: "$baseUrl/tx",
         apiType: APIType.mempool,
         transactions: "$baseUrl/address/###/txs",
@@ -138,6 +146,7 @@ class APIConfig {
       required this.apiType,
       required this.network,
       required this.blockHeight,
+      required this.rawTransaction,
       this.block,
       this.blockTimestamp});
 }

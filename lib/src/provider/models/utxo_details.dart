@@ -1,8 +1,15 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base/src/bitcoin/bitcoin.dart';
+import 'package:bitcoin_base/src/cash_token/cash_token.dart';
+import 'package:bitcoin_base/src/crypto/crypto.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
+import 'package:bitcoin_base/src/provider/models/models.dart';
+import 'package:bitcoin_base/src/utils/btc_utils.dart';
+import 'package:blockchain_utils/utils/numbers/utils/bigint_utils.dart';
+import 'package:blockchain_utils/utils/numbers/utils/int_utils.dart';
 
 abstract class UTXO {
   BitcoinUtxo toUtxo(BitcoinAddressType addressType);
+  Map<String, dynamic> toJson();
 }
 
 class UtxoAddressDetails {
@@ -44,10 +51,15 @@ class UtxoWithAddress {
   /// OwnerDetails is a UtxoAddressDetails instance containing information about the UTXO owner.
   final UtxoAddressDetails ownerDetails;
 
-  UtxoWithAddress({required this.utxo, required this.ownerDetails})
-      : keyType = ownerDetails.publicKey != null && !utxo.isSegwit
-            ? BtcUtils.isCompressedPubKey(ownerDetails.publicKey!)
-            : PublicKeyType.compressed;
+  const UtxoWithAddress._({required this.utxo, required this.ownerDetails, required this.keyType});
+  factory UtxoWithAddress({required BitcoinUtxo utxo, required UtxoAddressDetails ownerDetails}) {
+    return UtxoWithAddress._(
+        utxo: utxo,
+        ownerDetails: ownerDetails,
+        keyType: ownerDetails.publicKey != null && !utxo.isSegwit
+            ? BtcUtils.determinatePubKeyModeHex(ownerDetails.publicKey!)
+            : PublicKeyType.compressed);
+  }
 
   ECPublic public() {
     if (isMultiSig()) {
@@ -196,27 +208,35 @@ class BitcoinUtxo {
   /// BlockHeight represents the block height at which this UTXO was confirmed.
   final int? blockHeight;
 
-  BitcoinUtxo._({
-    required this.txHash,
-    required this.value,
-    required this.vout,
-    required this.scriptType,
-    this.blockHeight,
-    this.token,
-    required this.isP2tr,
-    required this.isP2shSegwit,
-    required this.isSegwit,
-    this.isSilentPayment,
-  });
-  factory BitcoinUtxo({
-    required String txHash,
-    required BigInt value,
-    required int vout,
-    required BitcoinAddressType scriptType,
-    int? blockHeight,
-    CashToken? token,
-    bool? isSilentPayment,
-  }) {
+  BitcoinUtxo._(
+      {required this.txHash,
+      required this.value,
+      required this.vout,
+      required this.scriptType,
+      this.blockHeight,
+      this.token,
+      required this.isP2tr,
+      required this.isP2shSegwit,
+      required this.isSegwit,
+      this.isSilentPayment});
+  factory BitcoinUtxo.fromJson(Map<String, dynamic> json) {
+    return BitcoinUtxo(
+        txHash: json["tx_hash"],
+        value: BigintUtils.parse(json["value"]),
+        vout: json["vout"],
+        scriptType: BitcoinAddressType.fromValue(json["script_type"]),
+        blockHeight: IntUtils.tryParse(json["block_height"]),
+        token: json["token"] == null ? null : CashToken.fromJson(json["token"]),
+        isSilentPayment: json["is_silent_payment"] == null ? null : json["is_silent_payment"] == 1);
+  }
+  factory BitcoinUtxo(
+      {required String txHash,
+      required BigInt value,
+      required int vout,
+      required BitcoinAddressType scriptType,
+      int? blockHeight,
+      CashToken? token,
+      bool? isSilentPayment}) {
     final isP2shSegwit =
         scriptType == P2shAddressType.p2wpkhInP2sh || scriptType == P2shAddressType.p2wshInP2sh;
     return BitcoinUtxo._(
@@ -247,6 +267,17 @@ class BitcoinUtxo {
   /// convert utxos to transaction input with specify sequence like ReplaceByeFee (4Bytes)
   TxInput toInput([List<int>? sequence]) {
     return TxInput(txId: txHash, txIndex: vout, sequence: sequence);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "token": token?.toJson(),
+      "tx_hash": txHash,
+      "value": value.toString(),
+      "vout": vout,
+      "script_type": scriptType.value,
+      "block_height": blockHeight
+    };
   }
 
   @override

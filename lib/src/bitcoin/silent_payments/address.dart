@@ -59,7 +59,10 @@ class SilentPaymentOwner extends SilentPaymentAddress {
   }
 
   List<int> generateLabel(int m) {
-    return taggedHash(BytesUtils.concatBytes([b_scan.toBytes(), serUint32(m)]), "BIP0352/Label");
+    return TaprootUtils.taggedHashTag(
+      BytesUtils.concatBytes([b_scan.toBytes(), serUint32(m)]),
+      "BIP0352/Label",
+    );
   }
 
   SilentPaymentOwner toLabeledSilentPaymentAddress(int m) {
@@ -99,12 +102,12 @@ class SilentPaymentDestination extends SilentPaymentAddress {
     required super.version,
     required ECPublic scanPubkey,
     required ECPublic spendPubkey,
-    required this.amount,
+    this.amount,
   }) : super(B_scan: scanPubkey, B_spend: spendPubkey);
 
-  int amount;
+  int? amount;
 
-  factory SilentPaymentDestination.fromAddress(String address, int amount) {
+  factory SilentPaymentDestination.fromAddress(String address, [int? amount]) {
     final receiver = SilentPaymentAddress.fromAddress(address);
 
     return SilentPaymentDestination(
