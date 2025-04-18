@@ -127,21 +127,32 @@ class BitcoinAddressUtils {
 
   static BitcoinDerivationInfo getDerivationFromType(
     BitcoinAddressType scriptType, {
+    required BasedUtxoNetwork network,
     bool? isElectrum = false,
   }) {
     switch (scriptType) {
       case P2pkhAddressType.p2pkh:
-        return BitcoinDerivationInfos.BIP44;
+        switch (network) {
+          case BitcoinCashNetwork.mainnet:
+            return BitcoinDerivationInfos.BCH;
+          default:
+            return BitcoinDerivationInfos.BIP44;
+        }
       case P2shAddressType.p2pkInP2sh:
       case P2shAddressType.p2pkhInP2sh:
       case P2shAddressType.p2wpkhInP2sh:
       case P2shAddressType.p2wshInP2sh:
         return BitcoinDerivationInfos.BIP49;
       case SegwitAddressType.p2wpkh:
-        if (isElectrum == true) {
-          return BitcoinDerivationInfos.ELECTRUM;
-        } else {
-          return BitcoinDerivationInfos.BIP84;
+        switch (network) {
+          case LitecoinNetwork.mainnet:
+            return BitcoinDerivationInfos.LITECOIN;
+          default:
+            if (isElectrum == true) {
+              return BitcoinDerivationInfos.ELECTRUM;
+            } else {
+              return BitcoinDerivationInfos.BIP84;
+            }
         }
       case SegwitAddressType.p2tr:
         return BitcoinDerivationInfos.BIP86;

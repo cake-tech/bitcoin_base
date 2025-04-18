@@ -54,19 +54,26 @@ enum BitcoinDerivationType { bip39, electrum }
 // Define constant paths
 abstract class BitcoinDerivationPaths {
   static const String ELECTRUM = "m/0'";
-  static const String BIP44 = "m/44'/0'/0'";
-  static const String BIP49 = "m/49'/0'/0'";
-  static const String BIP84 = "m/84'/0'/0'";
-  static const String BIP86 = "m/86'/0'/0'";
   static const String NON_STANDARD = "m/0'";
+
+  // Legacy
+  static const String BIP44 = "m/44'/0'/0'";
+  static const String BCH_BIP44 = "m/44'/145'/0'";
+
+  // Compatibility SegWit
+  static const String BIP49 = "m/49'/0'/0'";
+
+  // Native SegWit
+  static const String BIP84 = "m/84'/0'/0'";
+  static const String LITECOIN_BIP84 = "m/84'/2'/0'";
+
+  // Taproot
+  static const String BIP86 = "m/86'/0'/0'";
 
   static const String SILENT_PAYMENTS_SCAN = "m/352'/0'/0'/1'/0";
   static const String SILENT_PAYMENTS_SPEND = "m/352'/0'/0'/0'/0";
 
-  static const String LITECOIN = "m/84'/2'/0'";
   static const String LITECOIN_MWEB = "m/1000'";
-
-  static const String BCH = "m/44'/145'/0'";
 
   static const String SAMOURAI_BAD_BANK = "m/84'/0'/2147483644'";
   static const String SAMOURAI_WHIRLPOOL_PREMIX = "m/84'/0'/2147483645'";
@@ -111,7 +118,7 @@ abstract class BitcoinDerivationInfos {
 
   static final BitcoinDerivationInfo LITECOIN = BitcoinDerivationInfo(
     derivationType: BitcoinDerivationType.bip39,
-    derivationPath: BitcoinDerivationPaths.LITECOIN,
+    derivationPath: BitcoinDerivationPaths.LITECOIN_BIP84,
     description: "Default Litecoin",
     scriptType: SegwitAddressType.p2wpkh,
   );
@@ -124,7 +131,7 @@ abstract class BitcoinDerivationInfos {
 
   static final BitcoinDerivationInfo BCH = BitcoinDerivationInfo(
     derivationType: BitcoinDerivationType.bip39,
-    derivationPath: BitcoinDerivationPaths.BCH,
+    derivationPath: BitcoinDerivationPaths.BCH_BIP44,
     description: "Bitcoin Cash (BCH) Default",
     scriptType: P2pkhAddressType.p2pkh,
   );
