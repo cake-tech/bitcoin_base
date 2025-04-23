@@ -160,6 +160,8 @@ class BitcoinAddressUtils {
         return BitcoinDerivationInfos.BIP86;
       case SegwitAddressType.p2wsh:
         return BitcoinDerivationInfos.BIP84;
+      case SilentPaymentsAddresType.p2sp:
+        return BitcoinDerivationInfos.SILENT_PAYMENTS_SPEND;
       default:
         throw Exception("Derivation not available for $scriptType");
     }
