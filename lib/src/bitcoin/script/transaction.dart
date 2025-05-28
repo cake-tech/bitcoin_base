@@ -186,13 +186,14 @@ class BtcTransaction {
       List<int>? mwebBytes;
       if (hasMweb) {
         mwebBytes = txBytes.sublist(cursor, txBytes.length - 4);
+        cursor = txBytes.length - 4;
       }
       List<int> locktime = BitcoinOpCodeConst.defaultTxLocktime;
       if ((txBytes.length - cursor) >= 4) {
         locktime = txBytes.sublist(cursor, cursor + 4);
         cursor += 4;
       }
-      assert(txBytes.length == cursor, "Transaction deserialization failed. Unexpected bytes.");
+      assert(txBytes.length == cursor, "Transaction deserialization failed. Unexpected bytes. ${txBytes.length}/$cursor");
 
       return BtcTransaction(
         inputs: inputs,
