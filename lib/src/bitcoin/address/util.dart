@@ -44,6 +44,8 @@ class BitcoinAddressUtils {
           return P2wshAddress.fromScriptPubkey(script: script).toAddress(network);
         case SegwitAddressType.p2tr:
           return P2trAddress.fromScriptPubkey(script: script).toAddress(network);
+        case SegwitAddressType.mweb:
+          return MwebAddress.fromScriptPubkey(script: script).toAddress(network);
         default:
       }
     } catch (_) {}
