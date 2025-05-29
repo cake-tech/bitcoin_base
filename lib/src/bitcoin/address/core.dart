@@ -25,6 +25,8 @@ abstract class BitcoinAddressType implements Enumerate {
       return SilentPaymentsAddresType.p2sp;
     } else if (address is P2wpkhAddress) {
       return SegwitAddressType.p2wpkh;
+    } else if (address is MwebAddress) {
+      return SegwitAddressType.mweb;
     }
 
     throw DartBitcoinPluginException('Invalid BitcoinAddressType: $address');
@@ -86,6 +88,7 @@ abstract class BitcoinBaseAddress {
       SegwitAddressType.p2wpkh => P2wpkhAddress.fromProgram(program: addressProgram),
       SegwitAddressType.p2wsh => P2wshAddress.fromProgram(program: addressProgram),
       SegwitAddressType.p2tr => P2trAddress.fromProgram(program: addressProgram),
+      SegwitAddressType.mweb => MwebAddress.fromProgram(program: addressProgram),
       _ => throw DartBitcoinPluginException("Unsuported bitcoin address type."),
     };
   }

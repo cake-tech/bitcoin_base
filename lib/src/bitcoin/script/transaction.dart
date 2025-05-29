@@ -187,6 +187,7 @@ class BtcTransaction {
       if (hasMweb) {
         mwebBytes = txBytes.sublist(cursor, txBytes.length - 4);
       }
+      // TODO: check if required
       cursor = txBytes.length - 4;
       List<int> locktime = BitcoinOpCodeConst.defaultTxLocktime;
       if ((txBytes.length - cursor) >= 4) {

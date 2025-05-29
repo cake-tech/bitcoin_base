@@ -156,6 +156,8 @@ class Script {
         return P2wshAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
       case SegwitAddressType.p2tr:
         return P2trAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
+      case SegwitAddressType.mweb:
+        return MwebAddress.fromScriptPubkey(script: this).toAddress(LitecoinNetwork.mainnet);
     }
 
     throw DartBitcoinPluginException("Invalid script");
