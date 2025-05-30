@@ -1,6 +1,5 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:example/services_examples/electrum/electrum_ssl_service.dart';
 
 /// make vout 0 for account for create token hash
 /// estimate transaction to your self with input 0
@@ -8,15 +7,14 @@ import 'package:example/services_examples/electrum/electrum_ssl_service.dart';
 void main() async {
   /// connect to electrum service with ssl
   /// please see `services_examples` folder for how to create electrum ssl service
-  final service =
-      await ElectrumSSLService.connect("chipnet.imaginary.cash:50002");
+  final service = ElectrumSSLService.connect(Uri.parse("tcp://chipnet.imaginary.cash:50002"));
 
   /// create provider with service
-  final provider = ElectrumApiProvider(service);
+  final provider = await ElectrumProvider.connect(service);
 
   /// initialize private key
-  final privateKey = ECPrivate.fromBytes(BytesUtils.fromHexString(
-      "f9061c5cb343c6b6a73900ee29509bb0bd2213319eea46d2f2a431068c9da06b"));
+  final privateKey = ECPrivate.fromBytes(
+      BytesUtils.fromHexString("f9061c5cb343c6b6a73900ee29509bb0bd2213319eea46d2f2a431068c9da06b"));
 
   /// public key
   final publicKey = privateKey.getPublic();
@@ -30,7 +28,7 @@ void main() async {
 
   /// Reads all UTXOs (Unspent Transaction outputs) associated with the account.
   /// We does not need tokens utxo and we set to false.
-  final elctrumUtxos = await provider.request(ElectrumScriptHashListUnspent(
+  final elctrumUtxos = await provider.request(ElectrumRequestScriptHashListUnspent(
     scriptHash: p2pkhAddress.pubKeyHash(),
     includeTokens: false,
   ));
@@ -39,8 +37,7 @@ void main() async {
   final List<UtxoWithAddress> utxos = elctrumUtxos
       .map((e) => UtxoWithAddress(
           utxo: e.toUtxo(p2pkhAddress.type),
-          ownerDetails: UtxoAddressDetails(
-              publicKey: publicKey.toHex(), address: p2pkhAddress)))
+          ownerDetails: UtxoAddressDetails(publicKey: publicKey.toHex(), address: p2pkhAddress)))
       .toList();
 
   /// som of utxos in satoshi
@@ -62,8 +59,7 @@ void main() async {
     memo: null,
     utxos: utxos,
   );
-  final transaaction =
-      bchTransaction.buildTransaction((trDigest, utxo, publicKey, sighash) {
+  final transaaction = bchTransaction.buildTransaction((trDigest, utxo, publicKey, sighash) {
     return privateKey.signInput(trDigest, sigHash: sighash);
   });
 
@@ -77,8 +73,7 @@ void main() async {
   final transactionRaw = transaaction.toHex();
 
   /// send transaction to network
-  await provider
-      .request(ElectrumBroadCastTransaction(transactionRaw: transactionRaw));
+  await provider.request(ElectrumRequestBroadCastTransaction(transactionRaw: transactionRaw));
 
   /// done! check the transaction in block explorer
   ///  https://chipnet.imaginary.cash/tx/b20d4c13fe67adc2f73aee0161eb51c7e813643ddc8eb655c6bd9ae72b7562cb

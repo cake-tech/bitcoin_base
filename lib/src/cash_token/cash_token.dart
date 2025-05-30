@@ -33,38 +33,30 @@ class CashTokenCapability {
   final String name;
 
   /// (NFTs without a capability) cannot have their commitment modified when spent.
-  static const CashTokenCapability noCapability =
-      CashTokenCapability._(0x00, "none");
+  static const CashTokenCapability noCapability = CashTokenCapability._(0x00, 'none');
 
   /// Each Mutable token (NFTs with the mutable capability) allows the spending transaction
   /// to create one NFT of the same category, with any commitment and (optionally) the mutable capability.
-  static const CashTokenCapability mutable =
-      CashTokenCapability._(0x01, "mutable");
+  static const CashTokenCapability mutable = CashTokenCapability._(0x01, 'mutable');
 
   /// Minting tokens (NFTs with the minting capability) allow the spending transaction to create any number of new NFTs of the same category,
   /// each with any commitment and (optionally) the minting or mutable capability.
-  static const CashTokenCapability minting =
-      CashTokenCapability._(0x02, "minting");
+  static const CashTokenCapability minting = CashTokenCapability._(0x02, 'minting');
 
   ///
   static int _getCapability(int bitfield) {
     return bitfield & 0x0F;
   }
 
-  static const List<CashTokenCapability> values = [
-    noCapability,
-    mutable,
-    minting
-  ];
+  static const List<CashTokenCapability> values = [noCapability, mutable, minting];
 
   /// correct capality from bitfield
   static CashTokenCapability fromBitfield(int bitfield) {
     try {
-      final int intCapability = _getCapability(bitfield);
+      final intCapability = _getCapability(bitfield);
       return values.firstWhere((element) => element.value == intCapability);
     } on StateError {
-      throw const BitcoinBasePluginException(
-          "Invalid CashToken NFT Capability");
+      throw const DartBitcoinPluginException('Invalid CashToken NFT Capability');
     }
   }
 
@@ -73,8 +65,7 @@ class CashTokenCapability {
     try {
       return values.firstWhere((element) => element.name == name);
     } on StateError {
-      throw const BitcoinBasePluginException(
-          "Invalid CashToken NFT Capability Name");
+      throw const DartBitcoinPluginException('Invalid CashToken NFT Capability Name');
     }
   }
 
@@ -111,20 +102,20 @@ class CashTokenUtils {
       bool hasAmount = false,
       bool hasCommitmentLength = false,
       CashTokenCapability? capability}) {
-    int capabilityInt = 0;
+    var capabilityInt = 0;
     if (hasNFT) {
       if (capability != null) {
         // throw const MessageException("Capability is necessary for NFTs.");
         capabilityInt = capability.value;
       }
     }
-    final int nft = hasNFT ? _hasNFT : 0;
-    int commitmentLength = 0;
+    final nft = hasNFT ? _hasNFT : 0;
+    var commitmentLength = 0;
     if (hasNFT && hasCommitmentLength) {
       commitmentLength = hasCommitmentLength ? _hasCommitmentLength : 0;
     }
 
-    final int amount = hasAmount ? _hasAmount : 0;
+    final amount = hasAmount ? _hasAmount : 0;
     return nft | commitmentLength | amount | capabilityInt;
   }
 
@@ -160,8 +151,8 @@ class CashTokenUtils {
   }
 
   static Tuple<BigInt, int> _decodeVarintBigInt(List<int> byteint) {
-    int ni = byteint[0];
-    int size = 0;
+    final ni = byteint[0];
+    var size = 0;
 
     if (ni < 253) {
       return Tuple(BigInt.from(ni), 1);
@@ -174,8 +165,7 @@ class CashTokenUtils {
     } else {
       size = 8;
     }
-    BigInt value = BigintUtils.fromBytes(byteint.sublist(1, 1 + size),
-        byteOrder: Endian.little);
+    final value = BigintUtils.fromBytes(byteint.sublist(1, 1 + size), byteOrder: Endian.little);
     return Tuple(value, size + 1);
   }
 
@@ -208,7 +198,7 @@ class CashTokenUtils {
   /// [bitfield]: The bitfield to be validated.
   /// Returns true if the bitfield is valid, otherwise false.
   static bool isValidBitfield(int bitfield) {
-    final int highNibble = bitfield & 0xF0;
+    final highNibble = bitfield & 0xF0;
     if (highNibble >= 0x80 || highNibble == 0x00) {
       return false;
     }
@@ -230,26 +220,23 @@ class CashTokenUtils {
 
 class CashToken {
   factory CashToken.fromJson(Map<String, dynamic> json) {
-    final String category = json["category"];
-    final BigInt amount = BigintUtils.tryParse(json["amount"]) ?? BigInt.zero;
+    final String category = json['category'];
+    final amount = BigintUtils.tryParse(json['amount']) ?? BigInt.zero;
     CashTokenCapability? capability;
     List<int>? commitment;
-    if (json.containsKey("nft")) {
-      capability = CashTokenCapability.fromName(json["nft"]["capability"]);
-      commitment = ((json["nft"]["commitment"] ?? "") as String).isEmpty
+    if (json.containsKey('nft')) {
+      capability = CashTokenCapability.fromName(json['nft']['capability']);
+      commitment = ((json['nft']['commitment'] ?? '') as String).isEmpty
           ? null
-          : BytesUtils.fromHexString(json["nft"]["commitment"]);
+          : BytesUtils.fromHexString(json['nft']['commitment']);
     }
-    int bitfield = CashTokenUtils.buildBitfield(
+    final bitfield = CashTokenUtils.buildBitfield(
         hasNFT: capability != null,
         capability: capability ?? CashTokenCapability.noCapability,
         hasAmount: amount > BigInt.zero,
         hasCommitmentLength: commitment != null);
     return CashToken(
-        category: category,
-        bitfield: bitfield,
-        amount: amount,
-        commitment: commitment);
+        category: category, bitfield: bitfield, amount: amount, commitment: commitment);
   }
 
   /// The 32-byte ID of the token category to which the token(s) in this output belong. This field is omitted if no tokens are present.
@@ -261,74 +248,72 @@ class CashToken {
   /// The commitment contents of the NFT held in this output (0 to 40 bytes). This field is omitted if no NFT is present.
   final List<int> commitment;
   final int bitfield;
-  CashToken.noValidate(
+
+  CashToken._(
       {required this.category,
       required this.amount,
       required List<int> commitment,
       required this.bitfield})
-      : commitment = List<int>.unmodifiable(commitment);
+      : commitment = commitment.asImmutableBytes;
   factory CashToken(
-      {required String category,
-      BigInt? amount,
-      List<int>? commitment,
-      required int bitfield}) {
+      {required String category, BigInt? amount, List<int>? commitment, required int bitfield}) {
     if (!CashTokenUtils.isValidBitfield(bitfield)) {
-      throw const BitcoinBasePluginException("Invalid bitfield");
+      throw const DartBitcoinPluginException('Invalid bitfield');
     }
     if (CashTokenUtils.hasAmount(bitfield) && amount == null) {
-      throw const BitcoinBasePluginException(
-          "Invalid cash token: the bitfield indicates an amount, but the amount is null.");
+      throw const DartBitcoinPluginException(
+          'Invalid cash token: the bitfield indicates an amount, but the amount is null.');
     }
     if (amount != null) {
       if (amount < BigInt.zero || amount > CashTokenUtils.maxTokenAmount) {
-        throw const BitcoinBasePluginException(
-            "Invalid amount. Amount must be between zero and 99.");
+        throw const DartBitcoinPluginException(
+            'Invalid amount. Amount must be between zero and 99.');
       }
     }
     if (!StringUtils.isHexBytes(category)) {
-      throw const BitcoinBasePluginException(
-          "Invalid category hexadecimal bytes.");
+      throw const DartBitcoinPluginException('Invalid category hexadecimal bytes.');
     }
     final toBytes = BytesUtils.fromHexString(category);
     if (toBytes.length != CashTokenUtils.idBytesLength) {
-      throw const BitcoinBasePluginException(
-          "Invalid category. The category should consist of 32 bytes.");
+      throw const DartBitcoinPluginException(
+          'Invalid category. The category should consist of 32 bytes.');
     }
     if (CashTokenUtils.hasCommitmentLength(bitfield) &&
         (commitment == null || commitment.isEmpty)) {
-      throw const BitcoinBasePluginException(
-          "Invalid cash token: the bitfield indicates an commitment, but the commitment is null or empty.");
+      throw const DartBitcoinPluginException(
+          'Invalid cash token: the bitfield indicates an commitment, but the commitment is null or empty.');
     }
-    return CashToken.noValidate(
-        category: category,
+    return CashToken._(
+        category: StringUtils.strip0x(category.toLowerCase()),
         amount: amount ?? BigInt.zero,
         commitment: commitment ?? const [],
         bitfield: bitfield);
   }
   static Tuple<CashToken?, int> fromRaw(List<int> scriptBytes) {
-    if (scriptBytes.isEmpty ||
-        scriptBytes[0] != CashTokenUtils.cashTokenPrefix) {
+    return deserialize(scriptBytes);
+  }
+
+  static Tuple<CashToken?, int> deserialize(List<int> scriptBytes) {
+    if (scriptBytes.isEmpty || scriptBytes[0] != CashTokenUtils.cashTokenPrefix) {
       return const Tuple(null, 0);
     }
     int cursor = 1;
-    List<int> id =
-        scriptBytes.sublist(cursor, cursor + CashTokenUtils.idBytesLength);
+    final id = scriptBytes.sublist(cursor, cursor + CashTokenUtils.idBytesLength);
 
     cursor += CashTokenUtils.idBytesLength;
-    final int bitfield = scriptBytes[cursor];
+    final bitfield = scriptBytes[cursor];
     cursor += 1;
-    List<int> commitment = [];
+    var commitment = <int>[];
     if (CashTokenUtils.hasCommitmentLength(bitfield)) {
-      final vi = IntUtils.decodeVarint(
-          scriptBytes.sublist(cursor, scriptBytes.length));
+      final vi = IntUtils.decodeVarint(scriptBytes.sublist(cursor, scriptBytes.length));
       cursor += vi.item2;
       commitment = scriptBytes.sublist(cursor, cursor + vi.item1);
       cursor += vi.item1;
     }
-    BigInt amount = BigInt.zero;
+    var amount = BigInt.zero;
     if (CashTokenUtils.hasAmount(bitfield)) {
-      final vi = CashTokenUtils._decodeVarintBigInt(
-          scriptBytes.sublist(cursor, scriptBytes.length));
+      final vi =
+          CashTokenUtils._decodeVarintBigInt(scriptBytes.sublist(cursor, scriptBytes.length));
       amount = vi.item1;
       cursor += vi.item2;
     }
@@ -336,7 +321,7 @@ class CashToken {
         amount < BigInt.zero ||
         amount > CashTokenUtils.maxTokenAmount ||
         CashTokenUtils.hasCommitmentLength(bitfield) && commitment.isEmpty) {
-      throw const BitcoinBasePluginException('Invalid cash token');
+      throw const DartBitcoinPluginException('Invalid cash token');
     }
     return Tuple(
         CashToken(
@@ -351,7 +336,7 @@ class CashToken {
   ///
   /// Returns a list of integers representing the serialized byte representation of the [CashToken].
   List<int> toBytes() {
-    DynamicByteTracker bytes = DynamicByteTracker();
+    final bytes = DynamicByteTracker();
     bytes.add([CashTokenUtils.cashTokenPrefix]);
     bytes.add(BytesUtils.fromHexString(category).reversed.toList());
     bytes.add([bitfield]);
@@ -400,8 +385,7 @@ class CashToken {
   late final bool hasNFT = CashTokenUtils.hasNFT(bitfield);
 
   /// boolean indicating whether the Cash Token has an associated commitment length.
-  late final bool hasCommitment =
-      !hasNFT ? false : CashTokenUtils.hasCommitmentLength(bitfield);
+  late final bool hasCommitment = !hasNFT ? false : CashTokenUtils.hasCommitmentLength(bitfield);
 
   /// CashTokenCapability object representing the capability of the Cash Token.
   /// Initialized only if the Cash Token is an NFT.
@@ -410,11 +394,31 @@ class CashToken {
 
   /// hexadecimal representation of the commitment associated with the Cash Token.
   /// Initialized only if the Cash Token has a commitment length.
-  late final String? commitmentInHex =
-      hasCommitment ? BytesUtils.toHexString(commitment) : null;
+  late final String? commitmentInHex = hasCommitment ? BytesUtils.toHexString(commitment) : null;
+  Map<String, dynamic> toJson() {
+    return {
+      'category': category,
+      'amount': amount.toString(),
+      'bitfield': bitfield,
+      'commitment': BytesUtils.toHexString(commitment),
+    };
+  }
 
   @override
+  operator ==(other) {
+    if (identical(this, other)) return true;
+    if (other is! CashToken) return false;
+    return category == other.category &&
+        amount == other.amount &&
+        bitfield == other.bitfield &&
+        BytesUtils.bytesEqual(commitment, other.commitment);
+  }
+
+  @override
+  int get hashCode =>
+      HashCodeGenerator.generateBytesHashCode(commitment, [category, amount, bitfield]);
+  @override
   String toString() {
-    return "CashToken{bitfield: $bitfield, commitment: $commitmentInHex, amount: $amount, category: $category}";
+    return 'CashToken{bitfield: $bitfield, commitment: $commitmentInHex, amount: $amount, category: $category}';
   }
 }

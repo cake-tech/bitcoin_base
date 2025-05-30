@@ -6,9 +6,7 @@ BtcTransaction buildP2wpkTransaction({
   required List<UtxoWithAddress> utxo,
 }) {
   // We define transaction inputs by specifying the transaction ID and index.
-  final txin = utxo
-      .map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout))
-      .toList();
+  final txin = utxo.map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout)).toList();
   // in a SegWit (Segregated Witness) transaction, the witness data serves as the unlocking script
   // for the transaction inputs. In traditional non-SegWit transactions,
   // the unlocking script is part of the scriptSig field, which contains
@@ -26,14 +24,12 @@ BtcTransaction buildP2wpkTransaction({
   //  It includes the recipient's Bitcoin address (encoded in a specific way)
   //  and can also include additional conditions or requirements based on the type of script used.
   final List<TxOutput> txOut = receiver
-      .map((e) =>
-          TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
+      .map((e) => TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
       .toList();
 
   // create BtcTransaction instance with inputs, outputs and segwit
   // For P2TR, P2WPKH, P2WSH, and P2SH (SegWit) transactions, we need to set 'hasSegwit' to true.
-  BtcTransaction tx =
-      BtcTransaction(inputs: txin, outputs: txOut, hasSegwit: true);
+  BtcTransaction tx = BtcTransaction(inputs: txin, outputs: txOut);
 
   for (int i = 0; i < txin.length; i++) {
     // For SegWit transactions (excluding P2TR), we use the 'getTransactionSegwitDigit' method
@@ -46,8 +42,7 @@ BtcTransaction buildP2wpkTransaction({
         // amount of utxo
         amount: utxo[i].utxo.value);
     // sign transaction
-    final signedTx =
-        sign(txDigit, utxo[i].public().toHex(), BitcoinOpCodeConst.SIGHASH_ALL);
+    final signedTx = sign(txDigit, utxo[i].public().toHex(), BitcoinOpCodeConst.sighashAll);
 
     // create unlock script
 
@@ -57,8 +52,7 @@ BtcTransaction buildP2wpkTransaction({
 
     // P2WSH (Pay-to-Witness-Script-Hash): Similarly, for P2WSH addresses, you create SegWit transactions,
     // and the witness data (signatures and script) is separated from the transaction data.
-    final p2wpkhWitness =
-        TxWitnessInput(stack: [signedTx, utxo[i].public().toHex()]);
+    final p2wpkhWitness = TxWitnessInput(stack: [signedTx, utxo[i].public().toHex()]);
     witnesses.add(p2wpkhWitness);
   }
   tx = tx.copyWith(witnesses: witnesses);
@@ -71,9 +65,7 @@ BtcTransaction buildP2WSHTransaction({
   required List<UtxoWithAddress> utxo,
 }) {
   // We define transaction inputs by specifying the transaction ID and index.
-  final txin = utxo
-      .map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout))
-      .toList();
+  final txin = utxo.map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout)).toList();
 
   // in a SegWit (Segregated Witness) transaction, the witness data serves as the unlocking script
   // for the transaction inputs. In traditional non-SegWit transactions,
@@ -92,14 +84,12 @@ BtcTransaction buildP2WSHTransaction({
   //  It includes the recipient's Bitcoin address (encoded in a specific way)
   //  and can also include additional conditions or requirements based on the type of script used.
   final List<TxOutput> txOut = receiver
-      .map((e) =>
-          TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
+      .map((e) => TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
       .toList();
 
   // create BtcTransaction instance with inputs, outputs and segwit
   // For P2TR, P2WPKH, P2WSH, and P2SH (SegWit) transactions, we need to set 'hasSegwit' to true.
-  BtcTransaction tx =
-      BtcTransaction(inputs: txin, outputs: txOut, hasSegwit: true);
+  BtcTransaction tx = BtcTransaction(inputs: txin, outputs: txOut);
   for (int i = 0; i < txin.length; i++) {
     // For SegWit transactions (excluding P2TR), we use the 'getTransactionSegwitDigit' method
     // to obtain the input digest for signing.
@@ -112,8 +102,8 @@ BtcTransaction buildP2WSHTransaction({
         amount: utxo[i].utxo.value);
 
     // sign transaction
-    final signedTx = sign(txDigit, utxo[i].public().toP2wshRedeemScript().toHex(),
-        BitcoinOpCodeConst.SIGHASH_ALL);
+    final signedTx = sign(
+        txDigit, utxo[i].public().toP2wshRedeemScript().toHex(), BitcoinOpCodeConst.sighashAll);
 
     // create unlock script
 
@@ -123,8 +113,7 @@ BtcTransaction buildP2WSHTransaction({
 
     // P2WSH (Pay-to-Witness-Script-Hash): Similarly, for P2WSH addresses, you create SegWit transactions,
     // and the witness data (signatures and script) is separated from the transaction data.
-    final p2wshWitness =
-        TxWitnessInput(stack: ['', signedTx, utxo[i].public().toHex()]);
+    final p2wshWitness = TxWitnessInput(stack: ['', signedTx, utxo[i].public().toHex()]);
     witnesses.add(p2wshWitness);
   }
 
@@ -138,9 +127,7 @@ BtcTransaction buildP2pkhTransaction({
   required List<UtxoWithAddress> utxo,
 }) {
   // We define transaction inputs by specifying the transaction ID and index.
-  final txin = utxo
-      .map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout))
-      .toList();
+  final txin = utxo.map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout)).toList();
 
   // Create transaction outputs
   // Parameters
@@ -151,12 +138,11 @@ BtcTransaction buildP2pkhTransaction({
   //  It includes the recipient's Bitcoin address (encoded in a specific way)
   //  and can also include additional conditions or requirements based on the type of script used.
   final List<TxOutput> txOut = receiver
-      .map((e) =>
-          TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
+      .map((e) => TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
       .toList();
 
   // For P2TR, P2WPKH, P2WSH, and P2SH (SegWit) transactions, in this case we need to set 'hasSegwit' to false.
-  final tx = BtcTransaction(inputs: txin, outputs: txOut, hasSegwit: false);
+  final tx = BtcTransaction(inputs: txin, outputs: txOut);
   for (int i = 0; i < txin.length; i++) {
     // For None-SegWit transactions, we use the 'getTransactionDigest' method
     // to obtain the input digest for signing.
@@ -168,8 +154,7 @@ BtcTransaction buildP2pkhTransaction({
     );
 
     // sign transaction
-    final signedTx =
-        sign(txDigit, utxo[i].public().toHex(), BitcoinOpCodeConst.SIGHASH_ALL);
+    final signedTx = sign(txDigit, utxo[i].public().toHex(), BitcoinOpCodeConst.sighashAll);
 
     // set unlocking script for current index
     txin[i].scriptSig = Script(script: [signedTx, utxo[i].public().toHex()]);
@@ -184,9 +169,7 @@ BtcTransaction buildP2shNoneSegwitTransaction({
   required List<UtxoWithAddress> utxo,
 }) {
   // We define transaction inputs by specifying the transaction ID and index.
-  final txin = utxo
-      .map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout))
-      .toList();
+  final txin = utxo.map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout)).toList();
 
   // Create transaction outputs
   // Parameters
@@ -197,12 +180,11 @@ BtcTransaction buildP2shNoneSegwitTransaction({
   //  It includes the recipient's Bitcoin address (encoded in a specific way)
   //  and can also include additional conditions or requirements based on the type of script used.
   final List<TxOutput> txOut = receiver
-      .map((e) =>
-          TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
+      .map((e) => TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
       .toList();
 
   // For P2TR, P2WPKH, P2WSH, and P2SH (SegWit) transactions, in this caase we need to set 'hasSegwit' to false.
-  final tx = BtcTransaction(inputs: txin, outputs: txOut, hasSegwit: false);
+  final tx = BtcTransaction(inputs: txin, outputs: txOut);
   for (int i = 0; i < txin.length; i++) {
     final ownerPublic = utxo[i].public();
     final scriptPubKey = utxo[i].ownerDetails.address.type == P2shAddressType.p2pkhInP2sh
@@ -217,14 +199,12 @@ BtcTransaction buildP2shNoneSegwitTransaction({
       script: scriptPubKey,
     );
     // sign transaction
-    final signedTx =
-        sign(txDigit, utxo[i].public().toHex(), BitcoinOpCodeConst.SIGHASH_ALL);
+    final signedTx = sign(txDigit, utxo[i].public().toHex(), BitcoinOpCodeConst.sighashAll);
 
     // set unlocking script for current index
     switch (utxo[i].ownerDetails.address.type) {
       case P2shAddressType.p2pkhInP2sh:
-        txin[i].scriptSig = Script(
-            script: [signedTx, ownerPublic.toHex(), scriptPubKey.toHex()]);
+        txin[i].scriptSig = Script(script: [signedTx, ownerPublic.toHex(), scriptPubKey.toHex()]);
         break;
       case P2shAddressType.p2pkInP2sh:
         txin[i].scriptSig = Script(script: [signedTx, scriptPubKey.toHex()]);
@@ -243,9 +223,7 @@ BtcTransaction buildP2SHSegwitTransaction({
   required List<UtxoWithAddress> utxo,
 }) {
   // We define transaction inputs by specifying the transaction ID and index.
-  final txin = utxo
-      .map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout))
-      .toList();
+  final txin = utxo.map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout)).toList();
 
   // Create transaction outputs
   // Parameters
@@ -256,8 +234,7 @@ BtcTransaction buildP2SHSegwitTransaction({
   //  It includes the recipient's Bitcoin address (encoded in a specific way)
   //  and can also include additional conditions or requirements based on the type of script used.
   final List<TxOutput> txOut = receiver
-      .map((e) =>
-          TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
+      .map((e) => TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
       .toList();
   // in a SegWit (Segregated Witness) transaction, the witness data serves as the unlocking script
   // for the transaction inputs. In traditional non-SegWit transactions,
@@ -268,14 +245,13 @@ BtcTransaction buildP2SHSegwitTransaction({
   final List<TxWitnessInput> witnesses = [];
 
   // For P2TR, P2WPKH, P2WSH, and P2SH (SegWit) transactions, we need to set 'hasSegwit' to true.
-  final tx = BtcTransaction(inputs: txin, outputs: txOut, hasSegwit: true);
+  final tx = BtcTransaction(inputs: txin, outputs: txOut);
 
   for (int i = 0; i < txin.length; i++) {
     final ownerPublic = utxo[i].public();
-    final scriptPubKey =
-        utxo[i].ownerDetails.address.type == P2shAddressType.p2wpkhInP2sh
-            ? ownerPublic.toP2pkhAddress().toScriptPubKey()
-            : ownerPublic.toP2wshRedeemScript();
+    final scriptPubKey = utxo[i].ownerDetails.address.type == P2shAddressType.p2wpkhInP2sh
+        ? ownerPublic.toP2pkhAddress().toScriptPubKey()
+        : ownerPublic.toP2wshRedeemScript();
 
     // For SegWit transactions (excluding P2TR), we use the 'getTransactionSegwitDigit' method
     // to obtain the input digest for signing.
@@ -288,8 +264,7 @@ BtcTransaction buildP2SHSegwitTransaction({
         amount: utxo[i].utxo.value);
 
     // sign transaction
-    final signedTx =
-        sign(txDigit, utxo[i].public().toHex(), BitcoinOpCodeConst.SIGHASH_ALL);
+    final signedTx = sign(txDigit, utxo[i].public().toHex(), BitcoinOpCodeConst.sighashAll);
 
     // In a SegWit P2SH (Pay-to-Script-Hash) transaction, you will find both a scriptSig field and a witness field.
     //  This combination is used to maintain compatibility with non-SegWit Bitcoin nodes while taking advantage
@@ -328,9 +303,7 @@ BtcTransaction buildP2trTransaction({
   required List<UtxoWithAddress> utxo,
 }) {
   // We define transaction inputs by specifying the transaction ID and index.
-  final txin = utxo
-      .map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout))
-      .toList();
+  final txin = utxo.map((e) => TxInput(txId: e.utxo.txHash, txIndex: e.utxo.vout)).toList();
 
   // Create transaction outputs
   // Parameters
@@ -341,13 +314,11 @@ BtcTransaction buildP2trTransaction({
   //  It includes the recipient's Bitcoin address (encoded in a specific way)
   //  and can also include additional conditions or requirements based on the type of script used.
   final List<TxOutput> txOut = receiver
-      .map((e) =>
-          TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
+      .map((e) => TxOutput(amount: e.value, scriptPubKey: e.address.toScriptPubKey()))
       .toList();
 
   // For P2TR, P2WPKH, P2WSH, and P2SH (SegWit) transactions, we need to set 'hasSegwit' to true.
-  BtcTransaction tx =
-      BtcTransaction(inputs: txin, outputs: txOut, hasSegwit: true);
+  BtcTransaction tx = BtcTransaction(inputs: txin, outputs: txOut);
 
   // in a SegWit (Segregated Witness) transaction, the witness data serves as the unlocking script
   // for the transaction inputs. In traditional non-SegWit transactions,
@@ -368,20 +339,14 @@ BtcTransaction buildP2trTransaction({
       // you typically need to include all the scriptPubKeys of the UTXOs
       // being spent and their corresponding amounts.
       // This information is required to ensure that the transaction is properly structured and secure
-      scriptPubKeys:
-          utxo.map((e) => e.ownerDetails.address.toScriptPubKey()).toList(),
+      scriptPubKeys: utxo.map((e) => e.ownerDetails.address.toScriptPubKey()).toList(),
       amounts: utxo.map((e) => e.utxo.value).toList(),
 
-      // The tapleaf script that we are spending (ext_flag=1)
-      script: null,
-      sighash: BitcoinOpCodeConst.TAPROOT_SIGHASH_ALL,
-      // default is 0; 1 is for script spending (BIP342)
-      extFlags: 0,
+      sighash: BitcoinOpCodeConst.sighashDefault,
     );
 
     // sign transaction using `signTapRoot` method of thransaction
-    final signedTx =
-        sign(txDigit, utxo[i].public().toHex(), BitcoinOpCodeConst.SIGHASH_ALL);
+    final signedTx = sign(txDigit, utxo[i].public().toHex(), BitcoinOpCodeConst.sighashAll);
 
     // add witness for current index
     witnesses.add(TxWitnessInput(stack: [signedTx]));

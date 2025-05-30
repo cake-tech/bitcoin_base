@@ -3,7 +3,7 @@ part of 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
 
 class SilentPaymentOutput {
   final P2trAddress address;
-  final int amount;
+  final int? amount;
 
   SilentPaymentOutput(this.address, this.amount);
 }
@@ -46,8 +46,10 @@ class SilentPaymentBuilder {
     final head = pubkeys!.first;
     final tail = pubkeys!.sublist(1);
 
-    A_sum =
-        tail.fold<ECPublic>(head, (acc, item) => ECPublic.fromBip32(acc.publicKey).pubkeyAdd(item));
+    A_sum = tail.fold<ECPublic>(
+      head,
+      (acc, item) => ECPublic.fromPubkey(acc.publicKey).pubkeyAdd(item),
+    );
   }
 
   void _getInputHash() {
@@ -63,8 +65,10 @@ class SilentPaymentBuilder {
     sortedOutpoints.sort(BytesUtils.compareBytes);
     final lowestOutpoint = sortedOutpoints.first;
 
-    inputHash = taggedHash(
-        BytesUtils.concatBytes([lowestOutpoint, A_sum!.toCompressedBytes()]), "BIP0352/Inputs");
+    inputHash = TaprootUtils.taggedHashTag(
+      BytesUtils.concatBytes([lowestOutpoint, A_sum!.toCompressedBytes()]),
+      "BIP0352/Inputs",
+    );
   }
 
   Map<String, List<SilentPaymentOutput>> createOutputs(
@@ -134,7 +138,7 @@ class SilentPaymentBuilder {
 
       int k = 0;
       for (final destination in destinations) {
-        final t_k = taggedHash(
+        final t_k = TaprootUtils.taggedHashTag(
             BytesUtils.concatBytes([
               ECPublic.fromHex(ecdhSharedSecret).toCompressedBytes(),
               BigintUtils.toBytes(BigInt.from(k), length: 4)
@@ -173,7 +177,7 @@ class SilentPaymentBuilder {
     var k = 0;
 
     do {
-      final t_k = taggedHash(
+      final t_k = TaprootUtils.taggedHashTag(
           BytesUtils.concatBytes([
             ecdhSharedSecret.toCompressedBytes(),
             BigintUtils.toBytes(BigInt.from(k), length: 4, order: Endian.big)
@@ -183,7 +187,7 @@ class SilentPaymentBuilder {
       final P_k = B_spend.tweakAdd(BigintUtils.fromBytes(t_k));
       final length = outputsToCheck.length;
 
-      for (var i = 0; i < length; i++) {
+      for (var i = length - 1; i >= 0; i--) {
         final output = outputsToCheck[i].script.toBytes().sublist(2);
         final outputPubkey = BytesUtils.toHexString(output);
         final outputAmount = outputsToCheck[i].value.toInt();
@@ -236,7 +240,9 @@ class SilentPaymentBuilder {
   }
 }
 
-BitcoinScriptOutput getScriptFromOutput(String pubkey, int amount) {
+BitcoinScriptOutput getScriptFromOutput(String pubkey, [int? amount]) {
   return BitcoinScriptOutput(
-      script: Script(script: [BitcoinOpCodeConst.OP_1, pubkey]), value: BigInt.from(amount));
+    script: Script(script: [BitcoinOpCodeConst.OP_1, pubkey]),
+    value: BigInt.from(amount ?? 0),
+  );
 }

@@ -1,6 +1,6 @@
 name: bitcoin_base
 description: A versatile library for Bitcoin, Dogecoin, Litecoin, Dash, BSV, and BCH. Supports P2PKH, P2SH, P2WPKH, P2WSH, P2TR, with advanced creation, signing, and spending capabilities.
-version: 4.7.0
+version: 6.1.0
 homepage: "https://github.com/mrtnetwork/bitcoin_base"
 repository: "https://github.com/mrtnetwork/bitcoin_base"
 Author: mrhaydari.t@gmail.com
@@ -12,7 +12,7 @@ topics:
   - dash
   
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0'
 
 
 dependencies:
@@ -22,13 +22,16 @@ dependencies:
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v2
+      ref: cake-update-v4
+  rxdart: ^0.28.0
+  intl: ^0.19.0
+  http: ^1.1.0
     
 
 dev_dependencies:
-  test: ^1.25.5
-  lints: ^4.0.0
-  flutter_lints: ^4.0.0
+  lints: ^5.0.0
+  test: ^1.25.9
+  flutter_lints: ^5.0.0
  
 
 # For information on the generic Dart part of this file, see the

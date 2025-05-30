@@ -32,7 +32,7 @@ class RegexUtils {
     } else if (stringIsAddress(address, SilentPaymentAddress.regex)) {
       return SilentPaymentAddress.fromAddress(address);
     } else if (stringIsAddress(address, MwebAddress.regex)) {
-      return MwebAddress.fromAddress(address: address, network: network);
+      return MwebAddress.fromAddress(address: address);
     } else {
       return P2wpkhAddress.fromAddress(address: address, network: network);
     }

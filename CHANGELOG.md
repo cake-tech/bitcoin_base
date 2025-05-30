@@ -1,3 +1,58 @@
+## 6.1.0
+
+- Fix der signature validation.
+
+## 6.0.0
+
+- Added support for BIP-327: MuSig2 for BIP340-compatible multi-signatures
+- Implemented BIP-174: Partially Signed Bitcoin Transaction (PSBT) format
+- Integrated BIP-370: PSBT Version 2 enhancements
+- Included BIP-371: Taproot fields for PSBT
+- Extended support for BIP-373: MuSig2-related PSBT fields
+
+## 5.3.0
+
+* Update dependencies
+
+## 5.2.0
+
+* Update dependencies
+
+## 5.1.0
+
+* Update dependencies
+
+## 5.0.0
+
+* Update dependencies
+* Minimum required Dart SDK version updated to 3.3.
+
+## 4.9.4
+
+* Improved serialization process for large transaction scripts.
+* Added support for the Electra network.
+* Create and spent from uncompressed public key format.
+* Important Notice: This is the final version supporting Dart v2. The next release will require Dart v3.3 or higher.
+
+## 4.9.2
+
+* Update dependencies
+* Resolved issue with transaction deserialization (unsigned tx)
+
+## 4.9.1
+
+* Resolved issue with transaction deserialization (Issue #9)
+
+## 4.9.0
+
+* Correct Bitcoin address network configuration.
+* Resolve issue with Electrum fee estimation results.
+
+
+## 4.8.0
+
+* Update dependencies
+
 ## 4.7.0
 
 * Update dependencies

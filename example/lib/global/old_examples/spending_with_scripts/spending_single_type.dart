@@ -1,16 +1,14 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:example/services_examples/explorer_service/explorer_service.dart';
 
 import 'spending_builders.dart';
 
 // Define the network as the Testnet (used for testing and development purposes).
 const network = BitcoinNetwork.testnet;
-final service = BitcoinApiService();
 
 // Initialize an API provider for interacting with the Testnet's blockchain data.
-final api = ApiProvider.fromMempool(network, service);
+final api = ApiProvider.fromMempool(network);
 
 // In these tutorials, you will learn how to spend various types of UTXOs.
 // Each method is specific to a type of UTXO.
@@ -28,16 +26,15 @@ Future<void> spendingP2WPKH(ECPrivate sWallet, ECPrivate rWallet) async {
   // P2WPKH
   final sender = publicKey.toP2wpkhAddress();
   // Read UTXOs of accounts from the BlockCypher API.
-  final utxo = await api.getAccountUtxo(
-      UtxoAddressDetails(address: sender, publicKey: publicKey.toHex()));
+  final utxo =
+      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: publicKey.toHex()));
   // The total amount of UTXOs that we can spend.
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception(
-        "account does not have any unspent transaction or mybe no confirmed");
+    throw Exception("account does not have any unspent transaction or mybe no confirmed");
   }
   // Receive network fees
-  final feeRate = await api.getNetworkFeeRate();
+  final feeRate = await api.getRecommendedFeeRate();
   // feeRate.medium, feeRate.high ,feeRate.low P/KB
 
   // In this section, we select the transaction outputs; the number and type of addresses are not important
@@ -64,8 +61,7 @@ Future<void> spendingP2WPKH(ECPrivate sWallet, ECPrivate rWallet) async {
 
   // Now that we've determined the transaction size, let's calculate the transaction fee
   // based on the transaction size and the desired fee rate.
-  final estimateFee = feeRate.getEstimate(transactionSize,
-      feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
 
   // We subtract the fee from the total amount of UTXOs to calculate
   // the actual amount we can spend in this transaction.
@@ -74,9 +70,8 @@ Future<void> spendingP2WPKH(ECPrivate sWallet, ECPrivate rWallet) async {
   // We specify the desired amount for each address. Here, I have divided the desired total
   // amount by the number of outputs to ensure an equal amount for each.
   final outPutWithValue = outputsAdress
-      .map((e) => BitcoinOutput(
-          address: e.address,
-          value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) =>
+          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
 
   // I use the 'buildP2wpkTransaction' method to create a transaction.
@@ -112,15 +107,14 @@ Future<void> spendingP2WSH(ECPrivate sWallet, ECPrivate rWallet) async {
   final addr = sWallet.getPublic();
   // P2WSH ADDRESS
   final sender = addr.toP2wshAddress();
-  final utxo = await api.getAccountUtxo(
-      UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
+  final utxo =
+      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception(
-        "account does not have any unspent transaction or mybe no confirmed");
+    throw Exception("account does not have any unspent transaction or mybe no confirmed");
   }
 
-  final feeRate = await api.getNetworkFeeRate();
+  final feeRate = await api.getRecommendedFeeRate();
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
@@ -133,13 +127,11 @@ Future<void> spendingP2WSH(ECPrivate sWallet, ECPrivate rWallet) async {
   ];
   final transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
       utxos: utxo, outputs: outputsAdress, network: network);
-  final estimateFee = feeRate.getEstimate(transactionSize,
-      feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
   final canSpend = sumOfUtxo - estimateFee;
   final outPutWithValue = outputsAdress
-      .map((e) => BitcoinOutput(
-          address: e.address,
-          value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) =>
+          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
   final transaction = buildP2WSHTransaction(
     receiver: outPutWithValue,
@@ -161,15 +153,14 @@ Future<void> spendingP2PKH(ECPrivate sWallet, ECPrivate rWallet) async {
   final addr = sWallet.getPublic();
   // P2PKH
   final sender = addr.toP2pkhAddress();
-  final utxo = await api.getAccountUtxo(
-      UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
+  final utxo =
+      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception(
-        "account does not have any unspent transaction or mybe no confirmed");
+    throw Exception("account does not have any unspent transaction or mybe no confirmed");
   }
 
-  final feeRate = await api.getNetworkFeeRate();
+  final feeRate = await api.getRecommendedFeeRate();
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
@@ -181,13 +172,11 @@ Future<void> spendingP2PKH(ECPrivate sWallet, ECPrivate rWallet) async {
   ];
   final transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
       utxos: utxo, outputs: outputsAdress, network: network);
-  final estimateFee = feeRate.getEstimate(transactionSize,
-      feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
   final canSpend = sumOfUtxo - estimateFee;
   final outPutWithValue = outputsAdress
-      .map((e) => BitcoinOutput(
-          address: e.address,
-          value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) =>
+          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
 
   final transaction = buildP2pkhTransaction(
@@ -205,23 +194,21 @@ Future<void> spendingP2PKH(ECPrivate sWallet, ECPrivate rWallet) async {
 // Spend P2SH(P2PKH) or P2SH(P2PK): Please note that all input addresses must be of P2SH(P2PKH) or P2SH(P2PK) type; otherwise, the transaction will fail.
 // This method is for standard 1-1 Multisig P2SH.
 // For standard n-of-m multi-signature scripts, please refer to the 'multi_sig_transactions.dart' tutorial.
-Future<void> spendingP2SHNoneSegwit(
-    ECPrivate sWallet, ECPrivate rWallet) async {
+Future<void> spendingP2SHNoneSegwit(ECPrivate sWallet, ECPrivate rWallet) async {
   // All the steps are the same as in the first tutorial;
   // the only difference is the transaction input type,
   // and we use method `buildP2shNoneSegwitTransaction` to create the transaction.
   final addr = sWallet.getPublic();
   // P2SH(P2PK)
   final sender = addr.toP2pkInP2sh();
-  final utxo = await api.getAccountUtxo(
-      UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
+  final utxo =
+      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception(
-        "account does not have any unspent transaction or mybe no confirmed");
+    throw Exception("account does not have any unspent transaction or mybe no confirmed");
   }
 
-  final feeRate = await api.getNetworkFeeRate();
+  final feeRate = await api.getRecommendedFeeRate();
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
@@ -233,13 +220,11 @@ Future<void> spendingP2SHNoneSegwit(
   ];
   final transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
       utxos: utxo, outputs: outputsAdress, network: network);
-  final estimateFee = feeRate.getEstimate(transactionSize,
-      feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
   final canSpend = sumOfUtxo - estimateFee;
   final outPutWithValue = outputsAdress
-      .map((e) => BitcoinOutput(
-          address: e.address,
-          value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) =>
+          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
   final transaction = buildP2shNoneSegwitTransaction(
     receiver: outPutWithValue,
@@ -263,15 +248,14 @@ Future<void> spendingP2shSegwit(ECPrivate sWallet, ECPrivate rWallet) async {
   final addr = sWallet.getPublic();
   // P2SH(P2PWKH)
   final sender = addr.toP2wpkhInP2sh();
-  final utxo = await api.getAccountUtxo(
-      UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
+  final utxo =
+      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception(
-        "account does not have any unspent transaction or mybe no confirmed");
+    throw Exception("account does not have any unspent transaction or mybe no confirmed");
   }
 
-  final feeRate = await api.getNetworkFeeRate();
+  final feeRate = await api.getRecommendedFeeRate();
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
@@ -284,13 +268,11 @@ Future<void> spendingP2shSegwit(ECPrivate sWallet, ECPrivate rWallet) async {
   ];
   final transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
       utxos: utxo, outputs: outputsAdress, network: network);
-  final estimateFee = feeRate.getEstimate(transactionSize,
-      feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
   final canSpend = sumOfUtxo - estimateFee;
   final outPutWithValue = outputsAdress
-      .map((e) => BitcoinOutput(
-          address: e.address,
-          value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) =>
+          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
 
   // return;
@@ -315,15 +297,14 @@ Future<void> spendingP2TR(ECPrivate sWallet, ECPrivate rWallet) async {
   final addr = sWallet.getPublic();
   // P2TR address
   final sender = addr.toTaprootAddress();
-  final utxo = await api.getAccountUtxo(
-      UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
+  final utxo =
+      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception(
-        "account does not have any unspent transaction or mybe no confirmed");
+    throw Exception("account does not have any unspent transaction or mybe no confirmed");
   }
 
-  final feeRate = await api.getNetworkFeeRate();
+  final feeRate = await api.getRecommendedFeeRate();
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
@@ -335,13 +316,11 @@ Future<void> spendingP2TR(ECPrivate sWallet, ECPrivate rWallet) async {
   ];
   final transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
       utxos: utxo, outputs: outputsAdress, network: network);
-  final estimateFee = feeRate.getEstimate(transactionSize,
-      feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
   final canSpend = sumOfUtxo - estimateFee;
   final outPutWithValue = outputsAdress
-      .map((e) => BitcoinOutput(
-          address: e.address,
-          value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) =>
+          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
 
   final transaction = buildP2trTransaction(

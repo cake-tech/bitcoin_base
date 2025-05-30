@@ -1,5 +1,6 @@
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/provider/models/utxo_details.dart';
+import 'package:blockchain_utils/utils/numbers/utils/bigint_utils.dart';
 
 class MempoolPrevOut {
   final String scriptPubKey;
@@ -139,10 +140,10 @@ class MempoolTransaction {
       txID: json['txid'],
       version: json['version'],
       locktime: json['locktime'],
-      vin:
-          List<MempoolVin>.from(json['vin'].map((x) => MempoolVin.fromJson(x))),
+      vin: List<MempoolVin>.from(
+          (json['vin'] as List).map((x) => MempoolVin.fromJson(x))),
       vout: List<MempoolVout>.from(
-          json['vout'].map((x) => MempoolVout.fromJson(x))),
+          (json['vout'] as List).map((x) => MempoolVout.fromJson(x))),
       size: json['size'],
       weight: json['weight'],
       fee: json['fee'],
@@ -169,7 +170,7 @@ class MempolUtxo implements UTXO {
       txid: json['txid'],
       vout: json['vout'],
       status: MempoolStatus.fromJson(json['status']),
-      value: BigInt.parse(json['value'].toString()),
+      value: BigintUtils.parse(json['value']),
     );
   }
 
@@ -182,11 +183,16 @@ class MempolUtxo implements UTXO {
         scriptType: addressType,
         blockHeight: 1);
   }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {"txid": txid, "vout": vout, "status": status, "value": value};
+  }
 }
 
 extension MempoolUtxoExtentions on List<MempolUtxo> {
   List<UtxoWithAddress> toUtxoWithOwnerList(UtxoAddressDetails owner) {
-    List<UtxoWithAddress> utxos = map((e) => UtxoWithAddress(
+    final utxos = map((e) => UtxoWithAddress(
           utxo: BitcoinUtxo(
             txHash: e.txid,
             value: e.value,
