@@ -6,13 +6,14 @@
 // - Utility functions for address manipulation.
 // - encode/decode Segregated Witness (SegWit) address implementation.
 // - Enhanced functionality for improved handling of addresses across diverse networks.
-library bitcoin_base.address;
+library;
 
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
+import 'package:bitcoin_base/src/bitcoin/taproot/taproot.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
+import 'package:bitcoin_base/src/models/network.dart';
 import 'package:bitcoin_base/src/utils/enumerate.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:bitcoin_base/src/utils/script.dart';
 part 'core.dart';
 part 'legacy_address.dart';
 part 'utils/address_utils.dart';

@@ -212,14 +212,14 @@ void main() async {
 
     // Ok, now we have the private key, we need to check which method to use for signing
     // We check whether the UTX corresponds to the P2TR address or not.
-    if (utxo.utxo.isP2tr()) {
+    if (utxo.utxo.isP2tr) {
       // yes is p2tr utxo and now we use SignTaprootTransaction(Schnorr sign)
       // for now this transaction builder support only tweak transaction
       // If you want to spend a Taproot script-path spending, you must create your own transaction builder.
-      return key.signTapRoot(trDigest, sighash: sighash);
+      return key.signBip340(trDigest, sighash: sighash);
     } else {
       // is seqwit(v0) or lagacy address we use  SingInput (ECDSA)
-      return key.signInput(trDigest, sigHash: sighash);
+      return key.signECDSA(trDigest, sighash: sighash);
     }
   });
 
@@ -229,7 +229,7 @@ void main() async {
 
   // we check if transaction is segwit or not
   // When one of the input UTXO addresses is SegWit, the transaction is considered SegWit.
-  final isSegwitTr = transaction.hasSegwit;
+  final isSegwitTr = transaction.hasWitness;
 
   // transaction id
   // ignore: unused_local_variable
