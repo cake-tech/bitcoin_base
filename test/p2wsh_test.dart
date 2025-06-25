@@ -18,9 +18,9 @@ void main() {
       BitcoinOpcode.opCheckMultiSig
     ]);
 
-    final p2wshAddr = P2wshAddress.fromRedeemScript(script: p2wshScript);
+    final p2wshAddr = P2wshAddress.fromScript(script: p2wshScript);
 
-    final p2pkhAddr = sk1.getPublic().toP2pkhAddress();
+    final p2pkhAddr = sk1.getPublic().toAddress();
 
     final txin1 = TxInput(
         txId:
@@ -59,7 +59,7 @@ void main() {
         amount: BigInt.from(100000), scriptPubKey: p2wshAddr.toScriptPubKey());
     final output2Multiple = TxOutput(
         amount: BigInt.from(100000),
-        scriptPubKey: sk1.getPublic().toP2wpkhAddress().toScriptPubKey());
+        scriptPubKey: sk1.getPublic().toSegwitAddress().toScriptPubKey());
     final output3Multiple = TxOutput(
         amount: BigInt.from(1770000), scriptPubKey: p2pkhAddr.toScriptPubKey());
 

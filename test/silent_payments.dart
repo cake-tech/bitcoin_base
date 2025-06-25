@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:bitcoin_base/src/bitcoin/script/outpoint.dart';
 import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
