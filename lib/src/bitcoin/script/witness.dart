@@ -1,5 +1,4 @@
-import 'dart:typed_data';
-
+import 'package:blockchain_utils/helper/extensions/extensions.dart';
 import 'package:blockchain_utils/utils/utils.dart';
 
 class ScriptWitness {
@@ -16,28 +15,50 @@ class ScriptWitness {
 ///
 /// [stack] the witness items (hex str) list
 class TxWitnessInput {
-  TxWitnessInput({required List<String> stack, ScriptWitness? scriptWitness})
-      : stack = List.unmodifiable(stack),
+  TxWitnessInput({required List<String> stack, ScriptWitness? scriptWitness}) : stack = stack.immutable,
         scriptWitness = scriptWitness ?? ScriptWitness();
-
   final List<String> stack;
   ScriptWitness scriptWitness;
 
   /// creates a copy of the object (classmethod)
-  TxWitnessInput copy() {
+  TxWitnessInput clone() {
+    return TxWitnessInput(stack: stack);
+  }
+
+  factory TxWitnessInput.deserialize(List<int> bytes) {
+    final length = IntUtils.decodeVarint(bytes);
+    int offset = length.item2;
+    final List<String> stack = [];
+    for (int n = 0; n < length.item1; n++) {
+      List<int> witness = [];
+      final itemLen = IntUtils.decodeVarint(bytes.sublist(offset));
+      offset += itemLen.item2;
+      if (itemLen.item1 != 0) {
+        witness = bytes.sublist(offset, offset + itemLen.item1);
+      }
+      offset += itemLen.item1;
+      stack.add(BytesUtils.toHexString(witness));
+    }
+
     return TxWitnessInput(stack: stack);
   }
 
   /// returns a serialized byte version of the witness items list
   List<int> toBytes() {
-    List<int> stackBytes = [];
-
-    for (String item in stack) {
-      List<int> itemBytes = IntUtils.prependVarint(BytesUtils.fromHexString(item));
-      stackBytes = [...stackBytes, ...itemBytes];
+    final bytes = DynamicByteTracker();
+    final length = IntUtils.encodeVarint(stack.length);
+    bytes.add(length);
+    for (final item in stack) {
+      final itemBytes = BytesUtils.fromHexString(item);
+      final varint = IntUtils.prependVarint(itemBytes);
+      bytes.add(varint);
     }
 
-    return stackBytes;
+    return bytes.toBytes();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'stack': stack};
   }
 
   @override

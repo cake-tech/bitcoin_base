@@ -1,10 +1,12 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
+import 'package:bitcoin_base/src/cash_token/cash_token.dart';
+import 'package:bitcoin_base/src/provider/models/utxo_details.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 /// Bitcoin Cash Metadata Registries Script to convert uris and content hash to bitcoin output script
 class BCMR implements BitcoinScriptOutput {
   /// Bitcoin Cash Metadata Registries PREFIX
-  static const String _pcmrInHex = "42434d52";
+  static const String _pcmrInHex = '42434d52';
   BCMR({required this.uris, required this.hash})
       : assert(
           () {
@@ -16,8 +18,8 @@ class BCMR implements BitcoinScriptOutput {
             return true;
           }(),
           uris.isEmpty
-              ? "URIs must not be empty."
-              : "The BCMR hash should be the SHA-256 hash of the URI contents",
+              ? 'URIs must not be empty.'
+              : 'The BCMR hash should be the SHA-256 hash of the URI contents',
         );
 
   /// list of uris
@@ -29,7 +31,7 @@ class BCMR implements BitcoinScriptOutput {
   ///  'script' property from the interface to define the specific script for Bitcoin Cash Metadata Registries OP_RETURN script.
   @override
   Script get script => Script(script: [
-        "OP_RETURN",
+        'OP_RETURN',
         _pcmrInHex,
         hash,
         ...uris.map((e) => BytesUtils.toHexString(StringUtils.encode(e)))
@@ -42,4 +44,7 @@ class BCMR implements BitcoinScriptOutput {
   /// output value. always zero
   @override
   final BigInt value = BigInt.zero;
+
+  @override
+  CashToken? get token => null;
 }

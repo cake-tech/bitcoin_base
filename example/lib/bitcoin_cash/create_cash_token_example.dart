@@ -11,7 +11,7 @@ void main() async {
       "wss://chipnet.imaginary.cash:50004");
 
   /// create provider with service
-  final provider = ElectrumApiProvider(service);
+  final provider = ElectrumProvider(service);
 
   /// initialize private key
   final privateKey = ECPrivate.fromBytes(BytesUtils.fromHexString(
@@ -29,7 +29,8 @@ void main() async {
 
   /// Reads all UTXOs (Unspent Transaction outputs) associated with the account.
   /// We does not need tokens utxo and we set to false.
-  final elctrumUtxos = await provider.request(ElectrumScriptHashListUnspent(
+  final elctrumUtxos =
+      await provider.request(ElectrumRequestScriptHashListUnspent(
     scriptHash: p2pkhAddress.pubKeyHash(),
     includeTokens: false,
   ));
@@ -63,8 +64,6 @@ void main() async {
     /// if we dont have utxos with index 0 we must create them with some estimate transaction before create transaction
     return;
   }
-  // print("vout $vout0Hash");
-  // return;
   final bchTransaction = ForkedTransactionBuilder(
       outputs: [
         BitcoinTokenOutput(
@@ -122,7 +121,7 @@ void main() async {
       outputOrdering: BitcoinOrdering.none);
   final transaaction =
       bchTransaction.buildTransaction((trDigest, utxo, publicKey, sighash) {
-    return privateKey.signInput(trDigest, sigHash: sighash);
+    return privateKey.signECDSA(trDigest, sighash: sighash);
   });
 
   /// transaction ID
@@ -135,8 +134,8 @@ void main() async {
   final transactionRaw = transaaction.toHex();
 
   /// send transaction to network
-  await provider
-      .request(ElectrumBroadCastTransaction(transactionRaw: transactionRaw));
+  await provider.request(
+      ElectrumRequestBroadCastTransaction(transactionRaw: transactionRaw));
 
   /// done! check the transaction in block explorer
   ///  https://chipnet.imaginary.cash/tx/fe0f9f84bd8782b8037160c09a515d39a9cc5bbeda6dcca6fb8a89e952bc9dea

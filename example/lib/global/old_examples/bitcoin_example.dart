@@ -166,10 +166,10 @@ void _spendFromP2pkhTo10DifferentType() async {
     /// and sign the transaction digest to construct the unlocking script.
 
     if (publicKey == examplePublicKey2.toHex()) {
-      if (utxo.utxo.isP2tr()) {
-        return examplePrivateKey.signTapRoot(trDigest);
+      if (utxo.utxo.isP2tr) {
+        return examplePrivateKey.signBip340(trDigest);
       }
-      return examplePrivateKey.signInput(trDigest, sigHash: sighash);
+      return examplePrivateKey.signECDSA(trDigest, sighash: sighash);
     }
 
     throw UnimplementedError();
@@ -181,7 +181,7 @@ void _spendFromP2pkhTo10DifferentType() async {
   /// Calculate the size of the transaction in bytes.
   /// You can determine the transaction fee by multiplying the transaction size
   /// Formula: transaction fee = (transaction size in bytes * fee rate in bytes)
-  final size = tr.hasSegwit ? tr.getVSize() : tr.getSize();
+  final size = tr.hasWitness ? tr.getVSize() : tr.getSize();
 
   /// broadcast transaction
   /// https://mempool.space/testnet/tx/05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258
@@ -400,22 +400,22 @@ void _spendFrom10DifferentTypeToP2pkh() async {
     /// For each input in the transaction, locate the corresponding private key
     /// and sign the transaction digest to construct the unlocking script.
     if (publicKey == childKey1PublicKey.toHex()) {
-      if (utxo.utxo.isP2tr()) {
-        return childKey1PrivateKey.signTapRoot(trDigest, sighash: sighash);
+      if (utxo.utxo.isP2tr) {
+        return childKey1PrivateKey.signBip340(trDigest, sighash: sighash);
       }
-      return childKey1PrivateKey.signInput(trDigest, sigHash: sighash);
+      return childKey1PrivateKey.signECDSA(trDigest, sighash: sighash);
     }
     if (publicKey == examplePublicKey.toHex()) {
-      if (utxo.utxo.isP2tr()) {
-        return childKey2PrivateKey.signTapRoot(trDigest, sighash: sighash);
+      if (utxo.utxo.isP2tr) {
+        return childKey2PrivateKey.signBip340(trDigest, sighash: sighash);
       }
-      return childKey2PrivateKey.signInput(trDigest, sigHash: sighash);
+      return childKey2PrivateKey.signECDSA(trDigest, sighash: sighash);
     }
     if (publicKey == examplePublicKey2.toHex()) {
-      if (utxo.utxo.isP2tr()) {
-        return examplePrivateKey.signTapRoot(trDigest, sighash: sighash);
+      if (utxo.utxo.isP2tr) {
+        return examplePrivateKey.signBip340(trDigest, sighash: sighash);
       }
-      return examplePrivateKey.signInput(trDigest, sigHash: sighash);
+      return examplePrivateKey.signECDSA(trDigest, sighash: sighash);
     }
 
     throw UnimplementedError();
@@ -427,7 +427,7 @@ void _spendFrom10DifferentTypeToP2pkh() async {
   /// Calculate the size of the transaction in bytes.
   /// You can determine the transaction fee by multiplying the transaction size
   /// Formula: transaction fee = (transaction size in bytes * fee rate in bytes)
-  final size = tr.hasSegwit ? tr.getVSize() : tr.getSize();
+  final size = tr.hasWitness ? tr.getVSize() : tr.getSize();
 
   /// broadcast transaction
   /// https://mempool.space/testnet/tx/3e697e0993a6882689ff9b66ff73cdf53e4a3029664ec4a516da2b291e1cd8a6
