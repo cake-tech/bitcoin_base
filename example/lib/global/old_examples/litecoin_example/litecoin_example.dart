@@ -78,7 +78,7 @@ void _spendLTCP2pkhAddress() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs
-      outPuts: [
+      outputs: [
         /// Define a BitcoinOutput with the first P2shAddress and a value of 0.0001 LTC
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("0.0001")),
 
@@ -115,12 +115,12 @@ void _spendLTCP2pkhAddress() async {
               vout: 3,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: pub.toAddress().type,
+              scriptType: pub.toP2pkhAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
-                publicKey: pub.toHex(), address: pub.toAddress())),
+                publicKey: pub.toHex(), address: pub.toP2pkhAddress())),
       ]);
 
   /// Build the transaction by invoking the buildTransaction method on the BitcoinTransactionBuilder
@@ -200,7 +200,7 @@ void _spendFrom2P2shAddressAndOneMultiSigP2shAddress() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs
-      outPuts: [
+      outputs: [
         /// Define a BitcoinOutput with the third P2shAddress and a value equal to the 'change' variable
         BitcoinOutput(address: out1, value: change),
       ],
@@ -338,7 +338,7 @@ void _spendFromNestedSegwitP2WPKHInP2SH() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs
-      outPuts: [
+      outputs: [
         /// Define a BitcoinOutput with the third P2wpkhAddress and a value equal to the 'change' variable
         BitcoinOutput(address: out1, value: change),
       ],
@@ -456,7 +456,7 @@ void _spendFromSegwitP2WPKHAddress() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs
-      outPuts: [
+      outputs: [
         /// Define a BitcoinOutput with the third P2pkhAddress and a value equal to the 'change' variable
         BitcoinOutput(address: input1, value: change),
       ],
@@ -487,13 +487,13 @@ void _spendFromSegwitP2WPKHAddress() async {
               vout: 0,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: examplePublicKey.toSegwitAddress().type,
+              scriptType: examplePublicKey.toP2wpkhAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: examplePublicKey.toHex(),
-                address: examplePublicKey.toSegwitAddress())),
+                address: examplePublicKey.toP2wpkhAddress())),
       ]);
 
   /// Build the transaction by invoking the buildTransaction method on the BitcoinTransactionBuilder instance (builder)

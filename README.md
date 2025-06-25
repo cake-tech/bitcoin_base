@@ -161,10 +161,10 @@ We have integrated three APIs—Mempool, BlockCypher, and Electrum—into the pl
   final publicKey = ECPublic.fromHex('.....');
 
   // Generate a Pay-to-Public-Key-Hash (P2PKH) address from the public key.
-  final p2pkh = publicKey.toAddress();
+  final p2pkh = publicKey.toP2pkhAddress();
 
   // Generate a Pay-to-Witness-Public-Key-Hash (P2WPKH) Segregated Witness (SegWit) address from the public key.
-  final p2wpkh = publicKey.toSegwitAddress();
+  final p2wpkh = publicKey.toP2wpkhAddress();
 
   // Generate a Pay-to-Witness-Script-Hash (P2WSH) Segregated Witness (SegWit) address from the public key.
   final p2wsh = publicKey.toP2wshAddress();
@@ -303,8 +303,8 @@ In the [example](https://github.com/mrtnetwork/bitcoin_base/tree/main/example/li
   final privateKey = ECPrivate.fromHex(
       "76257aafc9b954351c7f6445b2d07277f681a5e83d515a1f32ebf54989c2af4f");
   final examplePublicKey = privateKey.getPublic();
-  final spender1 = examplePublicKey.toAddress();
-  final spender2 = examplePublicKey.toSegwitAddress();
+  final spender1 = examplePublicKey.toP2pkhAddress();
+  final spender2 = examplePublicKey.toP2wpkhAddress();
   final spender3 = examplePublicKey.toTaprootAddress();
   final spender4 = examplePublicKey.toP2pkhInP2sh();
   final spender5 = examplePublicKey.toP2pkInP2sh();
@@ -353,9 +353,9 @@ In the [example](https://github.com/mrtnetwork/bitcoin_base/tree/main/example/li
   /// P2pkhAddress.fromAddress(address: ".....", network: network);
   /// P2trAddress.fromAddress(address: "....", network: network)
   /// ....
-  final List<BitcoinOutput> outPuts = [
+  final List<BitcoinOutput> outputs = [
     BitcoinOutput(
-        address: examplePublicKey2.toSegwitAddress(),
+        address: examplePublicKey2.toP2wpkhAddress(),
         value: BtcUtils.toSatoshi("0.00001")),
     BitcoinOutput(
         address: examplePublicKey2.toTaprootAddress(),
@@ -382,11 +382,11 @@ In the [example](https://github.com/mrtnetwork/bitcoin_base/tree/main/example/li
   int transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
       utxos: accountsUtxos,
       outputs: [
-        ...outPuts,
+        ...outputs,
 
         /// I add more output for change value to get correct transaction size
         BitcoinOutput(
-            address: examplePublicKey2.toAddress(), value: BigInt.zero)
+            address: examplePublicKey2.toP2pkhAddress(), value: BigInt.zero)
       ],
 
       /// network
@@ -413,13 +413,13 @@ In the [example](https://github.com/mrtnetwork/bitcoin_base/tree/main/example/li
   }
   //// if we have change value we back amount to account
   if (changeValue > BigInt.zero) {
-    outPuts.add(BitcoinOutput(
-        address: examplePublicKey2.toAddress(), value: changeValue));
+    outputs.add(BitcoinOutput(
+        address: examplePublicKey2.toP2pkhAddress(), value: changeValue));
   }
 
   /// create transaction builder
   final builder = BitcoinTransactionBuilder(
-      outPuts: outPuts,
+      outputs: outputs,
       fee: fee,
       network: network,
       utxos: accountsUtxos,
@@ -482,7 +482,7 @@ In the [example](https://github.com/mrtnetwork/bitcoin_base/tree/main/example/li
 
   /// p2pkh with token address ()
   final receiver1 = P2pkhAddress.fromHash160(
-      addrHash: publicKey.toAddress().addressProgram,
+      h160: publicKey.toP2pkhAddress().addressProgram,
       type: P2pkhAddressType.p2pkhwt);
 
   /// Reads all UTXOs (Unspent Transaction Outputs) associated with the account.
@@ -531,7 +531,7 @@ In the [example](https://github.com/mrtnetwork/bitcoin_base/tree/main/example/li
               previousValue + element.utxo.token!.amount);
 
   final bchTransaction = ForkedTransactionBuilder(
-    outPuts: [
+    outputs: [
       /// change address for bch values (sum of bch amout - (outputs amount + fee))
       BitcoinOutput(
         address: p2pkhAddress.baseAddress,
@@ -695,7 +695,7 @@ In the [example](https://github.com/mrtnetwork/bitcoin_base/tree/main/example/li
         // index of utxo
         txInIndex: i,
         // spender script pub key
-        script: utxo[i].public().toAddress().toScriptPubKey(),
+        script: utxo[i].public().toP2pkhAddress().toScriptPubKey(),
       );
 
       // sign transaction

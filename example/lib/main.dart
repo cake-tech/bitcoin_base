@@ -101,7 +101,7 @@ void _spendFrom2P2SHAnd2P2PKHAddress() async {
       ]);
 
   final b = ForkedTransactionBuilder(
-      outPuts: [
+      outputs: [
         /// Define a BitcoinOutput with the P2shAddress and a value of 0.01 BCH
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("0.01")),
 
@@ -121,7 +121,7 @@ void _spendFrom2P2SHAnd2P2PKHAddress() async {
       /// Specify the network for the litcoin transaction
       network: network,
 
-      /// Define a list of Unspent Transaction Outputs (UTXOs) for the Bitcoin transaction
+      /// Define a list of Unspent Transaction outputs (UTXOs) for the Bitcoin transaction
       utxos: [
         UtxoWithAddress(
 
@@ -138,13 +138,13 @@ void _spendFrom2P2SHAnd2P2PKHAddress() async {
               vout: 0,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: examplePublicKey2.toAddress().type,
+              scriptType: examplePublicKey2.toP2pkhAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: examplePublicKey2.toHex(),
-                address: examplePublicKey2.toAddress())),
+                address: examplePublicKey2.toP2pkhAddress())),
       ]);
 
   /// Build the transaction by invoking the buildTransaction method on the ForkedTransactionBuilder
@@ -247,7 +247,7 @@ void _spendFrom2P2SHAnd1P2PKHAddress() async {
   final b = ForkedTransactionBuilder(
 
       /// outputs
-      outPuts: [
+      outputs: [
         /// Define a BitcoinOutput with the P2pkhAddress and a value of 0.01 BCH
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("0.01")),
 
@@ -267,7 +267,7 @@ void _spendFrom2P2SHAnd1P2PKHAddress() async {
       /// Add a memo to the transaction, linking to the GitHub repository
       memo: "https://github.com/mrtnetwork",
 
-      /// Define a list of Unspent Transaction Outputs (UTXOs) for the Bitcoin transaction
+      /// Define a list of Unspent Transaction outputs (UTXOs) for the Bitcoin transaction
       utxos: [
         UtxoWithAddress(
 
@@ -324,13 +324,13 @@ void _spendFrom2P2SHAnd1P2PKHAddress() async {
               vout: 2,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: examplePublicKey.toAddress().type,
+              scriptType: examplePublicKey.toP2pkhAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: examplePublicKey.toHex(),
-                address: examplePublicKey.toAddress())),
+                address: examplePublicKey.toP2pkhAddress())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
               /// Transaction hash uniquely identifies the referenced transaction

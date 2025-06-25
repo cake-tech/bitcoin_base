@@ -29,10 +29,10 @@ void main() async {
 
   /// p2pkh with token address ()
   final receiver1 = P2pkhAddress.fromHash160(
-      addrHash: publicKey.toAddress().addressProgram,
+      h160: publicKey.toP2pkhAddress().addressProgram,
       type: P2pkhAddressType.p2pkhwt);
 
-  /// Reads all UTXOs (Unspent Transaction Outputs) associated with the account.
+  /// Reads all UTXOs (Unspent Transaction outputs) associated with the account.
   /// We does not need tokens utxo and we set to false.
   final elctrumUtxos =
       await provider.request(ElectrumRequestScriptHashListUnspent(
@@ -80,7 +80,7 @@ void main() async {
               previousValue + element.utxo.token!.amount);
 
   final bchTransaction = ForkedTransactionBuilder(
-    outPuts: [
+    outputs: [
       /// change address for bch values (sum of bch amout - (outputs amount + fee))
       BitcoinOutput(
         address: p2pkhAddress.baseAddress,

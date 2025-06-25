@@ -78,7 +78,7 @@ void _spendFromTwoP2shAndOneP2PKH() async {
   final b = BitcoinTransactionBuilder(
 
       /// outputs
-      outPuts: [
+      outputs: [
         /// Define a BitcoinOutput with the P2shAddress and a value of 1.0 DASH
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("1")),
 
@@ -112,13 +112,13 @@ void _spendFromTwoP2shAndOneP2PKH() async {
               vout: 2,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: examplePublicKey2.toAddress().type,
+              scriptType: examplePublicKey2.toP2pkhAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: examplePublicKey2.toHex(),
-                address: examplePublicKey2.toAddress())),
+                address: examplePublicKey2.toP2pkhAddress())),
       ]);
 
   /// Build the transaction by invoking the buildTransaction method on the BitcoinTransactionBuilder
@@ -184,7 +184,7 @@ void _spendP2SH() async {
   final b = BitcoinTransactionBuilder(
 
       /// outputs
-      outPuts: [
+      outputs: [
         BitcoinOutput(address: out1, value: change),
       ],
 
