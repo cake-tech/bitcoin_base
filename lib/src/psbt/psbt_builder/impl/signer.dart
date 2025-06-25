@@ -27,7 +27,8 @@ mixin PsbtSignerImpl on PsbtBuilderImpl {
   void signInput({required ONBTCSIGNER signer, required int index}) {
     _checkFinalizeInput(index);
     final txInputs = this.txInputs();
-    final params = PsbtUtils.getPsbtInputInfo(psbt: _psbt, inputIndex: index, txInputs: txInputs);
+    final params = PsbtUtils.getPsbtInputInfo(
+        psbt: _psbt, inputIndex: index, txInputs: txInputs);
     final request = PsbtSignerParams(
         scriptPubKey: params.scriptPubKey,
         index: index,
@@ -47,7 +48,8 @@ mixin PsbtSignerImpl on PsbtBuilderImpl {
       final signature = signer.btcSignInput(digest.createRequest(signer));
       final psbtSignature = digest.createSignature(signature, signer);
       final sighash = digest.getPsbtSigHash();
-      _psbt.input.updateInputs(index, [psbtSignature, if (sighash != null) sighash]);
+      _psbt.input
+          .updateInputs(index, [psbtSignature, if (sighash != null) sighash]);
     }
   }
 
@@ -92,7 +94,8 @@ mixin PsbtSignerImpl on PsbtBuilderImpl {
   ///   you must determine the correct tapleafHash; otherwise, signing will fail.
   ///
   /// Throws an error if signing fails for any reason.
-  Future<void> signAllInputAsync({required ONBTCSIGNERASYNC signer, int? sighashType}) async {
+  Future<void> signAllInputAsync(
+      {required ONBTCSIGNERASYNC signer, int? sighashType}) async {
     for (int i = 0; i < _psbt.input.entries.length; i++) {
       if (indexFinalized(i)) continue;
       await signInputAsync(index: i, signer: signer, sighashType: sighashType);
@@ -116,10 +119,13 @@ mixin PsbtSignerImpl on PsbtBuilderImpl {
   ///
   /// Throws an error if signing fails for any reason.
   Future<void> signInputAsync(
-      {required int index, required ONBTCSIGNERASYNC signer, int? sighashType}) async {
+      {required int index,
+      required ONBTCSIGNERASYNC signer,
+      int? sighashType}) async {
     _checkFinalizeInput(index);
     final txInputs = this.txInputs();
-    final params = PsbtUtils.getPsbtInputInfo(psbt: _psbt, inputIndex: index, txInputs: txInputs);
+    final params = PsbtUtils.getPsbtInputInfo(
+        psbt: _psbt, inputIndex: index, txInputs: txInputs);
     final request = PsbtSignerParams(
         scriptPubKey: params.scriptPubKey,
         index: index,
@@ -136,10 +142,12 @@ mixin PsbtSignerImpl on PsbtBuilderImpl {
           tapleafHash: btcSigner.tapleafHash,
           sighashType: sighashType,
           psbt: _psbt);
-      final signature = await signer.btcSignInputAsync(digest.createRequest(signer));
+      final signature =
+          await signer.btcSignInputAsync(digest.createRequest(signer));
       final psbtSignature = digest.createSignature(signature, signer);
       final sighash = digest.getPsbtSigHash();
-      _psbt.input.updateInputs(index, [psbtSignature, if (sighash != null) sighash]);
+      _psbt.input
+          .updateInputs(index, [psbtSignature, if (sighash != null) sighash]);
     }
   }
 }

@@ -27,7 +27,8 @@ class UtxoAddressDetails {
     required String this.publicKey,
     required this.address,
   }) : _multiSigAddress = null;
-  factory UtxoAddressDetails({required String publicKey, required BitcoinBaseAddress address}) {
+  factory UtxoAddressDetails(
+      {required String publicKey, required BitcoinBaseAddress address}) {
     ECPublic.fromHex(publicKey);
     return UtxoAddressDetails._(publicKey: publicKey, address: address);
   }
@@ -51,14 +52,22 @@ class UtxoWithAddress {
   /// OwnerDetails is a UtxoAddressDetails instance containing information about the UTXO owner.
   final UtxoAddressDetails ownerDetails;
 
-  UtxoWithAddress({required this.utxo, required this.ownerDetails})
-      : keyType = ownerDetails.publicKey != null && !utxo.isSegwit
+  const UtxoWithAddress._(
+      {required this.utxo, required this.ownerDetails, required this.keyType});
+  factory UtxoWithAddress(
+      {required BitcoinUtxo utxo, required UtxoAddressDetails ownerDetails}) {
+    return UtxoWithAddress._(
+        utxo: utxo,
+        ownerDetails: ownerDetails,
+        keyType: ownerDetails.publicKey != null && !utxo.isSegwit
             ? BtcUtils.determinatePubKeyModeHex(ownerDetails.publicKey!)
-            : PublicKeyType.compressed;
+            : PublicKeyType.compressed);
+  }
 
   ECPublic public() {
     if (isMultiSig()) {
-      throw const DartBitcoinPluginException('Cannot access public key in multi-signature address');
+      throw const DartBitcoinPluginException(
+          'Cannot access public key in multi-signature address');
     }
     if (ownerDetails.publicKey == null) {
       throw const DartBitcoinPluginException(
@@ -85,6 +94,10 @@ abstract class BitcoinBaseOutput {
 
   /// Convert the output to a TxOutput, a generic representation of a transaction output.
   TxOutput get toOutput;
+}
+
+abstract class BCHBaseOutput extends BitcoinOutput {
+  BCHBaseOutput({required super.address, required super.value});
 }
 
 /// Abstract class representing a spendable Bitcoin output, extending BitcoinBaseOutput.
@@ -134,11 +147,15 @@ class BitcoinScriptOutput implements BitcoinBaseOutput {
 
   /// The value (amount) of the Bitcoin output.
   final BigInt value;
-  const BitcoinScriptOutput({required this.script, required this.value});
+
+  final CashToken? token;
+  const BitcoinScriptOutput(
+      {required this.script, required this.value, this.token});
 
   /// Convert the custom script output to a standard TxOutput.
   @override
-  TxOutput get toOutput => TxOutput(amount: value, scriptPubKey: script, cashToken: null);
+  TxOutput get toOutput =>
+      TxOutput(amount: value, scriptPubKey: script, cashToken: token);
 }
 
 /// BitcoinTokenOutput represents details about a Bitcoin cash transaction with cash token output, including
@@ -152,12 +169,15 @@ class BitcoinTokenOutput implements BitcoinSpendableBaseOutput {
   final CashToken token;
   final String? utxoHash;
   BitcoinTokenOutput(
-      {required this.address, required this.value, required this.token, this.utxoHash});
+      {required this.address,
+      required this.value,
+      required this.token,
+      this.utxoHash});
 
   /// Convert the custom script output to a standard TxOutput.
   @override
-  TxOutput get toOutput =>
-      TxOutput(amount: value, scriptPubKey: address.toScriptPubKey(), cashToken: token);
+  TxOutput get toOutput => TxOutput(
+      amount: value, scriptPubKey: address.toScriptPubKey(), cashToken: token);
 }
 
 /// Represents a burnable output, specifically related to [BitcoinTokenOutput] for burning Cash Tokens.
@@ -212,8 +232,7 @@ class BitcoinUtxo {
       this.token,
       required this.isP2tr,
       required this.isP2shSegwit,
-      required this.isSegwit,
-      this.isSilentPayment});
+      required this.isSegwit});
   factory BitcoinUtxo.fromJson(Map<String, dynamic> json) {
     return BitcoinUtxo(
         txHash: json["tx_hash"],
@@ -221,8 +240,8 @@ class BitcoinUtxo {
         vout: json["vout"],
         scriptType: BitcoinAddressType.fromValue(json["script_type"]),
         blockHeight: IntUtils.tryParse(json["block_height"]),
-        token: json["token"] == null ? null : CashToken.fromJson(json["token"]),
-        isSilentPayment: json["is_silent_payment"] == null ? null : json["is_silent_payment"] == 1);
+        token:
+            json["token"] == null ? null : CashToken.fromJson(json["token"]));
   }
   factory BitcoinUtxo(
       {required String txHash,
@@ -230,28 +249,23 @@ class BitcoinUtxo {
       required int vout,
       required BitcoinAddressType scriptType,
       int? blockHeight,
-      CashToken? token,
-      bool? isSilentPayment}) {
-    final isP2shSegwit =
-        scriptType == P2shAddressType.p2wpkhInP2sh || scriptType == P2shAddressType.p2wshInP2sh;
+      CashToken? token}) {
+    final isP2shSegwit = scriptType == P2shAddressType.p2wpkhInP2sh ||
+        scriptType == P2shAddressType.p2wshInP2sh;
     return BitcoinUtxo._(
-      txHash: txHash,
-      value: value,
-      blockHeight: blockHeight,
-      token: token,
-      vout: vout,
-      scriptType: scriptType,
-      isP2tr: scriptType == SegwitAddressType.p2tr,
-      isP2shSegwit: isP2shSegwit,
-      isSegwit: isP2shSegwit || scriptType.isSegwit,
-      isSilentPayment: isSilentPayment,
-    );
+        txHash: txHash,
+        value: value,
+        blockHeight: blockHeight,
+        token: token,
+        vout: vout,
+        scriptType: scriptType,
+        isP2tr: scriptType == SegwitAddressType.p2tr,
+        isP2shSegwit: isP2shSegwit,
+        isSegwit: isP2shSegwit || scriptType.isSegwit);
   }
 
   /// check if utxos is p2tr
   final bool isP2tr;
-
-  bool? isSilentPayment;
 
   /// check if utxos is segwit
   final bool isSegwit;
@@ -261,7 +275,7 @@ class BitcoinUtxo {
 
   /// convert utxos to transaction input with specify sequence like ReplaceByeFee (4Bytes)
   TxInput toInput([List<int>? sequence]) {
-    return TxInput(txId: txHash, txIndex: vout, sequence: sequence);
+    return TxInput(txId: txHash, txIndex: vout, sequance: sequence);
   }
 
   Map<String, dynamic> toJson() {

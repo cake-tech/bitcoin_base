@@ -18,7 +18,7 @@ void main() {
     ]);
     final txout = TxOutput(
         amount: BigInt.from(9000000),
-        scriptPubKey: P2shAddress.fromRedeemScript(
+        scriptPubKey: P2shAddress.fromScript(
                 script: p2pkRedeemScript, type: P2shAddressType.p2pkInP2sh)
             .toScriptPubKey());
     const createP2shAndSendResult =
@@ -44,7 +44,7 @@ void main() {
         txId:
             'f557c623e55f0affc696b742630770df2342c4aac395e0ed470923247bc51b95',
         txIndex: 0,
-        sequence: seq.forInputSequence());
+        sequance: seq.forInputSequence());
     final anotherAddr = P2pkhAddress.fromAddress(
         address: 'n4bkvTyU1dVdzsrhWBqBw8fEMbHjJvtmJR',
         network: BitcoinNetwork.testnet);
@@ -59,7 +59,7 @@ void main() {
       final tx = BtcTransaction(inputs: [txin], outputs: [txout]);
       final digit = tx.getTransactionDigest(
           txInIndex: 0, script: fromAddr.toScriptPubKey());
-      final sig = sk.signInput(digit);
+      final sig = sk.signECDSA(digit);
       txin.scriptSig = Script(script: [sig, sk.getPublic().toHex()]);
       expect(tx.serialize(), createP2shAndSendResult);
     });
@@ -68,7 +68,7 @@ void main() {
       final tx = BtcTransaction(inputs: [txinSpend], outputs: [txout2]);
       final digit =
           tx.getTransactionDigest(txInIndex: 0, script: p2pkRedeemScript);
-      final sig = p2pkSk.signInput(digit);
+      final sig = p2pkSk.signECDSA(digit);
       txinSpend.scriptSig = Script(script: [sig, p2pkRedeemScript.toHex()]);
       expect(tx.serialize(), spendP2shResult);
     });
@@ -90,7 +90,7 @@ void main() {
       final tx = BtcTransaction(inputs: [txinSeq], outputs: [txout1]);
 
       final digit = tx.getTransactionDigest(txInIndex: 0, script: redeemScript);
-      final sig = skCsvP2pkh.signInput(digit);
+      final sig = skCsvP2pkh.signECDSA(digit);
 
       txinSeq.scriptSig = Script(
           script: [sig, skCsvP2pkh.getPublic().toHex(), redeemScript.toHex()]);

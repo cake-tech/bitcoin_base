@@ -9,20 +9,6 @@ import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 class TaprootUtils {
-  /// Function: taggedHash
-  /// Description: Computes a tagged hash of the input data with a provided tag.
-  /// Input:
-  ///   - `List<int>` data - The data to be hashed.
-  ///   - String tag - A unique tag to differentiate the hash.
-  /// Output: `List<int>` - The resulting tagged hash.
-  /// Note: This function combines the provided tag with the input data to create a unique
-  /// hash by applying a double SHA-256 hash.
-  static List<int> taggedHashTag(List<int> data, String tag) {
-    /// Calculate the hash of the tag as List<int>.
-    final tagDigest = QuickCrypto.sha256Hash(List<int>.from(tag.codeUnits));
-    return taggedHash(data, tagDigest);
-  }
-
   static List<int> taggedHash(List<int> data, List<int> tagDigest) {
     return QuickCrypto.sha256Hash([...tagDigest, ...tagDigest, ...data]);
   }
@@ -40,8 +26,12 @@ class TaprootUtils {
   }
 
   static List<int> tapleafTaggedHash(
-      {required Script script, int leafVersion = BitcoinOpCodeConst.leafVersionTapscript}) {
-    final leafVarBytes = [leafVersion, ...IntUtils.prependVarint(script.toBytes())];
+      {required Script script,
+      int leafVersion = BitcoinOpCodeConst.leafVersionTapscript}) {
+    final leafVarBytes = [
+      leafVersion,
+      ...IntUtils.prependVarint(script.toBytes())
+    ];
     return tapLeafTaggedHash(leafVarBytes);
   }
 
@@ -73,16 +63,18 @@ class TaprootUtils {
   static ProjectiveECCPoint tweakPublicKey(List<int> pubKey,
       {TaprootTree? treeScript, List<int>? merkleRoot}) {
     if (merkleRoot != null && merkleRoot.length != 32) {
-      throw DartBitcoinPluginException("Invalid Merkle root: must be exactly 32 bytes.", details: {
-        "length": merkleRoot.length,
-      });
+      throw DartBitcoinPluginException(
+          "Invalid Merkle root: must be exactly 32 bytes.",
+          details: {
+            "length": merkleRoot.length,
+          });
     }
     List<int>? xKey = pubKey.clone();
     if (xKey.length == EcdsaKeysConst.pubKeyCompressedByteLen) {
       xKey = xKey.sublist(1);
     }
-
-    final tweak = calculateTweek(xKey, treeScript: treeScript, merkleRoot: merkleRoot);
+    final tweak =
+        calculateTweek(xKey, treeScript: treeScript, merkleRoot: merkleRoot);
     return tweakInternalKey(xKey, tweak);
   }
 
@@ -102,7 +94,8 @@ class TaprootUtils {
     return tweek;
   }
 
-  static ProjectiveECCPoint tweakInternalKey(List<int> internalPubKey, List<int> leafHash) {
+  static ProjectiveECCPoint tweakInternalKey(
+      List<int> internalPubKey, List<int> leafHash) {
     final x = BigintUtils.fromBytes(internalPubKey);
     final n = Curves.generatorSecp256k1 * BigintUtils.fromBytes(leafHash);
     final outPoint = P2TRUtils.liftX(x) + n;
@@ -134,7 +127,8 @@ class TaprootUtils {
 
       for (int i = 0; i < leavesHashes.length; i += 2) {
         List<int> left = leavesHashes[i];
-        List<int> right = (i + 1 < leavesHashes.length) ? leavesHashes[i + 1] : left;
+        List<int> right =
+            (i + 1 < leavesHashes.length) ? leavesHashes[i + 1] : left;
 
         // // Ensure lexicographic order before hashing
         // if (Uint8List.fromList(left).compareTo(Uint8List.fromList(right)) > 0) {
@@ -155,12 +149,15 @@ class TaprootUtils {
   }
 
   static List<TapLeafMerkleProof> generateAllPossibleProofs(
-      {required TaprootTree treeScript, required List<int> xOnlyOrInternalPubKey}) {
+      {required TaprootTree treeScript,
+      required List<int> xOnlyOrInternalPubKey}) {
     final leafs = extractLeafs(treeScript).toSet();
     return leafs
         .map(
           (e) => TapLeafMerkleProof.generate(
-              leafScript: e, scriptTree: treeScript, xOnlyOrInternalPubKey: xOnlyOrInternalPubKey),
+              leafScript: e,
+              scriptTree: treeScript,
+              xOnlyOrInternalPubKey: xOnlyOrInternalPubKey),
         )
         .toList();
   }
@@ -169,11 +166,14 @@ class TaprootUtils {
     if (xOnlyOrInternalPubKey.length == EcdsaKeysConst.pointCoordByteLen) {
       return xOnlyOrInternalPubKey;
     }
-    if (xOnlyOrInternalPubKey.length == EcdsaKeysConst.pubKeyCompressedByteLen) {
+    if (xOnlyOrInternalPubKey.length ==
+        EcdsaKeysConst.pubKeyCompressedByteLen) {
       return xOnlyOrInternalPubKey.sublist(1);
     }
-    if (xOnlyOrInternalPubKey.length == EcdsaKeysConst.pubKeyCompressedByteLen ||
-        xOnlyOrInternalPubKey.length == EcdsaKeysConst.pubKeyUncompressedByteLen) {
+    if (xOnlyOrInternalPubKey.length ==
+            EcdsaKeysConst.pubKeyCompressedByteLen ||
+        xOnlyOrInternalPubKey.length ==
+            EcdsaKeysConst.pubKeyUncompressedByteLen) {
       try {
         return ECPublic.fromBytes(xOnlyOrInternalPubKey).toXOnly();
       } catch (_) {}

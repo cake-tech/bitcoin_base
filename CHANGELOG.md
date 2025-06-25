@@ -1,3 +1,28 @@
+## 6.5.0
+
+- Fix transaction parsing in Mempool API.
+
+## 6.4.0
+
+- Update dependencies.
+- Improved security: Private key operations now use blinded ecmult for safer public key generation.
+- All signing methods now use constant-time operations with blinded ecmult to securely generate signatures.
+
+
+
+## 6.3.0
+
+- Update dependencies.
+- Add estimate transaction size for psbt
+- Add more script validation in psbt
+
+## 6.2.0
+
+- Update dependencies.
+- Support PSBT for BCH
+- Support for BIP-173
+- Support for BCH schnorr signing
+
 ## 6.1.0
 
 - Fix der signature validation.

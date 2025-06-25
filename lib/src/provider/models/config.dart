@@ -11,18 +11,17 @@ class APIConfig {
   final String transactions;
   final String sendTransaction;
   final String blockHeight;
+  final String latestBlockHeight;
   final APIType apiType;
   final String rawTransaction;
   final BasedUtxoNetwork network;
-  final String? block;
-  final String? blockTimestamp;
 
   factory APIConfig.selectApi(APIType apiType, BasedUtxoNetwork network) {
     switch (apiType) {
       case APIType.mempool:
         return APIConfig.mempool(network);
       default:
-        return APIConfig.mempool(network);
+        return APIConfig.fromBlockCypher(network);
     }
   }
 
@@ -45,32 +44,18 @@ class APIConfig {
     return baseUrl.replaceAll('###', transactionId);
   }
 
-  String getBlockUrl(String blockHash) {
-    if (block == null) {
-      throw const DartBitcoinPluginException("block url is not available");
-    }
-
-    String baseUrl = block!;
-    return baseUrl.replaceAll("###", blockHash);
-  }
-
-  String getBlockTimestampUrl(int timestamp) {
-    if (blockTimestamp == null) {
-      throw const DartBitcoinPluginException("block timestamp url is not available");
-    }
-
-    String baseUrl = blockTimestamp!;
-    return baseUrl.replaceAll("###", timestamp.toString());
-  }
-
   String getTransactionsUrl(String address) {
     final baseUrl = transactions;
     return baseUrl.replaceAll('###', address);
   }
 
-  String getBlockHeight(int blockHaight) {
+  String getBlockHashByHeight(int blockHaight) {
     final baseUrl = blockHeight;
     return baseUrl.replaceAll('###', '$blockHaight');
+  }
+
+  String getLatestBlockHeightUrl() {
+    return latestBlockHeight;
   }
 
   factory APIConfig.fromBlockCypher(BasedUtxoNetwork network) {
@@ -97,44 +82,46 @@ class APIConfig {
     }
 
     return APIConfig(
-        url: "$baseUrl/addrs/###/?unspentOnly=true&includeScript=true&limit=2000",
+        url:
+            '$baseUrl/addrs/###/?unspentOnly=true&includeScript=true&limit=2000',
         feeRate: baseUrl,
-        transaction: "$baseUrl/txs/###",
+        transaction: '$baseUrl/txs/###',
         rawTransaction: '$baseUrl/txs/###',
-        sendTransaction: "$baseUrl/txs/push",
+        sendTransaction: '$baseUrl/txs/push',
         apiType: APIType.blockCypher,
-        transactions: "$baseUrl/addrs/###/full?limit=200",
+        transactions: '$baseUrl/addrs/###/full?limit=200',
         network: network,
-        blockHeight: "$baseUrl/blocks/###");
+        blockHeight: '$baseUrl/blocks/###',
+        latestBlockHeight: "$baseUrl/");
   }
 
-  factory APIConfig.mempool(BasedUtxoNetwork network, [String? baseUrl]) {
-    if (baseUrl == null) {
-      switch (network) {
-        case BitcoinNetwork.mainnet:
-          baseUrl = BtcApiConst.mempoolMainBaseURL;
-          break;
-        case BitcoinNetwork.testnet:
-          baseUrl = BtcApiConst.mempoolBaseURL;
-          break;
-        default:
-          throw DartBitcoinPluginException(
-              "mempool does not support ${network.conf.coinName.name}");
-      }
+  factory APIConfig.mempool(BasedUtxoNetwork network, {String? baseUrl}) {
+    switch (network) {
+      case BitcoinNetwork.mainnet:
+        baseUrl ??= BtcApiConst.mempoolMainBaseURL;
+        break;
+      case BitcoinNetwork.testnet:
+        baseUrl ??= BtcApiConst.mempoolBaseURL;
+        break;
+      case BitcoinNetwork.testnet4:
+        baseUrl ??= BtcApiConst.mempoolTestnet4BaseURL;
+        break;
+      default:
+        throw DartBitcoinPluginException(
+            'mempool does not support ${network.conf.coinName.name}');
     }
 
     return APIConfig(
-        url: "$baseUrl/address/###/utxo",
-        feeRate: "$baseUrl/fees/recommended",
-        transaction: "$baseUrl/tx/###",
+        url: '$baseUrl/address/###/utxo',
+        feeRate: '$baseUrl/v1/fees/recommended',
+        transaction: '$baseUrl/tx/###',
         rawTransaction: '$baseUrl/tx/###/hex',
-        sendTransaction: "$baseUrl/tx",
+        sendTransaction: '$baseUrl/tx',
         apiType: APIType.mempool,
-        transactions: "$baseUrl/address/###/txs",
+        transactions: '$baseUrl/address/###/txs',
         network: network,
-        blockHeight: "$baseUrl/block-height/###",
-        block: "$baseUrl/block/###",
-        blockTimestamp: "$baseUrl/mining/blocks/timestamp/###");
+        blockHeight: '$baseUrl/block-height/###',
+        latestBlockHeight: "$baseUrl/blocks/tip/height");
   }
 
   APIConfig(
@@ -147,6 +134,5 @@ class APIConfig {
       required this.network,
       required this.blockHeight,
       required this.rawTransaction,
-      this.block,
-      this.blockTimestamp});
+      required this.latestBlockHeight});
 }

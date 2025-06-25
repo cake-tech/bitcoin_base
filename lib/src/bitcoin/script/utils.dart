@@ -22,17 +22,29 @@ enum ScriptPubKeyType {
       this == ScriptPubKeyType.p2wsh ||
       this == ScriptPubKeyType.p2tr;
   bool get isP2tr => this == ScriptPubKeyType.p2tr;
-  bool get isP2sh => this == ScriptPubKeyType.p2sh;
+  bool get isP2sh => isP2sh32 || this == ScriptPubKeyType.p2sh;
   bool get isP2sh32 => this == ScriptPubKeyType.p2sh32;
 }
 
 class BitcoinScriptUtils {
-  static bool scriptContains({required Script script, required List<dynamic> elements}) {
+  static Script buildOpReturn(List<List<int>> data) {
+    return Script(script: [
+      BitcoinOpcode.opReturn,
+      ...data.map((e) => BytesUtils.toHexString(e))
+    ]);
+  }
+
+  static bool scriptContains(
+      {required Script script, required List<dynamic> elements}) {
     if (elements.length != script.script.length) return false;
     for (int i = 0; i < script.script.length; i++) {
       final element = elements[i];
       if (element != null) {
-        if (script.script[i] != element) {
+        if (element is BitcoinOpcode) {
+          if (script.script[i] != element.name) {
+            return false;
+          }
+        } else if (script.script[i] != element) {
           return false;
         }
       }
@@ -41,9 +53,13 @@ class BitcoinScriptUtils {
   }
 
   static bool isP2pkh(Script script) {
-    if (scriptContains(
-        script: script,
-        elements: ['OP_DUP', 'OP_HASH160', null, 'OP_EQUALVERIFY', 'OP_CHECKSIG'])) {
+    if (scriptContains(script: script, elements: [
+      BitcoinOpcode.opDup,
+      BitcoinOpcode.opHash160,
+      null,
+      BitcoinOpcode.opEqualVerify,
+      BitcoinOpcode.opCheckSig
+    ])) {
       final addressProgram = script.script[2];
       return (addressProgram is String && addressProgram.length == 40);
     }
@@ -51,7 +67,9 @@ class BitcoinScriptUtils {
   }
 
   static bool isP2sh(Script script) {
-    if (scriptContains(script: script, elements: ['OP_HASH160', null, 'OP_EQUAL'])) {
+    if (scriptContains(
+        script: script,
+        elements: [BitcoinOpcode.opHash160, null, BitcoinOpcode.opEqual])) {
       final pubKeyBytes = BytesUtils.tryFromHexString(script.script[1]);
       return pubKeyBytes?.length == P2shAddressType.p2pkInP2sh.hashLength;
     }
@@ -59,7 +77,9 @@ class BitcoinScriptUtils {
   }
 
   static bool isP2sh32(Script script) {
-    if (scriptContains(script: script, elements: ['OP_HASH256', null, 'OP_EQUAL'])) {
+    if (scriptContains(
+        script: script,
+        elements: [BitcoinOpcode.opHash256, null, BitcoinOpcode.opEqual])) {
       final pubKeyBytes = BytesUtils.tryFromHexString(script.script[1]);
       return pubKeyBytes?.length == P2shAddressType.p2pkhInP2sh32.hashLength;
     }
@@ -67,7 +87,8 @@ class BitcoinScriptUtils {
   }
 
   static bool isP2pk(Script script) {
-    if (scriptContains(script: script, elements: [null, "OP_CHECKSIG"])) {
+    if (scriptContains(
+        script: script, elements: [null, BitcoinOpcode.opCheckSig])) {
       final pubKeyBytes = BytesUtils.tryFromHexString(script.script[0]);
       return pubKeyBytes?.length == EcdsaKeysConst.pubKeyCompressedByteLen ||
           pubKeyBytes?.length == EcdsaKeysConst.pubKeyUncompressedByteLen;
@@ -76,7 +97,7 @@ class BitcoinScriptUtils {
   }
 
   static bool isP2tr(Script script) {
-    if (scriptContains(script: script, elements: ['OP_1', null])) {
+    if (scriptContains(script: script, elements: [BitcoinOpcode.op1, null])) {
       final pubKeyBytes = BytesUtils.tryFromHexString(script.script[1]);
       return pubKeyBytes?.length == SegwitAddressType.p2tr.hashLength;
     }
@@ -84,7 +105,7 @@ class BitcoinScriptUtils {
   }
 
   static bool isP2wpkh(Script script) {
-    if (scriptContains(script: script, elements: ['OP_0', null])) {
+    if (scriptContains(script: script, elements: [BitcoinOpcode.op0, null])) {
       final pubKeyBytes = BytesUtils.tryFromHexString(script.script[1]);
       return pubKeyBytes?.length == SegwitAddressType.p2wpkh.hashLength;
     }
@@ -92,7 +113,9 @@ class BitcoinScriptUtils {
   }
 
   static bool isRipemd160(Script script) {
-    if (scriptContains(script: script, elements: ['OP_RIPEMD160', null, "OP_EQUAL"])) {
+    if (scriptContains(
+        script: script,
+        elements: [BitcoinOpcode.opRipemd160, null, BitcoinOpcode.opEqual])) {
       final toBytes = BytesUtils.tryFromHexString(script.script[1]);
       return toBytes?.length == QuickCrypto.hash160DigestSize;
     }
@@ -100,7 +123,9 @@ class BitcoinScriptUtils {
   }
 
   static bool isSha256(Script script) {
-    if (scriptContains(script: script, elements: ['OP_SHA256', null, "OP_EQUAL"])) {
+    if (scriptContains(
+        script: script,
+        elements: [BitcoinOpcode.opSha256, null, BitcoinOpcode.opEqual])) {
       final toBytes = BytesUtils.tryFromHexString(script.script[1]);
       return toBytes?.length == QuickCrypto.sha256DigestSize;
     }
@@ -108,7 +133,9 @@ class BitcoinScriptUtils {
   }
 
   static bool isHash256(Script script) {
-    if (scriptContains(script: script, elements: ['OP_HASH256', null, "OP_EQUAL"])) {
+    if (scriptContains(
+        script: script,
+        elements: [BitcoinOpcode.opHash256, null, BitcoinOpcode.opEqual])) {
       final toBytes = BytesUtils.tryFromHexString(script.script[1]);
       return toBytes?.length == QuickCrypto.sha256DigestSize;
     }
@@ -116,7 +143,9 @@ class BitcoinScriptUtils {
   }
 
   static bool isHash160(Script script) {
-    if (scriptContains(script: script, elements: ['OP_HASH160', null, "OP_EQUAL"])) {
+    if (scriptContains(
+        script: script,
+        elements: [BitcoinOpcode.opHash160, null, BitcoinOpcode.opEqual])) {
       final toBytes = BytesUtils.tryFromHexString(script.script[1]);
       return toBytes?.length == QuickCrypto.hash160DigestSize;
     }
@@ -124,7 +153,7 @@ class BitcoinScriptUtils {
   }
 
   static bool isP2wsh(Script script) {
-    if (scriptContains(script: script, elements: ['OP_0', null])) {
+    if (scriptContains(script: script, elements: [BitcoinOpcode.op0, null])) {
       final pubKeyBytes = BytesUtils.tryFromHexString(script.script[1]);
       return pubKeyBytes?.length == SegwitAddressType.p2wsh.hashLength;
     }
@@ -132,7 +161,8 @@ class BitcoinScriptUtils {
   }
 
   static bool isXOnlyOpChecksig(Script script) {
-    if (scriptContains(script: script, elements: [null, "OP_CHECKSIG"])) {
+    if (scriptContains(
+        script: script, elements: [null, BitcoinOpcode.opCheckSig])) {
       final xOnlyKey = BytesUtils.tryFromHexString(script.script[0]);
       return xOnlyKey?.length == EcdsaKeysConst.pointCoordByteLen;
     }
@@ -159,16 +189,19 @@ class BitcoinScriptUtils {
   }
 
   static bool isOpReturn(Script script) {
-    return script.script.isNotEmpty && script.script[0] == BitcoinOpCodeConst.opReturn;
+    return script.script.isNotEmpty &&
+        script.script[0] == BitcoinOpCodeConst.opReturn;
   }
 
   static bool isOpTrue(Script script) {
     return script.script.length == 1 &&
-        BitcoinOpcode.findByName(script.script[0])?.value == BitcoinOpcode.opTrue.value;
+        BitcoinOpcode.findByName(script.script[0])?.value ==
+            BitcoinOpcode.opTrue.value;
   }
 
   static bool isPubKeyOpCheckSig(Script script) {
-    if (scriptContains(script: script, elements: [null, "OP_CHECKSIG"])) {
+    if (scriptContains(
+        script: script, elements: [null, BitcoinOpcode.opCheckSig])) {
       final pubKeyBytes = BytesUtils.tryFromHexString(script.script[0]);
       return pubKeyBytes?.length == EcdsaKeysConst.pubKeyCompressedByteLen ||
           pubKeyBytes?.length == EcdsaKeysConst.pubKeyUncompressedByteLen;
@@ -212,7 +245,8 @@ class BitcoinScriptUtils {
   static bool isMultisigScript(Script script) {
     final opCodes = script.script;
     if (opCodes.length < 4) return false;
-    if (opCodes.last != 'OP_CHECKMULTISIG' && opCodes.last != "OP_CHECKMULTISIGVERIFY") {
+    if (opCodes.last != BitcoinOpcode.opCheckMultiSig.name &&
+        opCodes.last != BitcoinOpcode.opCheckMultiSigVerify.name) {
       return false;
     }
     final int? threshold = decodeOpN(opCodes.first.toString());
@@ -230,7 +264,8 @@ class BitcoinScriptUtils {
   static MultiSignatureAddress? parseMultisigScript(Script script) {
     final opCodes = script.script;
     if (opCodes.length < 4) return null;
-    if (opCodes.last != 'OP_CHECKMULTISIG' && opCodes.last != "OP_CHECKMULTISIGVERIFY") {
+    if (opCodes.last != BitcoinOpcode.opCheckMultiSig.name &&
+        opCodes.last != BitcoinOpcode.opCheckMultiSigVerify.name) {
       return null;
     }
     final int? threshold = decodeOpN(opCodes.first.toString());
@@ -305,20 +340,22 @@ class BitcoinScriptUtils {
     if (BitcoinScriptUtils.isP2wpkh(script)) {
       address = P2wpkhAddress.fromProgram(program: script.script[1]);
     } else if (BitcoinScriptUtils.isP2pkh(script)) {
-      address = P2pkhAddress.fromHash160(h160: script.script[2]);
+      address = P2pkhAddress.fromHash160(addrHash: script.script[2]);
     } else if (BitcoinScriptUtils.isP2pk(script)) {
       address = P2pkAddress(publicKey: script.script[0]);
     } else if (BitcoinScriptUtils.isP2sh(script)) {
-      address = P2shAddress.fromHash160(h160: script.script[1]);
+      address = P2shAddress.fromHash160(addrHash: script.script[1]);
     } else if (BitcoinScriptUtils.isP2sh32(script)) {
-      address = P2shAddress.fromHash160(h160: script.script[1], type: P2shAddressType.p2pkInP2sh32);
+      address = P2shAddress.fromHash160(
+          addrHash: script.script[1], type: P2shAddressType.p2pkInP2sh32);
     } else if (BitcoinScriptUtils.isP2wsh(script)) {
       address = P2wshAddress.fromProgram(program: script.script[1]);
     } else if (BitcoinScriptUtils.isP2tr(script)) {
       address = P2trAddress.fromProgram(program: script.script[1]);
     }
     if (address == null || address.toScriptPubKey() != script) {
-      throw DartBitcoinPluginException("Unknown scriptPubKey: Unable to generate a valid address.");
+      throw DartBitcoinPluginException(
+          "Unknown scriptPubKey: Unable to generate a valid address.");
     }
     return address;
   }
@@ -331,26 +368,29 @@ class BitcoinScriptUtils {
     }
   }
 
-  static List<int> opPushData([List<int>? dataBytes, String? hexData]) {
-    dataBytes ??= BytesUtils.fromHexString(hexData!);
+  static List<int> opPushData(List<int> dataBytes) {
     if (dataBytes.length < BitcoinOpCodeConst.opPushData1) {
       return [dataBytes.length, ...dataBytes];
     } else if (dataBytes.length < mask8) {
       return [BitcoinOpCodeConst.opPushData1, dataBytes.length, ...dataBytes];
     } else if (dataBytes.length < mask16) {
-      final lengthBytes = IntUtils.toBytes(dataBytes.length, length: 2, byteOrder: Endian.little);
+      final lengthBytes = IntUtils.toBytes(dataBytes.length,
+          length: 2, byteOrder: Endian.little);
       return [BitcoinOpCodeConst.opPushData2, ...lengthBytes, ...dataBytes];
     } else if (dataBytes.length < mask32) {
-      final lengthBytes = IntUtils.toBytes(dataBytes.length, length: 4, byteOrder: Endian.little);
+      final lengthBytes = IntUtils.toBytes(dataBytes.length,
+          length: 4, byteOrder: Endian.little);
       return [BitcoinOpCodeConst.opPushData4, ...lengthBytes, ...dataBytes];
     } else {
-      throw const DartBitcoinPluginException('Data too large. Cannot push into script');
+      throw const DartBitcoinPluginException(
+          'Data too large. Cannot push into script');
     }
   }
 
   static List<int> pushInteger(int integer) {
     if (integer < 0) {
-      throw const DartBitcoinPluginException('Integer is currently required to be positive.');
+      throw const DartBitcoinPluginException(
+          'Integer is currently required to be positive.');
     }
 
     /// Calculate the number of bytes required to represent the integer

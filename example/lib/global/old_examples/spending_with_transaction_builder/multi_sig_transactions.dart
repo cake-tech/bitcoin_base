@@ -4,6 +4,7 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:example/services_examples/explorer_service/explorer_service.dart';
 
 void main() async {
   final service = BitcoinApiService();
@@ -12,7 +13,7 @@ void main() async {
 
   // select api for read accounts UTXOs and send transaction
   // Mempool or BlockCypher
-  final api = ApiProvider.fromMempool(network);
+  final api = ApiProvider.fromMempool(network, service);
 
   final mnemonic = Bip39SeedGenerator(Mnemonic.fromString(
           "spy often critic spawn produce volcano depart fire theory fog turn retire"))
@@ -58,14 +59,18 @@ void main() async {
   // P2WSH Multisig 4-6
   // tb1qxt3c7849m0m6cv3z3s35c3zvdna3my3yz0r609qd9g0dcyyk580sgyldhe
 
-  final p2wshMultiSigAddress = multiSignatureAddress.toP2wshAddress(network: network);
+  final p2wshMultiSigAddress =
+      multiSignatureAddress.toP2wshAddress(network: network).toAddress(network);
 
   // p2sh(p2wsh) multisig
-  final signerP2sh1 = MultiSignatureSigner(publicKey: public5.toHex(), weight: 1);
+  final signerP2sh1 =
+      MultiSignatureSigner(publicKey: public5.toHex(), weight: 1);
 
-  final signerP2sh2 = MultiSignatureSigner(publicKey: public6.toHex(), weight: 1);
+  final signerP2sh2 =
+      MultiSignatureSigner(publicKey: public6.toHex(), weight: 1);
 
-  final signerP2sh3 = MultiSignatureSigner(publicKey: public1.toHex(), weight: 1);
+  final signerP2sh3 =
+      MultiSignatureSigner(publicKey: public1.toHex(), weight: 1);
 
   final MultiSignatureAddress p2shMultiSignature = MultiSignatureAddress(
     threshold: 2,
@@ -73,12 +78,14 @@ void main() async {
   );
   // P2SH(P2WSH) miltisig 2-3
   // 2N8co8bth9CNKtnWGfHW6HuUNgnNPNdpsMj
-  final p2shMultisigAddress = p2shMultiSignature.toP2wshInP2shAddress(network: network);
+  final p2shMultisigAddress = p2shMultiSignature
+      .toP2wshInP2shAddress(network: network)
+      .toAddress(network);
 
   // P2TR
   final exampleAddr2 = public2.toTaprootAddress();
   // P2KH
-  final exampleAddr4 = public3.toP2pkhAddress();
+  final exampleAddr4 = public3.toAddress();
   // Spending List
   // i use some different address type for this
   // now i want to spending from 8 address in one transaction
@@ -142,9 +149,11 @@ void main() async {
       utxos: utxos,
       outputs: [
         BitcoinOutput(
-            address: p2shMultiSignature.toP2wshInP2shAddress(network: network), value: BigInt.zero),
+            address: p2shMultiSignature.toP2wshInP2shAddress(network: network),
+            value: BigInt.zero),
         BitcoinOutput(
-            address: multiSignatureAddress.toP2wshAddress(network: network), value: BigInt.zero),
+            address: multiSignatureAddress.toP2wshAddress(network: network),
+            value: BigInt.zero),
         BitcoinOutput(address: exampleAddr2, value: BigInt.zero),
         BitcoinOutput(address: exampleAddr4, value: BigInt.zero)
       ],
@@ -159,7 +168,7 @@ void main() async {
   // That's my perspective, of course.
   final blockCypher = ApiProvider.fromBlocCypher(network, service);
 
-  final feeRate = await blockCypher.getRecommendedFeeRate();
+  final feeRate = await blockCypher.getNetworkFeeRate();
   // fee rate inKB
   // feeRate.medium: 32279 P/KB
   // feeRate.high: 43009  P/KB
@@ -181,9 +190,12 @@ void main() async {
       address: p2shMultiSignature.toP2wshInP2shAddress(network: network),
       value: BigInt.from(365449));
   final output2 = BitcoinOutput(
-      address: multiSignatureAddress.toP2wshAddress(network: network), value: BigInt.from(365449));
-  final output3 = BitcoinOutput(address: exampleAddr2, value: BigInt.from(365448));
-  final output4 = BitcoinOutput(address: exampleAddr4, value: BigInt.from(365448));
+      address: multiSignatureAddress.toP2wshAddress(network: network),
+      value: BigInt.from(365449));
+  final output3 =
+      BitcoinOutput(address: exampleAddr2, value: BigInt.from(365448));
+  final output4 =
+      BitcoinOutput(address: exampleAddr4, value: BigInt.from(365448));
 
   // Well, now it is clear to whom we are going to pay the amount
   // Now let's create the transaction
@@ -191,7 +203,7 @@ void main() async {
     // Now, we provide the UTXOs we want to spend.
     utxos: utxos,
     // We select transaction outputs
-    outputs: [output1, output2, output3, output4],
+    outPuts: [output1, output2, output3, output4],
     /*
 			Transaction fee
 			Ensure that you have accurately calculated the amounts.
@@ -221,7 +233,8 @@ void main() async {
   // I've added a method for signing the transaction as a parameter.
   // This method sends you the public key for each UTXO,
   // allowing you to sign the desired input with the associated private key
-  final transaction = transactionBuilder.buildTransaction((trDigest, utxo, publicKey, sighash) {
+  final transaction =
+      transactionBuilder.buildTransaction((trDigest, utxo, publicKey, sighash) {
     late ECPrivate key;
 
     // ok we have the public key of the current UTXO and we use some conditions to find private  key and sign transaction
@@ -256,10 +269,10 @@ void main() async {
       // yes is p2tr utxo and now we use SignTaprootTransaction(Schnorr sign)
       // for now this transaction builder support only tweak transaction
       // If you want to spend a Taproot script-path spending, you must create your own transaction builder.
-      return key.signTapRoot(trDigest, sighash: sighash);
+      return key.signBip340(trDigest, sighash: sighash);
     } else {
       // is seqwit(v0) or lagacy address we use  SingInput (ECDSA)
-      return key.signInput(trDigest, sigHash: sighash);
+      return key.signECDSA(trDigest, sighash: sighash);
     }
   });
 

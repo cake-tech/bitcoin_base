@@ -1,6 +1,9 @@
 import 'dart:typed_data';
 
 import 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';
+import 'package:bitcoin_base/src/exception/exception.dart';
+import 'package:blockchain_utils/crypto/quick_crypto.dart';
+import 'package:blockchain_utils/helper/extensions/extensions.dart';
 import 'package:blockchain_utils/utils/utils.dart';
 import 'script.dart';
 
@@ -11,26 +14,43 @@ import 'script.dart';
 /// [scriptSig] the script that satisfies the locking conditions
 /// [sequence] the input sequence (for timelocks, RBF, etc.)
 class TxInput {
-  TxInput({
-    required this.txId,
-    required this.txIndex,
-    Script? scriptSig,
-    List<int>? sequence,
-  })  : sequence = List.unmodifiable(
-          sequence ?? BitcoinOpCodeConst.defaultTxSequence,
-        ),
+  TxInput._(
+      {required this.txId,
+      required this.txIndex,
+      Script? scriptSig,
+      List<int>? sequance})
+      : sequence =
+            (sequance ?? BitcoinOpCodeConst.defaultTxSequence).asImmutableBytes,
         scriptSig = scriptSig ?? Script(script: []);
-  TxInput copyWith({
-    String? txId,
-    int? txIndex,
-    Script? scriptSig,
-    List<int>? sequence,
-  }) {
+  factory TxInput(
+      {required String txId,
+      required int txIndex,
+      Script? scriptSig,
+      List<int>? sequance}) {
+    if (sequance != null &&
+        sequance.length != BitcoinOpCodeConst.sequenceLengthInBytes) {
+      throw DartBitcoinPluginException(
+          "Invalid sequence length: expected ${BitcoinOpCodeConst.sequenceLengthInBytes}, but got ${sequance.length}.");
+    }
+    final txBytes = BytesUtils.tryFromHexString(txId);
+    if (txBytes?.length != QuickCrypto.sha256DigestSize) {
+      throw DartBitcoinPluginException(
+          "Invalid transaction ID: Expected ${QuickCrypto.sha256DigestSize} bytes, but received a different length.",
+          details: {"transactionID": txId});
+    }
+    return TxInput._(
+        txId: StringUtils.strip0x(txId.toLowerCase()),
+        txIndex: txIndex,
+        sequance: sequance,
+        scriptSig: scriptSig);
+  }
+  TxInput copyWith(
+      {String? txId, int? txIndex, Script? scriptSig, List<int>? sequence}) {
     return TxInput(
         txId: txId ?? this.txId,
         txIndex: txIndex ?? this.txIndex,
         scriptSig: scriptSig ?? this.scriptSig,
-        sequence: sequence ?? this.sequence);
+        sequance: sequence ?? this.sequence);
   }
 
   final String txId;
@@ -40,19 +60,15 @@ class TxInput {
 
   /// creates a copy of the object
   TxInput clone() {
-    return copy();
-  }
-
-  TxInput copy() {
-    return TxInput(txId: txId, txIndex: txIndex, scriptSig: scriptSig, sequence: sequence);
+    return TxInput(
+        txId: txId, txIndex: txIndex, scriptSig: scriptSig, sequance: sequence);
   }
 
   /// serializes TxInput to bytes
   List<int> toBytes() {
     final txidBytes = BytesUtils.fromHexString(txId).reversed.toList();
-
-    final txoutBytes = IntUtils.toBytes(txIndex, length: 4, byteOrder: Endian.little);
-    // writeUint32LE(txIndex, txoutBytes);
+    final txoutBytes =
+        IntUtils.toBytes(txIndex, length: 4, byteOrder: Endian.little);
     final scriptSigBytes = scriptSig.toBytes();
     final scriptSigLengthVarint = IntUtils.encodeVarint(scriptSigBytes.length);
     final data = List<int>.from([
@@ -60,30 +76,17 @@ class TxInput {
       ...txoutBytes,
       ...scriptSigLengthVarint,
       ...scriptSigBytes,
-      ...sequence,
+      ...sequence
     ]);
     return data;
   }
 
-  static Tuple<TxInput, int> deserialize({
-    required List<int> bytes,
-    String? raw,
-    int cursor = 0,
-    bool hasSegwit = false,
-  }) {
-    return fromRaw(bytes: bytes, cursor: cursor, hasSegwit: hasSegwit);
-  }
-
-  static Tuple<TxInput, int> fromRaw({
-    List<int>? bytes,
-    String? raw,
-    int cursor = 0,
-    bool hasSegwit = false,
-  }) {
-    bytes ??= BytesUtils.fromHexString(raw!);
+  static Tuple<TxInput, int> deserialize(
+      {required List<int> bytes, int cursor = 0}) {
     final inpHash = bytes.sublist(cursor, cursor + 32).reversed.toList();
     cursor += 32;
-    final outputN = IntUtils.fromBytes(bytes.sublist(cursor, cursor + 4), byteOrder: Endian.little);
+    final outputN = IntUtils.fromBytes(bytes.sublist(cursor, cursor + 4),
+        byteOrder: Endian.little);
     cursor += 4;
     final vi = IntUtils.decodeVarint(bytes.sublist(cursor));
     cursor += vi.item2;
@@ -95,8 +98,8 @@ class TxInput {
         TxInput(
             txId: BytesUtils.toHexString(inpHash),
             txIndex: outputN,
-            scriptSig: Script.deserialize(bytes: unlockingScript, hasSegwit: hasSegwit),
-            sequence: sequenceNumberData),
+            scriptSig: Script.deserialize(bytes: unlockingScript),
+            sequance: sequenceNumberData),
         cursor);
   }
 
@@ -113,7 +116,7 @@ class TxInput {
       'txid': txId,
       'txIndex': txIndex,
       'scriptSig': scriptSig.toJson(),
-      'sequence': BytesUtils.toHexString(sequence),
+      'sequance': BytesUtils.toHexString(sequence),
     };
   }
 
@@ -132,5 +135,6 @@ class TxInput {
   }
 
   @override
-  int get hashCode => HashCodeGenerator.generateHashCode([txIndex, txId, sequence]);
+  int get hashCode =>
+      HashCodeGenerator.generateHashCode([txIndex, txId, sequence]);
 }

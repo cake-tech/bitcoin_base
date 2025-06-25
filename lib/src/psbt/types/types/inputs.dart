@@ -9,7 +9,6 @@ import 'package:bitcoin_base/src/crypto/crypto.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/psbt/psbt_builder/types/types.dart';
 import 'package:bitcoin_base/src/psbt/types/types/psbt.dart';
-import 'package:bitcoin_base/src/psbt/utils/utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 enum PsbtInputTypes {
@@ -450,7 +449,8 @@ class PsbtInputPartialSig extends PsbtInputDataSignature {
         super._(type: PsbtInputTypes.partialSignature);
   factory PsbtInputPartialSig(
       {required List<int> signature, required List<int> publicKey}) {
-    if (PsbtUtils.isValidBitcoinDERSignature(signature)) {
+    if (CryptoSignatureUtils.isValidBitcoinDERSignature(signature) ||
+        CryptoSignatureUtils.isValidSchnorrSignature(signature)) {
       final pubKey = ECPublic.fromBytes(publicKey);
       final mode = publicKey.length == EcdsaKeysConst.pubKeyCompressedByteLen
           ? PubKeyModes.compressed
@@ -473,7 +473,8 @@ class PsbtInputPartialSig extends PsbtInputDataSignature {
       throw DartBitcoinPluginException(
           "Invalid PSBT Partial Signature type flag.");
     }
-    if (PsbtUtils.isValidBitcoinDERSignature(keypair.value.data)) {
+    if (CryptoSignatureUtils.isValidBitcoinDERSignature(keypair.value.data) ||
+        CryptoSignatureUtils.isValidSchnorrSignature(keypair.value.data)) {
       try {
         final mode = keypair.key.extraData?.length ==
                 EcdsaKeysConst.pubKeyCompressedByteLen
@@ -650,7 +651,7 @@ class PsbtInputBip32DerivationPath extends PsbtInputData {
     required List<int> publicKey,
   }) {
     if (fingerprint.length == Bip32KeyDataConst.fingerprintByteLen &&
-        Secp256k1PublicKeyEcdsa.isValidBytes(publicKey)) {
+        Secp256k1PublicKey.isValidBytes(publicKey)) {
       return PsbtInputBip32DerivationPath._(
           fingerprint: fingerprint,
           indexes: indexes,
@@ -693,7 +694,7 @@ class PsbtInputBip32DerivationPath extends PsbtInputData {
             offset, offset + Bip32KeyDataConst.keyIndexByteLen));
       });
       if (fingerPrint.length == Bip32KeyDataConst.fingerprintByteLen &&
-          Secp256k1PublicKeyEcdsa.isValidBytes(keypair.key.extraData ?? [])) {
+          Secp256k1PublicKey.isValidBytes(keypair.key.extraData ?? [])) {
         return PsbtInputBip32DerivationPath._(
             fingerprint: fingerPrint,
             indexes: bip32Indexes,
@@ -1942,9 +1943,9 @@ class PsbtInputMuSig2PublicNonce extends PsbtInputData {
             : keypair.key.extraData!
                 .sublist(EcdsaKeysConst.pubKeyCompressedByteLen * 2);
         if (publicKey.length == EcdsaKeysConst.pubKeyCompressedByteLen &&
-            Secp256k1PublicKeyEcdsa.isValidBytes(publicKey) &&
+            Secp256k1PublicKey.isValidBytes(publicKey) &&
             plainPublicKey.length == EcdsaKeysConst.pubKeyCompressedByteLen &&
-            Secp256k1PublicKeyEcdsa.isValidBytes(plainPublicKey) &&
+            Secp256k1PublicKey.isValidBytes(plainPublicKey) &&
             (hash == null || hash.length == QuickCrypto.sha256DigestSize) &&
             keypair.value.data.length ==
                 EcdsaKeysConst.pubKeyCompressedByteLen * 2) {
@@ -2041,9 +2042,9 @@ class PsbtInputMuSig2ParticipantPartialSignature
             ? null
             : keypair.key.extraData!.sublist(66);
         if (publicKey.length == EcdsaKeysConst.pubKeyCompressedByteLen &&
-            Secp256k1PublicKeyEcdsa.isValidBytes(publicKey) &&
+            Secp256k1PublicKey.isValidBytes(publicKey) &&
             plainPublicKey.length == EcdsaKeysConst.pubKeyCompressedByteLen &&
-            Secp256k1PublicKeyEcdsa.isValidBytes(plainPublicKey) &&
+            Secp256k1PublicKey.isValidBytes(plainPublicKey) &&
             (hash == null || hash.length == QuickCrypto.sha256DigestSize) &&
             keypair.value.data.length == QuickCrypto.sha256DigestSize) {
           return PsbtInputMuSig2ParticipantPartialSignature._(
