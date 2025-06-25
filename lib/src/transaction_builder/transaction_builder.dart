@@ -1,5 +1,6 @@
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
+import 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/models/network.dart';
 import 'package:bitcoin_base/src/provider/models/utxo_details.dart';
@@ -235,7 +236,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
         return senderPub.toAddress().toScriptPubKey();
       case SegwitAddressType.p2tr:
         return senderPub.toTaprootAddress().toScriptPubKey();
-      case SegwitAddresType.mweb:
+      case SegwitAddressType.mweb:
         return Script(script: []);
       case P2shAddressType.p2pkhInP2sh:
         if (isTaproot) {
@@ -372,7 +373,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
         case SegwitAddressType.p2wpkh:
         case P2shAddressType.p2wpkhInP2sh:
           return [signedDigest, senderPub.toHex()];
-        case SegwitAddresType.mweb:
+        case SegwitAddressType.mweb:
           return [];
         default:
           throw DartBitcoinPluginException(
@@ -457,13 +458,13 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
   void _buildSilentPayments() {
     List<SilentPaymentDestination> silentPaymentDestinations = [];
 
-    for (final out in outputs as List<BitcoinOutput>) {
+    for (final out in outPuts as List<BitcoinOutput>) {
       final address = out.address;
 
       if (address is SilentPaymentAddress) {
         try {
-          utxosInfo.firstWhere((utxo) => utxo.ownerDetails.address.type == SegwitAddresType.p2wsh);
-          throw const BitcoinBasePluginException('Silent payments not supported for P2WSH');
+          utxosInfo.firstWhere((utxo) => utxo.ownerDetails.address.type == SegwitAddressType.p2wsh);
+          throw const DartBitcoinPluginException('Silent payments not supported for P2WSH');
         } catch (_) {}
 
         out.isSilentPayment = true;
@@ -484,8 +485,8 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
 
       final outputsAdded = [];
 
-      for (var i = 0; i < outputs.length; i++) {
-        final out = outputs[i] as BitcoinOutput;
+      for (var i = 0; i < outPuts.length; i++) {
+        final out = outPuts[i] as BitcoinOutput;
 
         final silentOutputs = sendingOutputs[out.address.toAddress(network)];
 
@@ -493,7 +494,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
           final silentOutput =
               silentOutputs.firstWhere((element) => !outputsAdded.contains(element));
 
-          outputs[i] = BitcoinOutput(
+          outPuts[i] = BitcoinOutput(
             address: silentOutput.address,
             value: BigInt.from(silentOutput.amount),
             isSilentPayment: true,

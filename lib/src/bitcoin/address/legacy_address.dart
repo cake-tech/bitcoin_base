@@ -25,8 +25,8 @@ abstract class LegacyAddress implements BitcoinBaseAddress {
 
   late final String _addressProgram;
 
-  ECPublic? get pubkey => _pubkey;
-  String? get signature => _signature;
+  // ECPublic? get pubkey => _pubkey;
+  // String? get signature => _signature;
 
   @override
   String get addressProgram {
@@ -156,9 +156,9 @@ class P2pkhAddress extends LegacyAddress {
   @override
   final P2pkhAddressType type;
 
-  Script toScriptSig() {
-    return Script(script: [_signature, _pubkey]);
-  }
+  // Script toScriptSig() {
+  //   return Script(script: [_signature, _pubkey]);
+  // }
 }
 
 class P2pkAddress extends LegacyAddress {

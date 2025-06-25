@@ -26,7 +26,7 @@ Future<void> spendingP2WPKH(ECPrivate sWallet, ECPrivate rWallet) async {
   // In this section, you can add any number of addresses with type P2PWPH to this transaction.
   final publicKey = sWallet.getPublic();
   // P2WPKH
-  final sender = publicKey.toP2wpkhAddress();
+  final sender = publicKey.toSegwitAddress();
   // Read UTXOs of accounts from the BlockCypher API.
   final utxo = await api.getAccountUtxo(
       UtxoAddressDetails(address: sender, publicKey: publicKey.toHex()));
@@ -44,7 +44,7 @@ Future<void> spendingP2WPKH(ECPrivate sWallet, ECPrivate rWallet) async {
   final prive = sWallet;
   final recPub = rWallet.getPublic();
   // P2WPKH
-  final receiver = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
   // P2TR
   final changeAddress = recPub.toTaprootAddress();
 
@@ -124,9 +124,9 @@ Future<void> spendingP2WSH(ECPrivate sWallet, ECPrivate rWallet) async {
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
-  final receiver = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
 
-  final changeAddress = recPub.toP2wpkhAddress();
+  final changeAddress = recPub.toSegwitAddress();
   final List<BitcoinOutput> outputsAdress = [
     BitcoinOutput(address: receiver, value: BigInt.zero),
     BitcoinOutput(address: changeAddress, value: BigInt.zero)
@@ -160,7 +160,7 @@ Future<void> spendingP2PKH(ECPrivate sWallet, ECPrivate rWallet) async {
   // and we use method `buildP2pkhTransaction` to create the transaction.
   final addr = sWallet.getPublic();
   // P2PKH
-  final sender = addr.toP2pkhAddress();
+  final sender = addr.toAddress();
   final utxo = await api.getAccountUtxo(
       UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
   final sumOfUtxo = utxo.sumOfUtxosValue();
@@ -173,8 +173,8 @@ Future<void> spendingP2PKH(ECPrivate sWallet, ECPrivate rWallet) async {
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
-  final receiver = recPub.toP2wpkhAddress();
-  final changeAddress = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
+  final changeAddress = recPub.toSegwitAddress();
   final List<BitcoinOutput> outputsAdress = [
     BitcoinOutput(address: receiver, value: BigInt.zero),
     BitcoinOutput(address: changeAddress, value: BigInt.zero)
@@ -225,8 +225,8 @@ Future<void> spendingP2SHNoneSegwit(
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
-  final receiver = recPub.toP2wpkhAddress();
-  final changeAddress = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
+  final changeAddress = recPub.toSegwitAddress();
   final List<BitcoinOutput> outputsAdress = [
     BitcoinOutput(address: receiver, value: BigInt.zero),
     BitcoinOutput(address: changeAddress, value: BigInt.zero)
@@ -275,9 +275,9 @@ Future<void> spendingP2shSegwit(ECPrivate sWallet, ECPrivate rWallet) async {
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
-  final receiver = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
 
-  final changeAddress = recPub.toP2wpkhAddress();
+  final changeAddress = recPub.toSegwitAddress();
   final List<BitcoinOutput> outputsAdress = [
     BitcoinOutput(address: receiver, value: BigInt.zero),
     BitcoinOutput(address: changeAddress, value: BigInt.zero)
@@ -327,8 +327,8 @@ Future<void> spendingP2TR(ECPrivate sWallet, ECPrivate rWallet) async {
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
-  final receiver = recPub.toP2wpkhAddress();
-  final changeAddress = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
+  final changeAddress = recPub.toSegwitAddress();
   final List<BitcoinOutput> outputsAdress = [
     BitcoinOutput(address: receiver, value: BigInt.zero),
     BitcoinOutput(address: changeAddress, value: BigInt.zero)

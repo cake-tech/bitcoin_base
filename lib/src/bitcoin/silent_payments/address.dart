@@ -106,7 +106,6 @@ class SilentPaymentAddress implements BitcoinBaseAddress {
   final int version;
   final ECPublic B_scan;
   final ECPublic B_spend;
-  @override
   BasedUtxoNetwork? network;
   final String hrp;
 

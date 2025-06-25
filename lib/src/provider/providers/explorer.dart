@@ -53,7 +53,7 @@ class ApiProvider {
       "id": DateTime.now().millisecondsSinceEpoch.toString(),
       "params": params
     };
-    final response = await _postReqiest<Map<String, dynamic>>(
+    final response = await _postRequest<Map<String, dynamic>>(
         "https://btc.getblock.io/786c97b8-f53f-427b-80f7-9af7bd5bdb84/testnet/", json.encode(data));
     return response;
   }

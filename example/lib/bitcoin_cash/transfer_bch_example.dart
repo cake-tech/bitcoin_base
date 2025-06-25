@@ -27,7 +27,7 @@ void main() async {
   /// Derives a P2PKH address from the given public key and converts it to a Bitcoin Cash address
   /// for enhanced accessibility within the network.
   final p2pkhAddress =
-      BitcoinCashAddress.fromBaseAddress(publicKey.toP2pkhAddress());
+      BitcoinCashAddress.fromBaseAddress(publicKey.toAddress());
 
   /// Initialize two P2SH32 addresses for receiving funds.
   final p2sh32Example1 = BitcoinCashAddress(
@@ -60,7 +60,7 @@ void main() async {
   }
 
   final bchTransaction = ForkedTransactionBuilder(
-    outputs: [
+    outPuts: [
       /// change input (sumofutxos - spend)
       BitcoinOutput(
         address: p2pkhAddress.baseAddress,

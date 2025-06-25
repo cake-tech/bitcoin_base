@@ -1,3 +1,4 @@
+import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -141,7 +142,7 @@ class Script {
         script.length == 66 &&
         (script[0] == 2 || script[0] == 3) &&
         (script[33] == 2 || script[33] == 3)) {
-      return SegwitAddresType.mweb;
+      return SegwitAddressType.mweb;
     }
 
     final first = findScriptParam(0);
@@ -154,15 +155,15 @@ class Script {
       final lockingScriptBytes = opPushData(sec);
 
       if (lockingScriptBytes.length == 21) {
-        return SegwitAddresType.p2wpkh;
+        return SegwitAddressType.p2wpkh;
       } else if (lockingScriptBytes.length == 33) {
-        return SegwitAddresType.p2wsh;
+        return SegwitAddressType.p2wsh;
       }
     } else if (first == "OP_1") {
       final lockingScriptBytes = opPushData(sec);
 
       if (lockingScriptBytes.length == 33) {
-        return SegwitAddresType.p2tr;
+        return SegwitAddressType.p2tr;
       }
     }
 

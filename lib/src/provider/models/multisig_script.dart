@@ -76,7 +76,7 @@ class MultiSignatureAddress {
 
   BitcoinBaseAddress toP2wshInP2shAddress({required BasedUtxoNetwork network}) {
     final p2wsh = toP2wshAddress(network: network);
-    return P2shAddress.fromScriptPubkey(
+    return P2shAddress.fromScript(
         script: p2wsh.toScriptPubKey(), type: P2shAddressType.p2wshInP2sh);
   }
 
@@ -89,11 +89,11 @@ class MultiSignatureAddress {
 
     if (addressType.hashLength == 32) {
       return P2shAddress.fromHash160(
-          h160: BytesUtils.toHexString(
+          addrHash: BytesUtils.toHexString(
               QuickCrypto.sha256DoubleHash(multiSigScript.toBytes())),
           type: addressType);
     }
-    return P2shAddress.fromScriptPubkey(script: multiSigScript, type: addressType);
+    return P2shAddress.fromScript(script: multiSigScript, type: addressType);
   }
 
   BitcoinBaseAddress fromType(

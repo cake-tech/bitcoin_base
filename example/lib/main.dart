@@ -101,7 +101,7 @@ void _spendFrom2P2SHAnd2P2PKHAddress() async {
       ]);
 
   final b = ForkedTransactionBuilder(
-      outputs: [
+      outPuts: [
         /// Define a BitcoinOutput with the P2shAddress and a value of 0.01 BCH
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("0.01")),
 
@@ -138,13 +138,13 @@ void _spendFrom2P2SHAnd2P2PKHAddress() async {
               vout: 0,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: examplePublicKey2.toP2pkhAddress().type,
+              scriptType: examplePublicKey2.toAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: examplePublicKey2.toHex(),
-                address: examplePublicKey2.toP2pkhAddress())),
+                address: examplePublicKey2.toAddress())),
       ]);
 
   /// Build the transaction by invoking the buildTransaction method on the ForkedTransactionBuilder
@@ -247,7 +247,7 @@ void _spendFrom2P2SHAnd1P2PKHAddress() async {
   final b = ForkedTransactionBuilder(
 
       /// outputs
-      outputs: [
+      outPuts: [
         /// Define a BitcoinOutput with the P2pkhAddress and a value of 0.01 BCH
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("0.01")),
 
@@ -324,13 +324,13 @@ void _spendFrom2P2SHAnd1P2PKHAddress() async {
               vout: 2,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: examplePublicKey.toP2pkhAddress().type,
+              scriptType: examplePublicKey.toAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: examplePublicKey.toHex(),
-                address: examplePublicKey.toP2pkhAddress())),
+                address: examplePublicKey.toAddress())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
               /// Transaction hash uniquely identifies the referenced transaction

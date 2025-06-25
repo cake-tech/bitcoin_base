@@ -187,7 +187,7 @@ class BitcoinNetwork implements BasedUtxoNetwork {
         P2shAddressType.p2wpkhInP2sh,
         P2shAddressType.p2pkhInP2sh,
         P2shAddressType.p2pkInP2sh,
-        SilentPaymentAddressType.p2ps,
+        SilentPaymentsAddresType.p2sp,
       ];
 
   @override

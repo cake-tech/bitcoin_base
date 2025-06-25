@@ -97,7 +97,7 @@ void _spendFromP2pkhTo10DifferentType() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs and values
-      outputs: [
+      outPuts: [
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("0.001")),
         BitcoinOutput(address: out2, value: BtcUtils.toSatoshi("0.001")),
         BitcoinOutput(address: out3, value: BtcUtils.toSatoshi("0.001")),
@@ -140,24 +140,24 @@ void _spendFromP2pkhTo10DifferentType() async {
               vout: 3,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: examplePublicKey2.toP2pkhAddress().type,
+              scriptType: examplePublicKey2.toAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: examplePublicKey2.toHex(),
-                address: examplePublicKey2.toP2pkhAddress())),
+                address: examplePublicKey2.toAddress())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
               txHash:
                   "6ff0bdb2966f62f5e202c924e1cab1368b0258833e48986cc0a70fbca624ba93",
               value: BigInt.from(812830),
               vout: 0,
-              scriptType: examplePublicKey2.toP2pkhAddress().type,
+              scriptType: examplePublicKey2.toAddress().type,
             ),
             ownerDetails: UtxoAddressDetails(
                 publicKey: examplePublicKey2.toHex(),
-                address: examplePublicKey2.toP2pkhAddress())),
+                address: examplePublicKey2.toAddress())),
       ]);
 
   /// Build the transaction by invoking the buildTransaction method on the BitcoinTransactionBuilder
@@ -255,7 +255,7 @@ void _spendFrom10DifferentTypeToP2pkh() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs
-      outputs: [BitcoinOutput(address: out1, value: change)],
+      outPuts: [BitcoinOutput(address: out1, value: change)],
 
       /// Set the transaction fee
       fee: BtcUtils.toSatoshi("0.00005"),
@@ -282,13 +282,13 @@ void _spendFrom10DifferentTypeToP2pkh() async {
               vout: 0,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: childKey1PublicKey.toP2pkhAddress().type,
+              scriptType: childKey1PublicKey.toAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: childKey1PublicKey.toHex(),
-                address: childKey1PublicKey.toP2pkhAddress())),
+                address: childKey1PublicKey.toAddress())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
               txHash:
@@ -306,11 +306,11 @@ void _spendFrom10DifferentTypeToP2pkh() async {
                   "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
               value: BtcUtils.toSatoshi("0.001"),
               vout: 2,
-              scriptType: childKey1PublicKey.toP2wpkhAddress().type,
+              scriptType: childKey1PublicKey.toSegwitAddress().type,
             ),
             ownerDetails: UtxoAddressDetails(
                 publicKey: childKey1PublicKey.toHex(),
-                address: childKey1PublicKey.toP2wpkhAddress())),
+                address: childKey1PublicKey.toSegwitAddress())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
               txHash:

@@ -74,14 +74,14 @@ class P2wpkhAddress extends SegwitAddress {
 
   // P2wpkhAddress.fromRedeemScript({required super.script, super.network})
   //     : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0);
-  //
-  // factory P2wpkhAddress.fromScriptPubkey({required Script script, BasedUtxoNetwork? network}) {
-  //   if (script.getAddressType() != SegwitAddresType.p2wpkh) {
-  //     throw ArgumentError("Invalid scriptPubKey");
-  //   }
-  //
-  //   return P2wpkhAddress.fromProgram(program: script.findScriptParam(1), network: network);
-  // }
+
+  factory P2wpkhAddress.fromScriptPubkey({required Script script, BasedUtxoNetwork? network}) {
+    if (script.getAddressType() != SegwitAddressType.p2wpkh) {
+      throw ArgumentError("Invalid scriptPubKey");
+    }
+
+    return P2wpkhAddress.fromProgram(program: script.findScriptParam(1));
+  }
 
   /// returns the scriptPubKey of a P2WPKH witness script
   @override
@@ -117,15 +117,15 @@ class P2trAddress extends SegwitAddress {
             segwitVersion: _BitcoinAddressUtils.segwitV1,
             addresType: SegwitAddressType.p2tr);
 
-  P2trAddress.fromRedeemScript({required super.script, super.network})
-      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV1);
+  // P2trAddress.fromRedeemScript({required super.script, super.network})
+  //     : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV1);
 
   factory P2trAddress.fromScriptPubkey({required Script script, BasedUtxoNetwork? network}) {
-    if (script.getAddressType() != SegwitAddresType.p2tr) {
+    if (script.getAddressType() != SegwitAddressType.p2tr) {
       throw ArgumentError("Invalid scriptPubKey");
     }
 
-    return P2trAddress.fromProgram(program: script.findScriptParam(1), network: network);
+    return P2trAddress.fromProgram(program: script.findScriptParam(1));
   }
 
   /// returns the scriptPubKey of a P2TR witness script
@@ -151,15 +151,15 @@ class P2wshAddress extends SegwitAddress {
   P2wshAddress.fromScript({required super.script})
       : super.fromScript(segwitVersion: _BitcoinAddressUtils.segwitV0);
 
-  P2wshAddress.fromRedeemScript({required super.script, super.network})
-      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0);
+  // P2wshAddress.fromRedeemScript({required super.script, super.network})
+  //     : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0);
 
   factory P2wshAddress.fromScriptPubkey({required Script script, BasedUtxoNetwork? network}) {
-    if (script.getAddressType() != SegwitAddresType.p2wsh) {
+    if (script.getAddressType() != SegwitAddressType.p2wsh) {
       throw ArgumentError("Invalid scriptPubKey");
     }
 
-    return P2wshAddress.fromProgram(program: script.findScriptParam(1), network: network);
+    return P2wshAddress.fromProgram(program: script.findScriptParam(1));
   }
 
   /// Returns the scriptPubKey of a P2WPKH witness script
@@ -202,13 +202,13 @@ class MwebAddress extends SegwitAddress {
   MwebAddress.fromProgram({required super.program})
       : super.fromProgram(
           segwitVersion: _BitcoinAddressUtils.segwitV0,
-          addressType: SegwitAddresType.mweb,
+          addresType: SegwitAddressType.mweb,
         );
-  MwebAddress.fromRedeemScript({required super.script})
-      : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0);
+  // MwebAddress.fromRedeemScript({required super.script})
+  //     : super.fromRedeemScript(segwitVersion: _BitcoinAddressUtils.segwitV0);
 
-  factory MwebAddress.fromScriptPubkey({required Script script, type = SegwitAddresType.mweb}) {
-    if (script.getAddressType() != SegwitAddresType.mweb) {
+  factory MwebAddress.fromScriptPubkey({required Script script, type = SegwitAddressType.mweb}) {
+    if (script.getAddressType() != SegwitAddressType.mweb) {
       throw ArgumentError("Invalid scriptPubKey");
     }
     return MwebAddress.fromProgram(program: BytesUtils.toHexString(script.script as List<int>));
@@ -222,5 +222,5 @@ class MwebAddress extends SegwitAddress {
 
   /// returns the type of address
   @override
-  SegwitAddresType get type => SegwitAddressType.mweb;
+  SegwitAddressType get type => SegwitAddressType.mweb;
 }

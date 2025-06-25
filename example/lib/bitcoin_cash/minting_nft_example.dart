@@ -55,7 +55,7 @@ void main() async {
       "3f0d87791e5996aaddbce16c12651dd8b5b881cf7338340504bb7b2c6c08bfc4";
 
   final bchTransaction = ForkedTransactionBuilder(
-    outputs: [
+    outPuts: [
       BitcoinOutput(
         address: p2pkhAddress.baseAddress,
         value: sumOfUtxo -

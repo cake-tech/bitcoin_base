@@ -7,9 +7,9 @@ void main() {
         'cTALNpTpRbbxTCJ2A5Vq88UxT44w1PE2cYqiB3n4hRvzyCev1Wwo',
         netVersion: BitcoinNetwork.testnet.wifNetVer);
 
-    final p2pkhAddr = sk.getPublic().toP2pkhAddress();
+    final p2pkhAddr = sk.getPublic().toAddress();
 
-    final p2wpkhAddr = sk.getPublic().toP2wpkhAddress();
+    final p2wpkhAddr = sk.getPublic().toSegwitAddress();
 
     final txin1 = TxInput(
         txId:

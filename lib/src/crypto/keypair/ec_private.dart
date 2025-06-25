@@ -214,10 +214,10 @@ class ECPrivate {
   }
 
   ECPrivate toTweakedTaprootKey() {
-    final t = P2TRUtils.calculateTweek(getPublic().publicKey.point as ProjectiveECCPoint);
+    final t = P2TRUtils.calculateTweek(getPublic().publicKey.point);
 
     return ECPrivate.fromBytes(
-        BitcoinSignerUtils.calculatePrivateTweek(toBytes(), BigintUtils.fromBytes(t)));
+        BitcoinSignerUtils.calculatePrivateTweek(toBytes(), t));
   }
 
   static ECPrivate random() {

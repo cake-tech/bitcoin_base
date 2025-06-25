@@ -6,6 +6,7 @@ import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:blockchain_utils/helper/helper.dart';
 import 'package:blockchain_utils/utils/utils.dart';
 import 'package:blockchain_utils/crypto/quick_crypto.dart';
+import 'package:collection/collection.dart';
 import 'input.dart';
 import 'output.dart';
 import 'script.dart';
@@ -39,7 +40,11 @@ class BtcTransaction {
       List<TxOutput> outputs = const [],
       List<TxWitnessInput> witnesses = const [],
       List<int> locktime = BitcoinOpCodeConst.defaultTxLocktime,
-      List<int> version = BitcoinOpCodeConst.defaultTxVersion}) {
+      List<int> version = BitcoinOpCodeConst.defaultTxVersion,
+      bool hasSegwit = false,
+      bool canReplaceByFee = false,
+      List<int>? mwebBytes,
+      bool hasSilentPayment = false,}) {
     if (locktime.length != BitcoinOpCodeConst.locktimeLengthInBytes) {
       throw DartBitcoinPluginException(
           "Invalid locktime length: expected ${BitcoinOpCodeConst.locktimeLengthInBytes}, but got ${locktime.length}.");
@@ -53,6 +58,10 @@ class BtcTransaction {
         outputs: outputs,
         witnesses: witnesses,
         version: version,
+        hasSegwit: hasSegwit,
+        canReplaceByFee: canReplaceByFee,
+        hasSilentPayment: hasSilentPayment,
+        mwebBytes: mwebBytes,
         locktime: locktime);
   }
   final List<TxInput> inputs;
@@ -97,21 +106,22 @@ class BtcTransaction {
         version: tx.version);
   }
 
+  static BtcTransaction fromRaw(String raw) {
+    final txBytes = BytesUtils.fromHexString(raw);
+    return deserialize(txBytes);
+  }
+
   /// Instantiates a Transaction from serialized raw hexadacimal data (classmethod)
-  static BtcTransaction deserialize(
-      {List<int>? txBytes, String? raw, bool allowWitness = true}) {
-    assert(txBytes != null || raw != null);
+  static BtcTransaction deserialize(List<int> txBytes,
+      {bool allowWitness = true}) {
     try {
-      if (raw != null) {
-        final txBytes = BytesUtils.fromHexString(raw);
-      }
       final version = txBytes.sublist(0, 4);
       int cursor = 4;
       List<int>? flag;
       bool hasWitness = false;
       bool hasMweb = false;
       if (txBytes[4] == 0) {
-        flag = List<int>.from(rawtx.sublist(5, 6));
+        flag = List<int>.from(txBytes.sublist(5, 6));
         if (allowWitness && (flag[0] & 1 > 0)) {
           hasWitness = true;
         }
@@ -132,7 +142,7 @@ class BtcTransaction {
 
         if (canReplaceByFee == false) {
           canReplaceByFee =
-              const ListEquality().equals(input.sequence, BitcoinOpCodeConst.REPLACE_BY_FEE_SEQUENCE);
+              const ListEquality().equals(inp.item1.sequence, BitcoinOpCodeConst.replaceByFeeSequence);
         }
       }
       final outputs = <TxOutput>[];
@@ -167,7 +177,7 @@ class BtcTransaction {
       }
       List<int>? mwebBytes;
       if (hasMweb) {
-        mwebBytes = txBytes.sublist(cursor, rawtx.length - 4);
+        mwebBytes = txBytes.sublist(cursor, txBytes.length - 4);
       }
       // TODO: should this be added
       // cursor = rawtx.length - 4;

@@ -55,13 +55,13 @@ main() {
 
           final pubkey = getPubkeyFromInput(vin);
 
-          if (pubkey == null || pubkey.getEncodeType() != EncodeType.compressed) {
+          if (pubkey == null || pubkey.getEncodeType() != EncodeType.comprossed) {
             continue;
           }
 
           inputPrivKeyInfos.add(ECPrivateInfo(
             privkey,
-            prevoutScript.getAddressType() == SegwitAddresType.p2tr,
+            prevoutScript.getAddressType() == SegwitAddressType.p2tr,
             tweak: false,
           ));
           inputPubKeys.add(pubkey);
@@ -159,7 +159,7 @@ main() {
 
           final pubkey = getPubkeyFromInput(vin);
 
-          if (pubkey == null || pubkey.getEncodeType() != EncodeType.compressed) {
+          if (pubkey == null || pubkey.getEncodeType() != EncodeType.comprossed) {
             continue;
           }
 
@@ -196,7 +196,7 @@ main() {
             // Sign the message with schnorr
             final btcSigner = BitcoinSigner.fromKeyBytes(fullPrivateKey.toBytes());
             List<int> sig =
-                btcSigner.signSchnorrTransaction(msg, tapScripts: [], tweak: false, aux: aux);
+                btcSigner.signSchnorrTransaction(msg, tapScripts: [], tweak: false, auxRand: aux);
 
             // Verify the message is correct
             expect(btcSigner.verifyKey.verifySchnorr(msg, sig, isTweak: false), true);

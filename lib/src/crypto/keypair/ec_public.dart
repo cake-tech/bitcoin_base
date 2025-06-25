@@ -5,6 +5,7 @@ import 'package:bitcoin_base/src/bitcoin/script/script.dart';
 import 'package:bitcoin_base/src/bitcoin/taproot/taproot.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils/crypto/crypto/cdsa/point/base.dart';
 
 typedef PublicKeyType = PubKeyModes;
 
@@ -167,6 +168,11 @@ class ECPublic {
       case PubKeyModes.compressed:
         return publicKey.compressed;
     }
+  }
+
+  /// toCompressedBytes returns the compressed byte representation of the ECPublic key.
+  List<int> toCompressedBytes() {
+    return publicKey.compressed;
   }
 
   EncodeType? getEncodeType() {
@@ -366,7 +372,7 @@ class ECPublic {
   int get hashCode => publicKey.hashCode;
 
   ECPublic tweakAdd(BigInt tweak) {
-    final point = publicKey.point as ProjectiveECCPoint;
+    final point = publicKey.point;
     // Compute the new public key after adding the tweak
     final tweakedKey = point + (Curves.generatorSecp256k1 * tweak);
 
@@ -375,7 +381,7 @@ class ECPublic {
 
   // Perform the tweak multiplication
   ECPublic tweakMul(BigInt tweak) {
-    final point = publicKey.point as ProjectiveECCPoint;
+    final point = publicKey.point;
     // Perform the tweak multiplication
     final tweakedKey = point * tweak;
 
@@ -383,13 +389,13 @@ class ECPublic {
   }
 
   ECPublic pubkeyAdd(ECPublic other) {
-    final tweakedKey = (publicKey.point as ProjectiveECCPoint) + other.publicKey.point;
+    final tweakedKey = (publicKey.point) + other.publicKey.point;
     return ECPublic.fromBytes(tweakedKey.toBytes());
   }
 
   ECPublic negate() {
     // Negate the Y-coordinate by subtracting it from the field size (p).
-    final point = (publicKey.point as ProjectiveECCPoint);
+    final point = publicKey.point;
     final y = point.curve.p - point.y;
     return ECPublic.fromBytes(BytesUtils.fromHexString(
         "04${BytesUtils.toHexString(BigintUtils.toBytes(point.x, length: point.curve.baselen))}${BytesUtils.toHexString(BigintUtils.toBytes(y, length: point.curve.baselen))}"));

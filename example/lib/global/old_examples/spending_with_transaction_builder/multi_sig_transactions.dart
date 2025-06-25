@@ -60,7 +60,7 @@ void main() async {
   // tb1qxt3c7849m0m6cv3z3s35c3zvdna3my3yz0r609qd9g0dcyyk580sgyldhe
 
   final p2wshMultiSigAddress =
-      multiSignatureAddress.toP2wshAddress(network: network).toP2pkhAddress(network);
+      multiSignatureAddress.toP2wshAddress(network: network).toAddress(network);
 
   // p2sh(p2wsh) multisig
   final signerP2sh1 =
@@ -80,12 +80,12 @@ void main() async {
   // 2N8co8bth9CNKtnWGfHW6HuUNgnNPNdpsMj
   final p2shMultisigAddress = p2shMultiSignature
       .toP2wshInP2shAddress(network: network)
-      .toP2pkhAddress(network);
+      .toAddress(network);
 
   // P2TR
   final exampleAddr2 = public2.toTaprootAddress();
   // P2KH
-  final exampleAddr4 = public3.toP2pkhAddress();
+  final exampleAddr4 = public3.toAddress();
   // Spending List
   // i use some different address type for this
   // now i want to spending from 8 address in one transaction
@@ -203,7 +203,7 @@ void main() async {
     // Now, we provide the UTXOs we want to spend.
     utxos: utxos,
     // We select transaction outputs
-    outputs: [output1, output2, output3, output4],
+    outPuts: [output1, output2, output3, output4],
     /*
 			Transaction fee
 			Ensure that you have accurately calculated the amounts.

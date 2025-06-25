@@ -17,7 +17,7 @@ class BitcoinAddressUtils {
       {required String address, required BasedUtxoNetwork network}) {
     final addressType = RegexUtils.addressTypeFromStr(address, network);
 
-    if (addressType.type == SegwitAddresType.mweb) {
+    if (addressType.type == SegwitAddressType.mweb) {
       return BytesUtils.fromHexString(
         MwebAddress.fromAddress(address: address, network: network).addressProgram,
       );

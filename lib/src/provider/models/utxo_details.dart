@@ -230,7 +230,6 @@ class BitcoinUtxo {
       required this.scriptType,
       this.blockHeight,
       this.token,
-      this.isSilentPayment,
       required this.isP2tr,
       required this.isP2shSegwit,
       required this.isSegwit});
@@ -264,8 +263,6 @@ class BitcoinUtxo {
         isP2shSegwit: isP2shSegwit,
         isSegwit: isP2shSegwit || scriptType.isSegwit);
   }
-
-  bool? isSilentPayment;
 
   /// check if utxos is p2tr
   final bool isP2tr;

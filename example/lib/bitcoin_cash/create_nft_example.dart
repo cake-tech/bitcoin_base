@@ -26,7 +26,7 @@ void main() async {
   /// Derives a P2PKH address from the given public key and converts it to a Bitcoin Cash address
   /// for enhanced accessibility within the network.
   final p2pkhAddress =
-      BitcoinCashAddress.fromBaseAddress(publicKey.toP2pkhAddress());
+      BitcoinCashAddress.fromBaseAddress(publicKey.toAddress());
 
   /// Reads all UTXOs (Unspent Transaction outputs) associated with the account.
   /// We does not need tokens utxo and we set to false.
@@ -66,7 +66,7 @@ void main() async {
     return;
   }
   final bchTransaction = ForkedTransactionBuilder(
-    outputs: [
+    outPuts: [
       BitcoinOutput(
         address: p2pkhAddress.baseAddress,
         value: sumOfUtxo -

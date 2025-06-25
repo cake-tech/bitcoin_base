@@ -25,10 +25,10 @@ abstract class BitcoinAddressType implements Enumerate {
   //   } else if (address is SilentPaymentsAddresType) {
   //     return SilentPaymentsAddresType.p2sp;
   //   } else if (address is P2wpkhAddress) {
-  //     return SegwitAddresType.p2wpkh;
+  //     return SegwitAddressType.p2wpkh;
   //   }
   //
-  //   throw BitcoinBasePluginException('Invalid BitcoinAddressType: $address');
+  //   throw DartBitcoinPluginException('Invalid BitcoinAddressType: $address');
   // }
 
   /// Check if the address type is Pay-to-Script-Hash (P2SH).
@@ -137,7 +137,7 @@ abstract class BitcoinBaseAddress {
       return P2wpkhAddress.fromAddress(address: address, network: network);
     }
 
-    throw BitcoinBasePluginException('Invalid BitcoinBaseAddress: $address');
+    throw DartBitcoinPluginException('Invalid BitcoinBaseAddress: $address');
   }
 }
 
@@ -230,7 +230,7 @@ class SegwitAddressType extends BitcoinAddressType {
   static const SegwitAddressType p2wpkh = SegwitAddressType._('P2WPKH');
   static const SegwitAddressType p2tr = SegwitAddressType._('P2TR');
   static const SegwitAddressType p2wsh = SegwitAddressType._('P2WSH');
-  static const SegwitAddressType mweb = SegwitAddresType._("MWEB");
+  static const SegwitAddressType mweb = SegwitAddressType._("MWEB");
   @override
   bool get isP2sh => false;
   @override
@@ -244,7 +244,7 @@ class SegwitAddressType extends BitcoinAddressType {
     switch (this) {
       case SegwitAddressType.p2wpkh:
         return 20;
-      case SegwitAddresType.mweb:
+      case SegwitAddressType.mweb:
         return 66;
       default:
         return 32;

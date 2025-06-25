@@ -30,7 +30,7 @@ void main() async {
 
   /// p2pkh with token address ()
   final receiver1 = P2pkhAddress.fromHash160(
-      h160: publicKey.toP2pkhAddress().addressProgram,
+      addrHash: publicKey.toAddress().addressProgram,
       type: P2pkhAddressType.p2pkhwt);
 
   /// Reads all UTXOs (Unspent Transaction outputs) associated with the account.
@@ -81,7 +81,7 @@ void main() async {
               previousValue + element.utxo.token!.amount);
 
   final bchTransaction = ForkedTransactionBuilder(
-    outputs: [
+    outPuts: [
       /// change address for bch values (sum of bch amout - (outputs amount + fee))
       BitcoinOutput(
         address: p2pkhAddress.baseAddress,
