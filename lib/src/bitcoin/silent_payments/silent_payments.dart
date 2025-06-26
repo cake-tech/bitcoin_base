@@ -16,7 +16,7 @@ import 'package:bitcoin_base/src/provider/models/models.dart';
 import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
 import 'package:bitcoin_base/src/crypto/crypto.dart';
 import 'package:bitcoin_base/src/models/network.dart';
-import 'package:blockchain_utils_old/blockchain_utils.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 
 part 'address.dart';
 part 'payment.dart';

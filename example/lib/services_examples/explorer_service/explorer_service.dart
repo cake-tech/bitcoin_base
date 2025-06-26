@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart' show ApiService;
-import 'package:blockchain_utils_old/blockchain_utils.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:http/http.dart' as http;
 
 class ApiProviderException implements Exception {

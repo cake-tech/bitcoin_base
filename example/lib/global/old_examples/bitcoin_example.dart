@@ -1,7 +1,7 @@
 // ignore_for_file: unused_local_variable, unused_element
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils_old/blockchain_utils.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:example/services_examples/explorer_service/explorer_service.dart';
 
 /// Calculates the change value based on the sum of all provided values.

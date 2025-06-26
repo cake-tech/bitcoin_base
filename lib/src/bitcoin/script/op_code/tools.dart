@@ -1,5 +1,5 @@
 import 'package:bitcoin_base/src/exception/exception.dart';
-import 'package:blockchain_utils_old/utils/utils.dart';
+import 'package:blockchain_utils/utils/utils.dart';
 
 List<int> opPushData(String hexData) {
   final List<int> dataBytes = BytesUtils.fromHexString(hexData);

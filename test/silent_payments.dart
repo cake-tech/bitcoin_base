@@ -7,8 +7,8 @@ import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
 import 'package:bitcoin_base/src/crypto/crypto.dart';
-import 'package:blockchain_utils_old/blockchain_utils.dart';
-import 'package:blockchain_utils_old/crypto/crypto/cdsa/point/base.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils/crypto/crypto/cdsa/point/base.dart';
 import 'package:test/test.dart';
 
 // G , needed for generating the labels "database"

@@ -1,4 +1,4 @@
-// import 'package:blockchain_utils_old/blockchain_utils.dart';
+// import 'package:blockchain_utils/blockchain_utils.dart';
 
 // /// Exception class representing errors encountered during RPC (Remote Procedure Call) requests.
 // class ElectrumRPCException implements BlockchainUtilsException {

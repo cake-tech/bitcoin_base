@@ -1,8 +1,8 @@
 library bitcoin_crypto;
 
 import 'package:bitcoin_base/src/bitcoin/script/op_code/constant_lib.dart';
-import 'package:blockchain_utils_old/crypto/quick_crypto.dart';
-import 'package:blockchain_utils_old/utils/utils.dart';
+import 'package:blockchain_utils/crypto/quick_crypto.dart';
+import 'package:blockchain_utils/utils/utils.dart';
 export 'keypair/ec_private.dart';
 export 'keypair/ec_public.dart';
 
