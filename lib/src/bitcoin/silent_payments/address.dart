@@ -60,7 +60,10 @@ class SilentPaymentOwner extends SilentPaymentAddress {
   }
 
   List<int> generateLabel(int m) {
-    return taggedHash(BytesUtils.concatBytes([b_scan.toBytes(), serUint32(m)]), "BIP0352/Label");
+    return TaprootUtils.taggedHashTag(
+      BytesUtils.concatBytes([b_scan.toBytes(), serUint32(m)]),
+      "BIP0352/Label",
+    );
   }
 
   SilentPaymentOwner toLabeledSilentPaymentAddress(int m) {

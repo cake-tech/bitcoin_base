@@ -21,7 +21,7 @@ class BitcoinAddressUtils {
 
     if (addressType.type == SegwitAddressType.mweb) {
       return BytesUtils.fromHexString(
-        MwebAddress.fromAddress(address: address).addressProgram,
+        MwebAddress.fromAddress(address: address, network: network).addressProgram,
       );
     }
 
@@ -32,12 +32,12 @@ class BitcoinAddressUtils {
     try {
       switch (script.getAddressType()) {
         case P2pkhAddressType.p2pkh:
-          return P2pkhAddress.fromScriptPubkey(script: script).toAddress(network);
+          return P2pkhAddress.fromScript(script: script).toAddress(network);
         case P2shAddressType.p2pkInP2sh:
         case P2shAddressType.p2pkhInP2sh:
         case P2shAddressType.p2wpkhInP2sh:
         case P2shAddressType.p2wshInP2sh:
-          return P2shAddress.fromScriptPubkey(script: script).toAddress(network);
+          return P2shAddress.fromScript(script: script).toAddress(network);
         case SegwitAddressType.p2wpkh:
           return P2wpkhAddress.fromScriptPubkey(script: script).toAddress(network);
         case SegwitAddressType.p2wsh:
@@ -77,7 +77,7 @@ class BitcoinAddressUtils {
     } catch (_) {}
 
     try {
-      return MwebAddress.fromAddress(address: address).type;
+      return MwebAddress.fromAddress(address: address, network: network).type;
     } catch (_) {}
 
     try {

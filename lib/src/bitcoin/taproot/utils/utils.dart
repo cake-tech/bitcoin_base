@@ -9,6 +9,20 @@ import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 class TaprootUtils {
+  /// Function: taggedHash
+  /// Description: Computes a tagged hash of the input data with a provided tag.
+  /// Input:
+  ///   - `List<int>` data - The data to be hashed.
+  ///   - String tag - A unique tag to differentiate the hash.
+  /// Output: `List<int>` - The resulting tagged hash.
+  /// Note: This function combines the provided tag with the input data to create a unique
+  /// hash by applying a double SHA-256 hash.
+  static List<int> taggedHashTag(List<int> data, String tag) {
+    /// Calculate the hash of the tag as List<int>.
+    final tagDigest = QuickCrypto.sha256Hash(List<int>.from(tag.codeUnits));
+    return taggedHash(data, tagDigest);
+  }
+
   static List<int> taggedHash(List<int> data, List<int> tagDigest) {
     return QuickCrypto.sha256Hash([...tagDigest, ...tagDigest, ...data]);
   }
