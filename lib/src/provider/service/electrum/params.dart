@@ -1,4 +1,4 @@
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 /// Abstract class representing parameters for Electrum requests.
 abstract class ElectrumRequestParams {

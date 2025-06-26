@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:blockchain_utils/utils/utils.dart';
+import 'package:blockchain_utils_old/utils/utils.dart';
 
 class ScriptWitness {
   List<ByteData> stack;

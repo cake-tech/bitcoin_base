@@ -1,6 +1,6 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 /// MultiSignatureSigner is an interface that defines methods required for representing
 /// signers in a multi-signature scheme. A multi-signature signer typically includes

@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 import 'package:pointycastle/export.dart';
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip32/src/utils/ecurve.dart' as ecc;

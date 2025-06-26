@@ -1,5 +1,5 @@
 import 'package:bitcoin_base/src/utils/utils.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/models/network.dart';
 

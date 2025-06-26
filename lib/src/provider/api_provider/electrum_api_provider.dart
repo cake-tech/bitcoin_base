@@ -1,7 +1,7 @@
 import 'package:bitcoin_base/src/provider/api_provider.dart';
 import 'dart:async';
 
-import 'package:blockchain_utils/exception/exceptions.dart';
+import 'package:blockchain_utils_old/exception/exceptions.dart';
 
 class ElectrumApiProvider {
   final BitcoinBaseElectrumRPCService rpc;

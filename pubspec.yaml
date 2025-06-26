@@ -19,10 +19,10 @@ dependencies:
   convert: ^3.1.1
   pointycastle: ^3.7.4
   bip32: ^2.0.0
-  blockchain_utils:
+  blockchain_utils_old:
     git:
       url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v2
+      ref: cake-update-v2-renamed
     
 
 dev_dependencies:

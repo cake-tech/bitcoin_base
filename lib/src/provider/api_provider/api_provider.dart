@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:bitcoin_base/src/provider/models/models.dart';
 import 'package:bitcoin_base/src/provider/service/http/http_service.dart';
 import 'package:bitcoin_base/src/models/network.dart';
-import 'package:blockchain_utils/utils/string/string.dart';
+import 'package:blockchain_utils_old/utils/string/string.dart';
 
 class ApiProvider {
   ApiProvider({required this.api, Map<String, String>? header, required this.service})
