@@ -1,4 +1,4 @@
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 class Outpoint {
   Outpoint({required this.txid, required this.index, this.value});

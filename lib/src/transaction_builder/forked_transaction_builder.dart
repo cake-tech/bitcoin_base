@@ -5,7 +5,7 @@ import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/models/network.dart';
 import 'package:bitcoin_base/src/provider/models/utxo_details.dart';
 import 'package:bitcoin_base/src/transaction_builder/builder.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 /// A transaction builder specifically designed for the Bitcoin Cash (BCH) and Bitcoin SV (BSV) networks.
 /// Implements [BasedBitcoinTransacationBuilder] interface for creating and validating transactions.

@@ -3,8 +3,8 @@ import 'package:bitcoin_base/src/bitcoin/script/script.dart';
 import 'package:bitcoin_base/src/bitcoin/taproot/taproot.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/models/network.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:blockchain_utils/crypto/crypto/cdsa/point/base.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
+import 'package:blockchain_utils_old/crypto/crypto/cdsa/point/base.dart';
 
 typedef PublicKeyType = PubKeyModes;
 

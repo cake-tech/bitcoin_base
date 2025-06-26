@@ -19,10 +19,10 @@ dependencies:
   convert: ^3.1.1
   pointycastle: ^3.7.4
   bip32: ^2.0.0
-  blockchain_utils:
+  blockchain_utils_new:
     git:
       url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v4
+      ref: cake-update-v4-renamed
   rxdart: ^0.28.0
   intl: ^0.19.0
   http: ^1.1.0

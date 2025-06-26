@@ -15,7 +15,7 @@ import 'package:bitcoin_base/src/crypto/keypair/ec_public.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/models/network.dart';
 import 'package:bitcoin_base/src/utils/enumerate.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 import 'package:bitcoin_base/src/utils/script.dart';
 import 'util.dart';
 part 'core.dart';

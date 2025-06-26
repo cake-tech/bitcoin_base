@@ -5,7 +5,7 @@ import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/psbt/psbt_builder/types/types.dart';
 import 'package:bitcoin_base/src/psbt/types/types/psbt.dart';
 import 'package:bitcoin_base/src/psbt/types/types/types.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 enum PsbtOutputTypes {
   redeemScript(0x00, "PSBT_OUT_REDEEM_SCRIPT"),

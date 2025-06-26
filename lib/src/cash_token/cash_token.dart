@@ -22,7 +22,7 @@
 
 import 'dart:typed_data';
 import 'package:bitcoin_base/src/exception/exception.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 /// The CashTokenCapability class represents different capabilities associated with a Cash Token.
 class CashTokenCapability {

@@ -3,8 +3,8 @@ import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
 import 'package:bitcoin_base/src/provider/models/models.dart';
 import 'package:bitcoin_base/src/provider/services/explorer.dart';
 import 'package:bitcoin_base/src/models/network.dart';
-import 'package:blockchain_utils/utils/binary/utils.dart';
-import 'package:blockchain_utils/utils/string/string.dart';
+import 'package:blockchain_utils_old/utils/binary/utils.dart';
+import 'package:blockchain_utils_old/utils/string/string.dart';
 
 class ApiProvider {
   ApiProvider({required this.api, Map<String, String>? header, required this.service})

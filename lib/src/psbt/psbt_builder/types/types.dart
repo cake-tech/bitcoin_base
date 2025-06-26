@@ -6,7 +6,7 @@ import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/provider/models/models.dart';
 import 'package:bitcoin_base/src/psbt/psbt.dart';
 import 'package:bitcoin_base/src/psbt/types/types/types.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 typedef ONBTCSIGNER = PsbtSignerResponse? Function(PsbtSignerParams);
 typedef ONBTCSIGNERASYNC<INPUT extends PsbtTransactionInput> = Future<PsbtSignerResponse?> Function(

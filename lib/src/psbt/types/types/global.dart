@@ -4,7 +4,7 @@ import 'package:bitcoin_base/src/bitcoin/script/transaction.dart';
 import 'package:bitcoin_base/src/psbt/types/types/psbt.dart';
 import 'dart:typed_data';
 import 'package:bitcoin_base/src/exception/exception.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 /// PSBT GLOBAL TYPES
 enum PsbtGlobalTypes {

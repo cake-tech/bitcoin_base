@@ -1,5 +1,5 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/utils/utils.dart';
+import 'package:blockchain_utils_old/utils/utils.dart';
 import 'package:test/test.dart';
 
 /// https://github.com/bitcoin/bips/blob/master/bip-0371.mediawiki

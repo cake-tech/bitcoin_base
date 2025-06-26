@@ -1,5 +1,5 @@
 // import 'package:bitcoin_base/bitcoin_base.dart';
-// import 'package:blockchain_utils/blockchain_utils.dart';
+// import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 /// CHIP-2022-05 Pay-to-Script-Hash-32 (P2SH32) for Bitcoin Cash
 /// https://bitcoincashresearch.org/t/chip-2022-05-pay-to-script-hash-32-p2sh32-for-bitcoin-cash/806

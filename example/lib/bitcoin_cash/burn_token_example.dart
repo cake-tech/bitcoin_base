@@ -1,5 +1,5 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 /// https://github.com/cashtokens/cashtokens
 void main() async {

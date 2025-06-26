@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 import 'package:http/http.dart' as http;
 
 /// The [ApiService] abstract class defines a contract for making HTTP requests.

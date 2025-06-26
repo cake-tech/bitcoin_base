@@ -4,8 +4,8 @@ import 'package:bitcoin_base/src/crypto/crypto.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/provider/models/models.dart';
 import 'package:bitcoin_base/src/utils/btc_utils.dart';
-import 'package:blockchain_utils/utils/numbers/utils/bigint_utils.dart';
-import 'package:blockchain_utils/utils/numbers/utils/int_utils.dart';
+import 'package:blockchain_utils_old/utils/numbers/utils/bigint_utils.dart';
+import 'package:blockchain_utils_old/utils/numbers/utils/int_utils.dart';
 
 abstract class UTXO {
   BitcoinUtxo toUtxo(BitcoinAddressType addressType);

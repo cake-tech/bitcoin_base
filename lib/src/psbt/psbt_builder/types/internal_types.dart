@@ -4,7 +4,7 @@ import 'package:bitcoin_base/src/bitcoin/taproot/taproot.dart';
 import 'package:bitcoin_base/src/crypto/crypto.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/psbt/psbt.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 abstract class PsbtInputInfo {
   final PsbtTxType type;

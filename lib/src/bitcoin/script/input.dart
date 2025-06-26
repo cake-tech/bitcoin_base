@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';
-import 'package:blockchain_utils/utils/utils.dart';
+import 'package:blockchain_utils_old/utils/utils.dart';
 import 'script.dart';
 
 /// A transaction input requires a transaction id of a UTXO and the index of that UTXO.

@@ -37,10 +37,10 @@ dependencies:
   cupertino_icons: ^1.0.2
   bitcoin_base: 
     path: ../
-  blockchain_utils:
+  blockchain_utils_new:
     git:
       url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v4
+      ref: cake-update-v4-renamed
 
   http: ^1.2.0
 

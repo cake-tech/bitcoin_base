@@ -1,6 +1,6 @@
 import 'package:bitcoin_base/src/crypto/keypair/ec_private.dart';
 import 'package:bitcoin_base/src/crypto/keypair/ec_public.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 abstract class PsbtBtcSigner<SIGNINGRESPONSE extends SignInputResponse,
     DIGEST extends PsbtSignInputDigest> {

@@ -4,7 +4,7 @@ import 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';
 import 'package:bitcoin_base/src/bitcoin/script/script.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/provider/models/models.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 enum ScriptPubKeyType {
   p2pk("P2PK"),

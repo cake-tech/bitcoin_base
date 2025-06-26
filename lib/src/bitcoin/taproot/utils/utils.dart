@@ -6,7 +6,7 @@ import 'package:bitcoin_base/src/bitcoin/taproot/constants/constants.dart';
 import 'package:bitcoin_base/src/bitcoin/taproot/types/types.dart';
 import 'package:bitcoin_base/src/crypto/keypair/ec_public.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 class TaprootUtils {
   /// Function: taggedHash

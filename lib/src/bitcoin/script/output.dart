@@ -2,8 +2,8 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/src/cash_token/cash_token.dart';
 import 'package:bitcoin_base/src/bitcoin/script/script.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
-import 'package:blockchain_utils/helper/extensions/extensions.dart';
-import 'package:blockchain_utils/utils/utils.dart';
+import 'package:blockchain_utils_old/helper/extensions/extensions.dart';
+import 'package:blockchain_utils_old/utils/utils.dart';
 import 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';
 
 /// Represents a transaction output.

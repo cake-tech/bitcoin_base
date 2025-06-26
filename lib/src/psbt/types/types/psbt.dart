@@ -4,7 +4,7 @@ import 'package:bitcoin_base/src/psbt/types/types/global.dart';
 import 'package:bitcoin_base/src/psbt/types/types/inputs.dart';
 import 'package:bitcoin_base/src/psbt/types/types/outputs.dart';
 import 'package:bitcoin_base/src/psbt/reader/byte_reader.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 const List<int> _magic = [0x70, 0x73, 0x62, 0x74];
 const int _seperator = 0x00;

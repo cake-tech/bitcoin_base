@@ -1,4 +1,4 @@
-import 'package:blockchain_utils/helper/extensions/extensions.dart';
+import 'package:blockchain_utils_old/helper/extensions/extensions.dart';
 
 enum BitcoinOpcode {
   op0("OP_0", 0x00),

@@ -1,8 +1,8 @@
 import 'package:bitcoin_base/src/crypto/keypair/ec_public.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
-import 'package:blockchain_utils/bip/ecc/keys/ecdsa_keys.dart';
-import 'package:blockchain_utils/utils/numbers/rational/big_rational.dart';
-import 'package:blockchain_utils/utils/string/string.dart';
+import 'package:blockchain_utils_old/bip/ecc/keys/ecdsa_keys.dart';
+import 'package:blockchain_utils_old/utils/numbers/rational/big_rational.dart';
+import 'package:blockchain_utils_old/utils/string/string.dart';
 
 class BtcUtils {
   static PublicKeyType determinatePubKeyModeHex(String publicKey) {

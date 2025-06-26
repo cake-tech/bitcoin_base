@@ -1,8 +1,8 @@
 import 'package:bitcoin_base/src/bitcoin/address/address.dart';
 import 'package:bitcoin_base/src/cash_token/cash_token.dart';
 import 'package:bitcoin_base/src/provider/api_provider.dart';
-import 'package:blockchain_utils/utils/numbers/utils/bigint_utils.dart';
-import 'package:blockchain_utils/utils/numbers/utils/int_utils.dart';
+import 'package:blockchain_utils_old/utils/numbers/utils/bigint_utils.dart';
+import 'package:blockchain_utils_old/utils/numbers/utils/int_utils.dart';
 
 class ElectrumUtxo implements UTXO {
   factory ElectrumUtxo.fromJson(Map<String, dynamic> json) {

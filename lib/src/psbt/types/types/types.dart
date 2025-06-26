@@ -1,5 +1,5 @@
 import 'package:bitcoin_base/src/bitcoin/script/script.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 class PsbtTapTree {
   final int depth;

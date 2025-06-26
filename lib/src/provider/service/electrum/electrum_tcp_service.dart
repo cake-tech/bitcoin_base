@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:bitcoin_base/src/provider/service/electrum/params.dart';
 import 'package:bitcoin_base/src/provider/service/electrum/request_completer.dart';
 import 'package:bitcoin_base/src/provider/service/electrum/service.dart';
-import 'package:blockchain_utils/exception/exceptions.dart';
+import 'package:blockchain_utils_old/exception/exceptions.dart';
 
 class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
   ElectrumTCPService._(

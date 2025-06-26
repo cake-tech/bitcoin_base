@@ -2,7 +2,7 @@ import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
 import 'package:bitcoin_base/src/bitcoin/taproot/utils/utils.dart';
 import 'package:bitcoin_base/src/crypto/crypto.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 /// Abstract class representing a Taproot tree structure (leaf or branch).
 abstract class TaprootTree {

@@ -6,7 +6,7 @@ import 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';
 import 'package:bitcoin_base/src/bitcoin/taproot/taproot.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/models/network.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 import 'package:pointycastle/export.dart';
 import 'package:bip32/src/utils/ecurve.dart' as ecc;
 

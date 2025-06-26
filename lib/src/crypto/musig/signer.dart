@@ -3,7 +3,7 @@ import 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';
 import 'package:bitcoin_base/src/bitcoin/taproot/taproot.dart';
 import 'package:bitcoin_base/src/crypto/crypto.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 /// A signer class for MuSig2, handling key aggregation, nonce generation,
 /// signing, and partial signature aggregation.

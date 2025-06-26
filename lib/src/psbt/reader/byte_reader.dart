@@ -1,4 +1,4 @@
-import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils_old/blockchain_utils.dart';
 
 class PsbtByteReader {
   final List<int> bytes;
