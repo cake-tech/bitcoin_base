@@ -34,9 +34,9 @@ class BtcUtils {
     return dec.toBigInt();
   }
 
-  static String fromSatoshi(BigInt satoshi) {
-    BigRational dec = BigRational(satoshi);
+  static String toBtc(BigInt amount) {
+    BigRational dec = BigRational(amount);
     dec = dec / BigRational(BigInt.from(10).pow(8));
-    return dec.toString();
+    return dec.toDecimal(digits: 8);
   }
 }

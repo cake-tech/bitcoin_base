@@ -17,18 +17,12 @@ class ScriptWitness {
 ///
 /// [stack] the witness items (hex str) list
 class TxWitnessInput {
-  TxWitnessInput({required List<String> stack, ScriptWitness? scriptWitness})
-      : stack = stack.immutable,
+  TxWitnessInput({required List<String> stack, ScriptWitness? scriptWitness}) : stack = stack.immutable,
         scriptWitness = scriptWitness ?? ScriptWitness();
-
   final List<String> stack;
   ScriptWitness scriptWitness;
 
   /// creates a copy of the object (classmethod)
-  TxWitnessInput copy() {
-    return clone();
-  }
-
   TxWitnessInput clone() {
     return TxWitnessInput(stack: stack);
   }

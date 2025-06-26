@@ -1,10 +1,14 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:example/services_examples/electrum/electrum_ssl_service.dart';
 
 Future<ElectrumProvider> getProvider(
     {String url = "testnet4-electrumx.wakiyamap.dev:51002"}) async {
+  // final service = await ElectrumSSLService.connect(
+  //     "testnet4-electrumx.wakiyamap.dev:51002");
+
   final service =
-      ElectrumSSLService.connect(Uri.parse("tcp://testnet4-electrumx.wakiyamap.dev:51002"));
-  return ElectrumProvider.connect(service);
+      await ElectrumSSLService.connect("testnet.aranguren.org:51002");
+  return ElectrumProvider(service);
 }
 
 class PsbtUtxoRequest {
@@ -48,8 +52,8 @@ Future<List<PsbtUtxo>> getPsbtUtxo(
   final provider = await getProvider();
 
   final utxos = await Future.wait(addresses.map((e) async {
-    return await provider
-        .request(ElectrumRequestScriptHashListUnspent(scriptHash: e.address.pubKeyHash()));
+    return await provider.request(ElectrumRequestScriptHashListUnspent(
+        scriptHash: e.address.pubKeyHash()));
   }));
 
   final utxoss = List.generate(utxos.length, (i) async {
@@ -72,7 +76,6 @@ Future<List<PsbtUtxo>> getPsbtUtxo(
             merkleProof: request.merkleProof,
             treeScript: request.treeScript,
             merkleRoot: request.merkleRoot,
-            privateKeys: request.privateKeys,
             xOnlyOrInternalPubKey: request.xOnlyOrInternalPubKey,
             muSig2ParticipantPublicKeys: request.muSig2ParticipantPublicKeys,
             hash160: request.hash160,

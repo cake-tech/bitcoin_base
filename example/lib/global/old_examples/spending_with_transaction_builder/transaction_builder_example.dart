@@ -36,7 +36,7 @@ void main() async {
   final public4 = private4.getPublic();
 
   // P2PKH ADDRESS
-  final exampleAddr1 = public1.toP2pkhAddress();
+  final exampleAddr1 = public1.toAddress();
 
   // P2TR
   final exampleAddr2 = public2.toTaprootAddress();
@@ -44,7 +44,7 @@ void main() async {
   // P2PKHINP2SH
   final exampleAddr3 = public2.toP2pkhInP2sh();
   // P2KH
-  final exampleAddr4 = public3.toP2pkhAddress();
+  final exampleAddr4 = public3.toAddress();
   // P2PKHINP2SH
   final exampleAddr5 = public3.toP2pkhInP2sh();
   // P2WSHINP2SH 1-1 multisig
@@ -54,7 +54,7 @@ void main() async {
   // P2PKINP2SH
   final exampleAddr8 = public4.toP2pkInP2sh();
   // P2WPKH
-  final exampleAddr9 = public3.toP2wpkhAddress();
+  final exampleAddr9 = public3.toSegwitAddress();
   // P2WSH 1-1 multisig
   final exampleAddr10 = public3.toP2wshAddress();
 
@@ -132,7 +132,7 @@ void main() async {
     // Now, we provide the UTXOs we want to spend.
     utxos: utxos,
     // We select transaction outputs
-    outputs: [
+    outPuts: [
       output1,
       output2,
       output3,
@@ -204,10 +204,10 @@ void main() async {
       // yes is p2tr utxo and now we use SignTaprootTransaction(Schnorr sign)
       // for now this transaction builder support only tweak transaction
       // If you want to spend a Taproot script-path spending, you must create your own transaction builder.
-      return key.signTapRoot(trDigest, sighash: sighash);
+      return key.signBip340(trDigest, sighash: sighash);
     } else {
       // is seqwit(v0) or lagacy address we use  SingInput (ECDSA)
-      return key.signInput(trDigest, sigHash: sighash);
+      return key.signECDSA(trDigest, sighash: sighash);
     }
   });
 

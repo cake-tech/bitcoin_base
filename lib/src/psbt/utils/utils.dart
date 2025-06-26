@@ -5,6 +5,7 @@ import 'package:bitcoin_base/src/crypto/crypto.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:bitcoin_base/src/provider/models/models.dart';
 import 'package:bitcoin_base/src/psbt/psbt_builder/types/internal_types.dart';
+import 'package:bitcoin_base/src/psbt/types/types/global.dart';
 import 'package:bitcoin_base/src/psbt/types/types/inputs.dart';
 import 'package:bitcoin_base/src/psbt/types/types/outputs.dart';
 import 'package:bitcoin_base/src/psbt/psbt_builder/types/types.dart';
@@ -12,6 +13,17 @@ import 'package:bitcoin_base/src/psbt/types/types/psbt.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 class PsbtUtils {
+  static final String fakeEcdsaPubKey = "0" * 33 * 2;
+  static final String fakeUnCompresedEcdsaPubKey = "0" * 65 * 2;
+
+  /// 65 byte schnorr signature length
+  static const fakeSchnorSignaturBytes =
+      '0101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101';
+
+  /// 72 bytes (64 byte signature, 6-7 byte Der encoding length)
+  static const fakeECDSASignatureBytes =
+      '010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101';
+
   static PsbtInputInfo _getInputInfo(
       {required Psbt psbt, required TxInput input, required int inputIndex}) {
     PsbtTxType inputType = PsbtTxType.legacy;
@@ -67,9 +79,9 @@ class PsbtUtils {
               "WitnessScript cannot be used in P2TR UTXOs.");
         }
         redeemScript = witnessScript.witnessScript;
-        address = P2wshAddress.fromRedeemScript(script: redeemScript);
+        address = P2wshAddress.fromScript(script: redeemScript);
         if (p2shRedeemScript != null) {
-          address = P2shAddress.fromRedeemScript(script: address.toScriptPubKey());
+          address = P2shAddress.fromScript(script: address.toScriptPubKey());
         }
         if (address.toScriptPubKey() != scriptPubKey) {
           throw DartBitcoinPluginException(
@@ -95,7 +107,7 @@ class PsbtUtils {
           if (!BitcoinScriptUtils.isP2wpkh(redeem)) {
             throw DartBitcoinPluginException("Invalid p2wpkh scriptPubKey.");
           }
-          redeemScript = P2pkhAddress.fromHash160(h160: redeem.script[1])
+          redeemScript = P2pkhAddress.fromHash160(addrHash: redeem.script[1])
               .toScriptPubKey();
         }
       }
@@ -113,10 +125,15 @@ class PsbtUtils {
     }
     if (!isSegwit && p2shRedeemScript != null) {
       redeemScript = p2shRedeemScript;
-      address = P2shAddress.fromRedeemScript(script: redeemScript);
+      if (BitcoinScriptUtils.isP2sh32(scriptPubKey!)) {
+        address = P2shAddress.fromScript32(script: redeemScript);
+      } else {
+        address = P2shAddress.fromScript(script: redeemScript);
+      }
+
       if (address.toScriptPubKey() != scriptPubKey) {
         throw DartBitcoinPluginException(
-            "ScriptPubKey does not match the one generated from p2sh redeem script.");
+            "ScriptPubKey does not match the one generated from p2sh redeem script. ${address.toScriptPubKey()}");
       }
     }
 
@@ -415,12 +432,16 @@ class PsbtUtils {
 
   static List<String> _finalizeMultisigScript(
       {required PsbtGeneratedTransactionDigest digest,
-      required MultiSignatureAddress multisig}) {
+      required MultiSignatureAddress multisig,
+      bool fake = false}) {
     final currentScript =
         digest.params.witnessScript ?? digest.params.p2shRedeemScript!;
     final multisigSigners =
         multisig.signers.map((e) => ECPublic.fromHex(e.publicKey)).toList();
-    final validSignatures = digest.getPartialSignatures(multisigSigners);
+    List<PsbtInputPartialSig> validSignatures = [];
+    if (!fake) {
+      validSignatures = digest.getPartialSignatures(multisigSigners);
+    }
     List<String> signatures = [];
     final threshold = multisig.threshold;
     for (int i = 0; i < multisig.signers.length; i++) {
@@ -428,12 +449,14 @@ class PsbtUtils {
       final pubKey = multisigSigners[i];
       final signer = multisig.signers[i];
 
-      final signature = validSignatures.firstWhereNullable((e) {
-        return e.publicKey == pubKey && e.mode == signer.keyType;
-      });
+      final signature = fake
+          ? fakeECDSASignatureBytes
+          : validSignatures.firstWhereNullable((e) {
+              return e.publicKey == pubKey && e.mode == signer.keyType;
+            })?.signatureHex();
       if (signature != null) {
         for (int w = 0; w < signer.weight; w++) {
-          signatures.add(signature.signatureHex());
+          signatures.add(signature);
           if (signatures.length >= threshold) break;
         }
       }
@@ -452,10 +475,12 @@ class PsbtUtils {
   static List<String> _finalizeTaprootMultisigScript({
     required P2trMultiSignatureAddress p2trMultisig,
     required PsbtGeneratedTransactionDigest digest,
+    bool fake = false,
   }) {
     final leafScript = digest.leafScript!;
-    List<PsbtInputTaprootScriptSpendSignature> scriptSignatures =
-        digest.getTaprootScriptSignatures(
+    List<PsbtInputTaprootScriptSpendSignature> scriptSignatures = fake
+        ? []
+        : digest.getTaprootScriptSignatures(
             p2trMultisig.signers.map((e) => e.xOnly).toList());
     scriptSignatures = () {
       final sigs = scriptSignatures.map((e) {
@@ -469,15 +494,17 @@ class PsbtUtils {
     List<String> signatures = [];
     int someWeight = 0;
     for (int i = 0; i < p2trMultisig.signers.length; i++) {
-      // if (signatures.length >= threshold) break;
       final signer = p2trMultisig.signers[i];
-      final signature = scriptSignatures
-          .firstWhereNullable((e) => e.xOnlyPubKeyHex == signer.xOnly);
+      final signature = fake
+          ? fakeSchnorSignaturBytes
+          : scriptSignatures
+              .firstWhereNullable((e) => e.xOnlyPubKeyHex == signer.xOnly)
+              ?.signatureHex();
       for (int w = 0; w < signer.weight; w++) {
         if (someWeight >= p2trMultisig.threshold) {
           signatures.add('');
         } else {
-          signatures.add(signature?.signatureHex() ?? '');
+          signatures.add(signature ?? '');
         }
         if (signature != null) someWeight++;
       }
@@ -527,10 +554,14 @@ class PsbtUtils {
   }
 
   static List<String> _finalizeScriptSpent(
-      PsbtGeneratedTransactionDigest digest) {
+      PsbtGeneratedTransactionDigest digest,
+      {bool fake = false}) {
     final currentScript =
         digest.params.witnessScript ?? digest.params.p2shRedeemScript!;
     if (BitcoinScriptUtils.isP2wpkh(currentScript)) {
+      if (fake) {
+        return [fakeECDSASignatureBytes, fakeEcdsaPubKey];
+      }
       final signature = digest.getPartialSignature();
       final scriptPubKey =
           signature.publicKey.toP2wpkhInP2sh().toScriptPubKey();
@@ -542,21 +573,37 @@ class PsbtUtils {
     }
 
     if (BitcoinScriptUtils.isP2pkh(currentScript)) {
-      final signature = digest.getPartialSignature();
-      final pubKey = findSciptKeyInfo(
-          publicKey: signature.publicKey, script: currentScript);
-      if (pubKey == null) {
+      final signature = digest.getPartialSignatureOrNull();
+      final pubKey = signature == null
+          ? null
+          : findSciptKeyInfo(
+              publicKey: signature.publicKey, script: currentScript);
+      if (fake) {
+        if (pubKey != null) {
+          return [fakeECDSASignatureBytes, pubKey.key, currentScript.toHex()];
+        }
+        return [
+          fakeECDSASignatureBytes,
+          fakeUnCompresedEcdsaPubKey,
+          currentScript.toHex()
+        ];
+      }
+      if (signature == null || pubKey == null) {
         throw DartBitcoinPluginException(
             "Cannot find current signer key in signature.");
       }
       return [signature.signatureHex(), pubKey.key, currentScript.toHex()];
     } else if (BitcoinScriptUtils.isP2pk(currentScript)) {
+      if (fake) {
+        return [fakeECDSASignatureBytes, currentScript.toHex()];
+      }
       final signature = digest.getPartialSignature();
       return [signature.signatureHex(), currentScript.toHex()];
     }
     final multisig = BitcoinScriptUtils.parseMultisigScript(currentScript);
     if (multisig != null) {
-      return _finalizeMultisigScript(digest: digest, multisig: multisig);
+      return _finalizeMultisigScript(
+          digest: digest, multisig: multisig, fake: fake);
     }
     if (currentScript.script.isEmpty) {
       return [currentScript.toHex()];
@@ -587,7 +634,7 @@ class PsbtUtils {
       return [pubKey.key, currentScript.toHex()];
     }
     throw DartBitcoinPluginException(
-      "Unable to finalize custom script input at index ${digest.params.index}. Please use the onFinalizeCallback to complete the input finalization.",
+      "Unable to finalize custom script input at index ${digest.params.index}. Please use the onFinalizeCallback to complete the input finalization. ${currentScript.toHex()}",
     );
   }
 
@@ -644,7 +691,8 @@ class PsbtUtils {
 
   static List<String> _finalizeTaprootScriptSpent(
       {required PsbtGeneratedTransactionDigest digest,
-      required PsbtInput input}) {
+      required PsbtInput input,
+      bool fake = false}) {
     PsbtInputTaprootLeafScript? leafScript = digest.leafScript;
 
     if (leafScript == null) {
@@ -658,6 +706,9 @@ class PsbtUtils {
 
     if (BitcoinScriptUtils.hasAnyOpCheckSig(currentScript)) {
       if (BitcoinScriptUtils.isXOnlyOpChecksig(currentScript)) {
+        if (fake) {
+          return [fakeSchnorSignaturBytes, script, controlBlock];
+        }
         final signature = digest
             .getTaprootScriptSignature(currentScript.script[0].toString());
         return [signature.signatureHex(), script, controlBlock];
@@ -666,7 +717,7 @@ class PsbtUtils {
           BitcoinScriptUtils.isP2trMultiScript(leafScript.script);
       if (taprootMultisig != null) {
         return _finalizeTaprootMultisigScript(
-            p2trMultisig: taprootMultisig, digest: digest);
+            p2trMultisig: taprootMultisig, digest: digest, fake: fake);
       }
     } else {
       if (currentScript.script.isEmpty) {
@@ -695,17 +746,36 @@ class PsbtUtils {
 
   static List<String> _finalizeNonScriptSpent(
       {required PsbtGeneratedTransactionDigest digest,
-      required PsbtInput input}) {
+      required PsbtInput input,
+      bool fake = false}) {
     final script = digest.params.scriptPubKey;
     if (BitcoinScriptUtils.isP2tr(script)) {
+      if (fake) {
+        return [fakeSchnorSignaturBytes];
+      }
       return [digest.getTaprootKeyPathSignature()];
     } else if (BitcoinScriptUtils.isP2pk(digest.params.scriptPubKey)) {
+      if (fake) {
+        return [fakeECDSASignatureBytes];
+      }
       return [digest.getPartialSignature().signatureHex()];
     } else if (BitcoinScriptUtils.isP2pkh(script) ||
         BitcoinScriptUtils.isP2wpkh(script)) {
-      final sig = digest.getPartialSignature();
-      final pk = findSciptKeyInfo(publicKey: sig.publicKey, script: script);
-      if (pk == null) {
+      final sig = digest.getPartialSignatureOrNull();
+      final pk = sig == null
+          ? null
+          : findSciptKeyInfo(publicKey: sig.publicKey, script: script);
+      if (fake) {
+        return [
+          sig?.signatureHex() ?? fakeECDSASignatureBytes,
+          pk?.key ??
+              (BitcoinScriptUtils.isP2wpkh(script)
+                  ? fakeEcdsaPubKey
+                  : fakeUnCompresedEcdsaPubKey)
+        ];
+      }
+
+      if (pk == null || sig == null) {
         throw DartBitcoinPluginException(
             "Signature public key does not match the scriptPubKey for input ${digest.params.index}.");
       }
@@ -716,12 +786,20 @@ class PsbtUtils {
         details: {"scriptPubKey": digest.params.scriptPubKey.toString()});
   }
 
+  static final List<int> fakeFinalizeGlobalIdentifier =
+      'fake_finalize'.codeUnits.asImmutableBytes;
+
   static PsbtFinalizeInput finalizeInput(
       {required Psbt psbt,
       required int index,
       required List<TxInput> txInputs,
       required BtcTransaction unsignedTx,
       PsbtFinalizeResponse? userFinalizedInput}) {
+    final userData = psbt.global.getGlobals<PsbtGlobalProprietaryUseType>(
+            PsbtGlobalTypes.proprietary) ??
+        [];
+    bool fake = userData.any((e) =>
+        BytesUtils.bytesEqual(e.identifier, fakeFinalizeGlobalIdentifier));
     final txType = getTxType(psbt.input);
     final params =
         getPsbtInputInfo(psbt: psbt, inputIndex: index, txInputs: txInputs);
@@ -739,13 +817,14 @@ class PsbtUtils {
           txType: txType);
     }
     List<String> unlockScript = switch (params.isScriptSpending) {
-      false => _finalizeNonScriptSpent(digest: digest, input: psbt.input),
+      false =>
+        _finalizeNonScriptSpent(digest: digest, input: psbt.input, fake: fake),
       true => () {
           if (params.type.isP2tr) {
             return _finalizeTaprootScriptSpent(
-                digest: digest, input: psbt.input);
+                digest: digest, input: psbt.input, fake: fake);
           }
-          return _finalizeScriptSpent(digest);
+          return _finalizeScriptSpent(digest, fake: fake);
         }(),
     };
     if (txType.isLegacy) {
@@ -849,40 +928,54 @@ class PsbtUtils {
         index: index,
         input: input,
         sighashType: sighashType);
-
     PsbtInputTaprootLeafScript? tapleafScript;
-    final digest = switch (params.type) {
-      PsbtTxType.legacy => () {
-          final legacyInput = params.cast<PsbtNonTaprootInputInfo>();
-          return unsignedTx.getTransactionDigest(
-              txInIndex: index,
-              script: legacyInput.redeemScript,
-              sighash: sighashType!);
-        }(),
-      PsbtTxType.witnessV0 => () {
-          final v0Input = params.cast<PsbtNonTaprootInputInfo>();
-          return unsignedTx.getTransactionSegwitDigit(
-              txInIndex: index,
-              script: v0Input.redeemScript,
-              sighash: sighashType!,
-              amount: params.amount);
-        }(),
-      PsbtTxType.witnessV1 => () {
-          final tapInput = params.cast<PsbtTaprootInputInfo>();
-          if (tapInput.tapleafScripts != null) {
-            tapleafScript = PsbtUtils.findCorrectLeafScript(
-                tapLeafScripts: tapInput.tapleafScripts!,
-                tapleafHash: tapleafHash,
-                index: index);
-          }
-          return unsignedTx.getTransactionTaprootDigset(
-              txIndex: index,
-              scriptPubKeys: tapInput.allScriptPubKeys,
-              sighash: sighashType!,
-              amounts: tapInput.allAmounts,
-              tapleafScript: tapleafScript?.leafScript);
-        }(),
-    };
+    List<int> digest;
+    if (isSighashForked(sighashType)) {
+      if (params.type == PsbtTxType.witnessV1) {
+        throw DartBitcoinPluginException(
+            "Invalid sighash type: Forked sighash types are not compatible with witness v1 transactions.");
+      }
+      final v0Input = params.cast<PsbtNonTaprootInputInfo>();
+      digest = unsignedTx.getTransactionSegwitDigit(
+          txInIndex: index,
+          script: v0Input.redeemScript,
+          sighash: sighashType,
+          amount: params.amount);
+    } else {
+      digest = switch (params.type) {
+        PsbtTxType.legacy => () {
+            final legacyInput = params.cast<PsbtNonTaprootInputInfo>();
+            return unsignedTx.getTransactionDigest(
+                txInIndex: index,
+                script: legacyInput.redeemScript,
+                sighash: sighashType!);
+          }(),
+        PsbtTxType.witnessV0 => () {
+            final v0Input = params.cast<PsbtNonTaprootInputInfo>();
+            return unsignedTx.getTransactionSegwitDigit(
+                txInIndex: index,
+                script: v0Input.redeemScript,
+                sighash: sighashType!,
+                amount: params.amount);
+          }(),
+        PsbtTxType.witnessV1 => () {
+            final tapInput = params.cast<PsbtTaprootInputInfo>();
+            if (tapInput.tapleafScripts != null) {
+              tapleafScript = PsbtUtils.findCorrectLeafScript(
+                  tapLeafScripts: tapInput.tapleafScripts!,
+                  tapleafHash: tapleafHash,
+                  index: index);
+            }
+            return unsignedTx.getTransactionTaprootDigset(
+                txIndex: index,
+                scriptPubKeys: tapInput.allScriptPubKeys,
+                sighash: sighashType!,
+                amounts: tapInput.allAmounts,
+                tapleafScript: tapleafScript?.leafScript);
+          }(),
+      };
+    }
+
     return PsbtGeneratedTransactionDigest(
         digest: digest,
         sighashType: sighashType,
@@ -905,67 +998,7 @@ class PsbtUtils {
         "Invalid Psbt input: Cannot mix height-based and time-based locktimes in a PSBT.");
   }
 
-  /// must be move to blockchain_utils package
-  static bool isValidBitcoinDERSignature(List<int> signature) {
-    if (signature.length < 9 || signature.length > 73) {
-      return false;
-    }
-    if (signature[0] != 0x30) {
-      return false;
-    }
-    if (signature[1] != signature.length - 3) {
-      return false;
-    }
-    int lenR = signature[3];
-    if (5 + lenR >= signature.length) {
-      return false;
-    }
-    int lenS = signature[5 + lenR];
-    if ((7 + lenR + lenS) != signature.length) {
-      return false;
-    }
-    if (signature[4] & 0x80 != 0) {
-      return false;
-    }
-    if (lenR > 1 && (signature[4] == 0x00) && (signature[5] & 0x80) == 0) {
-      return false;
-    }
-    if (signature[lenR + 4] != 0x02) return false;
-    if (lenS == 0) return false;
-    if ((signature[lenR + 6] & 0x80) != 0) return false;
-    if (lenS > 1 &&
-        (signature[lenR + 6] == 0x00) &&
-        (signature[lenR + 7] & 0x80) == 0) {
-      return false;
-    }
-    return true;
-  }
-
-  static List<int> validateEcdsaSignature(
-      {required List<int> signature,
-      required int index,
-      required int expectedSighash}) {
-    if (!isValidBitcoinDERSignature(signature)) {
-      throw DartBitcoinPluginException(
-          "Invalid DER-encoded signature at input $index. Signature may be malformed or improperly formatted.");
-    }
-    if (signature.last != expectedSighash) {
-      throw DartBitcoinPluginException(
-          "Signature mismatch at input $index: Expected sighash $expectedSighash, but got ${signature.last}. The DER-encoded signature may be malformed or improperly formatted.");
-    }
-    return signature;
-  }
-
-  static List<int> validateMusigPartialSignature(
-      {required List<int> signature, required int index}) {
-    if (!MuSig2Utils.isValidPartialSignature(signature)) {
-      throw DartBitcoinPluginException(
-          "Invalid Musig2 Schnorr partial signature at input $index. Signature may be malformed or improperly formatted.");
-    }
-    return signature;
-  }
-
-  static List<int> validateSchnorrSignature(
+  static List<int> _validateSchnorrSignature(
       {required List<int> signature,
       required int index,
       required int expectedSighash}) {
@@ -982,6 +1015,86 @@ class PsbtUtils {
     if (signature.last != expectedSighash) {
       throw DartBitcoinPluginException(
           "Signature mismatch at input $index: Expected sighash $expectedSighash, but got ${signature.last}. The Schnorr signature may be malformed or improperly formatted.");
+    }
+    return signature;
+  }
+
+  static List<int> _validateEcdsaSignature(
+      {required List<int> signature,
+      required int index,
+      required int expectedSighash}) {
+    if (!CryptoSignatureUtils.isValidBitcoinDERSignature(signature)) {
+      throw DartBitcoinPluginException(
+          "Invalid DER-encoded signature at input $index. Signature may be malformed or improperly formatted.");
+    }
+    if (signature.last != expectedSighash) {
+      throw DartBitcoinPluginException(
+          "Signature mismatch at input $index: Expected sighash $expectedSighash, but got ${signature.last}. The DER-encoded signature may be malformed or improperly formatted.");
+    }
+    return signature;
+  }
+
+  static bool verifyBchSchnorrSignature(
+      List<int> digest, List<int> signature, ECPublic pubKey) {
+    if (digest.length != 32) {
+      throw const ArgumentException("The message must be a 32-byte array.");
+    }
+    if (signature.length != 64) {
+      throw const ArgumentException("Invalid signature length.");
+    }
+
+    final BigInt order = Curves.generatorSecp256k1.order!;
+    final List<int> rBytes = signature.sublist(0, 32);
+    final List<int> sBytes = signature.sublist(32, 64);
+
+    final BigInt rX = BigintUtils.fromBytes(rBytes);
+    final BigInt s = BigintUtils.fromBytes(sBytes);
+
+    if (s >= order) {
+      return false;
+    }
+
+    final P = pubKey.point;
+    BigInt e = BigintUtils.fromBytes(QuickCrypto.sha256Hash([
+          ...rBytes,
+          ...pubKey.toBytes(mode: PubKeyModes.compressed),
+          ...digest
+        ])) %
+        order;
+    final sp = Curves.generatorSecp256k1 * s;
+
+    if (P.y.isEven) {
+      e = Curves.generatorSecp256k1.order! - e;
+    }
+    final ProjectiveECCPoint eP = P * e;
+
+    final R = sp + eP;
+    if (R.isInfinity) return false;
+    if (R.y.isOdd || R.x != rX) {
+      return false;
+    }
+    return true;
+  }
+
+  static List<int> validateSignature(
+      {required List<int> signature,
+      required int index,
+      required int expectedSighash,
+      required PsbtTxType type}) {
+    if (type.isP2tr ||
+        CryptoSignatureUtils.isValidSchnorrSignature(signature)) {
+      return _validateSchnorrSignature(
+          signature: signature, index: index, expectedSighash: expectedSighash);
+    }
+    return _validateEcdsaSignature(
+        signature: signature, index: index, expectedSighash: expectedSighash);
+  }
+
+  static List<int> validateMusigPartialSignature(
+      {required List<int> signature, required int index}) {
+    if (!MuSig2Utils.isValidPartialSignature(signature)) {
+      throw DartBitcoinPluginException(
+          "Invalid Musig2 Schnorr partial signature at input $index. Signature may be malformed or improperly formatted.");
     }
     return signature;
   }
@@ -1015,6 +1128,15 @@ class PsbtUtils {
       }
     }
     return sighashInfos;
+  }
+
+  static int? getInputSigHash(PsbtInput psbtInput, int index) {
+    final sighashType =
+        psbtInput.getInput<PsbtInputSigHash>(index, PsbtInputTypes.sighashType);
+    if (sighashType != null) {
+      return sighashType.sighash;
+    }
+    return null;
   }
 
   static void validateCanAddOrUpdateOutput(
@@ -1153,6 +1275,12 @@ class PsbtUtils {
 
   static bool isSighash(int sighash, int type) {
     return (sighash & 0x1F) == type;
+  }
+
+  static bool isSighashForked(int sighash) {
+    return (sighash & BitcoinOpCodeConst.sighashForked ==
+            BitcoinOpCodeConst.sighashForked) ||
+        (sighash & 0x1F) == BitcoinOpCodeConst.sighashForked;
   }
 
   static bool isAnyoneCanPay(int sighash) {

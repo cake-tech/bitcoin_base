@@ -78,7 +78,7 @@ void _spendFromTwoP2shAndOneP2PKH() async {
   final b = BitcoinTransactionBuilder(
 
       /// outputs
-      outputs: [
+      outPuts: [
         /// Define a BitcoinOutput with the P2shAddress and a value of 1.0 DASH
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("1")),
 
@@ -112,13 +112,13 @@ void _spendFromTwoP2shAndOneP2PKH() async {
               vout: 2,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: examplePublicKey2.toP2pkhAddress().type,
+              scriptType: examplePublicKey2.toAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: examplePublicKey2.toHex(),
-                address: examplePublicKey2.toP2pkhAddress())),
+                address: examplePublicKey2.toAddress())),
       ]);
 
   /// Build the transaction by invoking the buildTransaction method on the BitcoinTransactionBuilder
@@ -126,7 +126,7 @@ void _spendFromTwoP2shAndOneP2PKH() async {
     /// For each input in the transaction, locate the corresponding private key
     /// and sign the transaction digest to construct the unlocking script.
     if (publicKey == examplePublicKey2.toHex()) {
-      return examplePrivateKey.signInput(trDigest, sigHash: sighash);
+      return examplePrivateKey.signECDSA(trDigest, sighash: sighash);
     }
 
     throw UnimplementedError();
@@ -184,7 +184,7 @@ void _spendP2SH() async {
   final b = BitcoinTransactionBuilder(
 
       /// outputs
-      outputs: [
+      outPuts: [
         BitcoinOutput(address: out1, value: change),
       ],
 
@@ -225,7 +225,7 @@ void _spendP2SH() async {
     /// For each input in the transaction, locate the corresponding private key
     /// and sign the transaction digest to construct the unlocking script.
     if (publicKey == childKey1PublicKey.toHex()) {
-      return childKey1PrivateKey.signInput(trDigest, sigHash: sighash);
+      return childKey1PrivateKey.signECDSA(trDigest, sighash: sighash);
     }
     throw UnimplementedError();
   });

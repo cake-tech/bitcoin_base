@@ -2,6 +2,7 @@
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:example/services_examples/explorer_service/explorer_service.dart';
 
 /// Calculates the change value based on the sum of all provided values.
 ///
@@ -18,7 +19,8 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 /// Returns:
 /// - The change value.
 BigInt _changeValue(BigInt sum, List<BigInt> all) {
-  final sumAll = all.fold<BigInt>(BigInt.zero, (previousValue, element) => previousValue + element);
+  final sumAll = all.fold<BigInt>(
+      BigInt.zero, (previousValue, element) => previousValue + element);
 
   final remind = sum - sumAll;
   if (remind < BigInt.zero) {
@@ -59,25 +61,27 @@ void _spendFromP2pkhTo10DifferentType() async {
   final examplePublicKey2 = examplePrivateKey.getPublic();
 
   /// Define transaction outputs
-  final out1 =
-      P2pkhAddress.fromAddress(address: "msxiCJXD2WB43wK2PpTUvoqQLF7ZP98qqM", network: network);
+  final out1 = P2pkhAddress.fromAddress(
+      address: "msxiCJXD2WB43wK2PpTUvoqQLF7ZP98qqM", network: network);
   final out2 = P2trAddress.fromAddress(
-      address: "tb1plq65drqavf93wf63d8g7d8ypuzaargd5h9d35u05ktrcwxq4a6ss0gpvrt", network: network);
+      address: "tb1plq65drqavf93wf63d8g7d8ypuzaargd5h9d35u05ktrcwxq4a6ss0gpvrt",
+      network: network);
   final out3 = P2wpkhAddress.fromAddress(
       address: "tb1q3zqgu9j368wgk8u5f9vtmkdwq8geetdxry690d", network: network);
-  final out4 = P2pkAddress.fromPubkey(pubkey: ECPublic.fromBip32(examplePublicKey.publicKey));
-  final out5 =
-      P2shAddress.fromAddress(address: "2N5hVdETdJMwLDxxttfqeWgMuny6K4SYGSc", network: network);
-  final out6 =
-      P2shAddress.fromAddress(address: "2NDAUpeUB1kGAQET8SojF8seXNrk3uudtCb", network: network);
-  final out7 =
-      P2shAddress.fromAddress(address: "2NE9CYdxju2iEAfR4FMdKPUcZbnKcfCiLhM", network: network);
-  final out8 =
-      P2shAddress.fromAddress(address: "2MwGRf8wNJsaYKdigqPwikPpg9JAT2faaPB", network: network);
+  final out4 = P2pkAddress.fromPubkey(pubkey: examplePublicKey.publicKey.toHex());
+  final out5 = P2shAddress.fromAddress(
+      address: "2N5hVdETdJMwLDxxttfqeWgMuny6K4SYGSc", network: network);
+  final out6 = P2shAddress.fromAddress(
+      address: "2NDAUpeUB1kGAQET8SojF8seXNrk3uudtCb", network: network);
+  final out7 = P2shAddress.fromAddress(
+      address: "2NE9CYdxju2iEAfR4FMdKPUcZbnKcfCiLhM", network: network);
+  final out8 = P2shAddress.fromAddress(
+      address: "2MwGRf8wNJsaYKdigqPwikPpg9JAT2faaPB", network: network);
   final out9 = P2wshAddress.fromAddress(
-      address: "tb1qes3upam2nv3rc6s38tqgk0cqh6dlycvk6cjydyvpx9zlumh4h4lsjq26p8", network: network);
-  final out10 =
-      P2shAddress.fromAddress(address: "2N2aRKjTQ3uzgUSLWFQAUDvKLnKCiBfCSAh", network: network);
+      address: "tb1qes3upam2nv3rc6s38tqgk0cqh6dlycvk6cjydyvpx9zlumh4h4lsjq26p8",
+      network: network);
+  final out10 = P2shAddress.fromAddress(
+      address: "2N2aRKjTQ3uzgUSLWFQAUDvKLnKCiBfCSAh", network: network);
 
   /// Calculate the change value for the transaction
   final change = _changeValue(
@@ -93,7 +97,7 @@ void _spendFromP2pkhTo10DifferentType() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs and values
-      outputs: [
+      outPuts: [
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("0.001")),
         BitcoinOutput(address: out2, value: BtcUtils.toSatoshi("0.001")),
         BitcoinOutput(address: out3, value: BtcUtils.toSatoshi("0.001")),
@@ -126,7 +130,8 @@ void _spendFromP2pkhTo10DifferentType() async {
             /// Create a UTXO using a BitcoinUtxo with specific details
             utxo: BitcoinUtxo(
               /// Transaction hash uniquely identifies the referenced transaction
-              txHash: "b06f4ed0b49a5092a9ea206553ddc5fc469be694d0d28c95598c653e66cdeb5e",
+              txHash:
+                  "b06f4ed0b49a5092a9ea206553ddc5fc469be694d0d28c95598c653e66cdeb5e",
 
               /// Value represents the amount of the UTXO in satoshis.
               value: BigInt.from(250000),
@@ -135,21 +140,24 @@ void _spendFromP2pkhTo10DifferentType() async {
               vout: 3,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: examplePublicKey2.toP2pkhAddress().type,
+              scriptType: examplePublicKey2.toAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
-                publicKey: examplePublicKey2.toHex(), address: examplePublicKey2.toP2pkhAddress())),
+                publicKey: examplePublicKey2.toHex(),
+                address: examplePublicKey2.toAddress())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
-              txHash: "6ff0bdb2966f62f5e202c924e1cab1368b0258833e48986cc0a70fbca624ba93",
+              txHash:
+                  "6ff0bdb2966f62f5e202c924e1cab1368b0258833e48986cc0a70fbca624ba93",
               value: BigInt.from(812830),
               vout: 0,
-              scriptType: examplePublicKey2.toP2pkhAddress().type,
+              scriptType: examplePublicKey2.toAddress().type,
             ),
             ownerDetails: UtxoAddressDetails(
-                publicKey: examplePublicKey2.toHex(), address: examplePublicKey2.toP2pkhAddress())),
+                publicKey: examplePublicKey2.toHex(),
+                address: examplePublicKey2.toAddress())),
       ]);
 
   /// Build the transaction by invoking the buildTransaction method on the BitcoinTransactionBuilder
@@ -159,9 +167,9 @@ void _spendFromP2pkhTo10DifferentType() async {
 
     if (publicKey == examplePublicKey2.toHex()) {
       if (utxo.utxo.isP2tr) {
-        return examplePrivateKey.signTapRoot(trDigest);
+        return examplePrivateKey.signBip340(trDigest);
       }
-      return examplePrivateKey.signInput(trDigest, sigHash: sighash);
+      return examplePrivateKey.signECDSA(trDigest, sighash: sighash);
     }
 
     throw UnimplementedError();
@@ -241,13 +249,13 @@ void _spendFrom10DifferentTypeToP2pkh() async {
 
   /// outputs
   /// make sure pass network to address for validate, before sending create transaction
-  final out1 =
-      P2pkhAddress.fromAddress(address: "n4bkvTyU1dVdzsrhWBqBw8fEMbHjJvtmJR", network: network);
+  final out1 = P2pkhAddress.fromAddress(
+      address: "n4bkvTyU1dVdzsrhWBqBw8fEMbHjJvtmJR", network: network);
 
   final builder = BitcoinTransactionBuilder(
 
       /// outputs
-      outputs: [BitcoinOutput(address: out1, value: change)],
+      outPuts: [BitcoinOutput(address: out1, value: change)],
 
       /// Set the transaction fee
       fee: BtcUtils.toSatoshi("0.00005"),
@@ -264,7 +272,8 @@ void _spendFrom10DifferentTypeToP2pkh() async {
         UtxoWithAddress(
             utxo: BitcoinUtxo(
               /// Transaction hash uniquely identifies the referenced transaction
-              txHash: "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
+              txHash:
+                  "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
 
               /// Value represents the amount of the UTXO in satoshis.
               value: BtcUtils.toSatoshi("0.001"),
@@ -273,16 +282,17 @@ void _spendFrom10DifferentTypeToP2pkh() async {
               vout: 0,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: childKey1PublicKey.toP2pkhAddress().type,
+              scriptType: childKey1PublicKey.toAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: childKey1PublicKey.toHex(),
-                address: childKey1PublicKey.toP2pkhAddress())),
+                address: childKey1PublicKey.toAddress())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
-              txHash: "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
+              txHash:
+                  "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
               value: BtcUtils.toSatoshi("0.001"),
               vout: 1,
               scriptType: childKey1PublicKey.toTaprootAddress().type,
@@ -292,54 +302,64 @@ void _spendFrom10DifferentTypeToP2pkh() async {
                 address: childKey1PublicKey.toTaprootAddress())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
-              txHash: "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
+              txHash:
+                  "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
               value: BtcUtils.toSatoshi("0.001"),
               vout: 2,
-              scriptType: childKey1PublicKey.toP2wpkhAddress().type,
+              scriptType: childKey1PublicKey.toSegwitAddress().type,
             ),
             ownerDetails: UtxoAddressDetails(
                 publicKey: childKey1PublicKey.toHex(),
-                address: childKey1PublicKey.toP2wpkhAddress())),
+                address: childKey1PublicKey.toSegwitAddress())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
-              txHash: "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
+              txHash:
+                  "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
               value: BtcUtils.toSatoshi("0.001"),
               vout: 3,
               scriptType: examplePublicKey.toP2pkAddress().type,
             ),
             ownerDetails: UtxoAddressDetails(
-                publicKey: examplePublicKey.toHex(), address: examplePublicKey.toP2pkAddress())),
+                publicKey: examplePublicKey.toHex(),
+                address: examplePublicKey.toP2pkAddress())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
-              txHash: "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
+              txHash:
+                  "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
               value: BtcUtils.toSatoshi("0.001"),
               vout: 4,
               scriptType: examplePublicKey.toP2pkInP2sh().type,
             ),
             ownerDetails: UtxoAddressDetails(
-                publicKey: examplePublicKey.toHex(), address: examplePublicKey.toP2pkInP2sh())),
+                publicKey: examplePublicKey.toHex(),
+                address: examplePublicKey.toP2pkInP2sh())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
-              txHash: "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
+              txHash:
+                  "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
               value: BtcUtils.toSatoshi("0.001"),
               vout: 5,
               scriptType: examplePublicKey.toP2pkhInP2sh().type,
             ),
             ownerDetails: UtxoAddressDetails(
-                publicKey: examplePublicKey.toHex(), address: examplePublicKey.toP2pkhInP2sh())),
+                publicKey: examplePublicKey.toHex(),
+                address: examplePublicKey.toP2pkhInP2sh())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
-              txHash: "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
+              txHash:
+                  "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
               value: BtcUtils.toSatoshi("0.001"),
               vout: 6,
               scriptType: examplePublicKey.toP2wpkhInP2sh().type,
               blockHeight: 0,
             ),
             ownerDetails: UtxoAddressDetails(
-                publicKey: examplePublicKey.toHex(), address: examplePublicKey.toP2wpkhInP2sh())),
+                publicKey: examplePublicKey.toHex(),
+                address: examplePublicKey.toP2wpkhInP2sh())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
-              txHash: "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
+              txHash:
+                  "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
               value: BtcUtils.toSatoshi("0.001"),
               vout: 7,
               scriptType: msig.toP2shAddress().type,
@@ -351,24 +371,28 @@ void _spendFrom10DifferentTypeToP2pkh() async {
                 multiSigAddress: msig, address: msig.toP2shAddress())),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
-              txHash: "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
+              txHash:
+                  "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
               value: BtcUtils.toSatoshi("0.001"),
               vout: 8,
               scriptType: msig.toP2wshAddress(network: network).type,
               blockHeight: 0,
             ),
             ownerDetails: UtxoAddressDetails.multiSigAddress(
-                multiSigAddress: msig, address: msig.toP2wshAddress(network: network))),
+                multiSigAddress: msig,
+                address: msig.toP2wshAddress(network: network))),
         UtxoWithAddress(
             utxo: BitcoinUtxo(
-              txHash: "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
+              txHash:
+                  "05411dce1a1c9e3f44b54413bdf71e7ab3eff1e2f94818a3568c39814c27b258",
               value: BtcUtils.toSatoshi("0.0015783"),
               vout: 9,
               scriptType: msig2.toP2wshInP2shAddress(network: network).type,
               blockHeight: 0,
             ),
             ownerDetails: UtxoAddressDetails.multiSigAddress(
-                multiSigAddress: msig2, address: msig2.toP2wshInP2shAddress(network: network))),
+                multiSigAddress: msig2,
+                address: msig2.toP2wshInP2shAddress(network: network))),
       ]);
 
   /// Build the transaction by invoking the buildTransaction method on the BitcoinTransactionBuilder
@@ -377,21 +401,21 @@ void _spendFrom10DifferentTypeToP2pkh() async {
     /// and sign the transaction digest to construct the unlocking script.
     if (publicKey == childKey1PublicKey.toHex()) {
       if (utxo.utxo.isP2tr) {
-        return childKey1PrivateKey.signTapRoot(trDigest, sighash: sighash);
+        return childKey1PrivateKey.signBip340(trDigest, sighash: sighash);
       }
-      return childKey1PrivateKey.signInput(trDigest, sigHash: sighash);
+      return childKey1PrivateKey.signECDSA(trDigest, sighash: sighash);
     }
     if (publicKey == examplePublicKey.toHex()) {
       if (utxo.utxo.isP2tr) {
-        return childKey2PrivateKey.signTapRoot(trDigest, sighash: sighash);
+        return childKey2PrivateKey.signBip340(trDigest, sighash: sighash);
       }
-      return childKey2PrivateKey.signInput(trDigest, sigHash: sighash);
+      return childKey2PrivateKey.signECDSA(trDigest, sighash: sighash);
     }
     if (publicKey == examplePublicKey2.toHex()) {
       if (utxo.utxo.isP2tr) {
-        return examplePrivateKey.signTapRoot(trDigest, sighash: sighash);
+        return examplePrivateKey.signBip340(trDigest, sighash: sighash);
       }
-      return examplePrivateKey.signInput(trDigest, sigHash: sighash);
+      return examplePrivateKey.signECDSA(trDigest, sighash: sighash);
     }
 
     throw UnimplementedError();

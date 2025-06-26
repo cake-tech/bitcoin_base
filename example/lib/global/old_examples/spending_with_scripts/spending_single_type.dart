@@ -1,14 +1,16 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:example/services_examples/explorer_service/explorer_service.dart';
 
 import 'spending_builders.dart';
 
 // Define the network as the Testnet (used for testing and development purposes).
 const network = BitcoinNetwork.testnet;
+final service = BitcoinApiService();
 
 // Initialize an API provider for interacting with the Testnet's blockchain data.
-final api = ApiProvider.fromMempool(network);
+final api = ApiProvider.fromMempool(network, service);
 
 // In these tutorials, you will learn how to spend various types of UTXOs.
 // Each method is specific to a type of UTXO.
@@ -24,24 +26,25 @@ Future<void> spendingP2WPKH(ECPrivate sWallet, ECPrivate rWallet) async {
   // In this section, you can add any number of addresses with type P2PWPH to this transaction.
   final publicKey = sWallet.getPublic();
   // P2WPKH
-  final sender = publicKey.toP2wpkhAddress();
+  final sender = publicKey.toSegwitAddress();
   // Read UTXOs of accounts from the BlockCypher API.
-  final utxo =
-      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: publicKey.toHex()));
+  final utxo = await api.getAccountUtxo(
+      UtxoAddressDetails(address: sender, publicKey: publicKey.toHex()));
   // The total amount of UTXOs that we can spend.
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception("account does not have any unspent transaction or mybe no confirmed");
+    throw Exception(
+        "account does not have any unspent transaction or mybe no confirmed");
   }
   // Receive network fees
-  final feeRate = await api.getRecommendedFeeRate();
+  final feeRate = await api.getNetworkFeeRate();
   // feeRate.medium, feeRate.high ,feeRate.low P/KB
 
   // In this section, we select the transaction outputs; the number and type of addresses are not important
   final prive = sWallet;
   final recPub = rWallet.getPublic();
   // P2WPKH
-  final receiver = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
   // P2TR
   final changeAddress = recPub.toTaprootAddress();
 
@@ -61,7 +64,8 @@ Future<void> spendingP2WPKH(ECPrivate sWallet, ECPrivate rWallet) async {
 
   // Now that we've determined the transaction size, let's calculate the transaction fee
   // based on the transaction size and the desired fee rate.
-  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize,
+      feeRateType: BitcoinFeeRateType.medium);
 
   // We subtract the fee from the total amount of UTXOs to calculate
   // the actual amount we can spend in this transaction.
@@ -70,19 +74,20 @@ Future<void> spendingP2WPKH(ECPrivate sWallet, ECPrivate rWallet) async {
   // We specify the desired amount for each address. Here, I have divided the desired total
   // amount by the number of outputs to ensure an equal amount for each.
   final outPutWithValue = outputsAdress
-      .map((e) =>
-          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) => BitcoinOutput(
+          address: e.address,
+          value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
 
   // I use the 'buildP2wpkTransaction' method to create a transaction.
   // You can refer to this method to learn how to create a transaction.
   final transaction = buildP2wpkTransaction(
     receiver: outPutWithValue,
-    sign: (p0, publicKey, sigHash) {
+    sign: (p0, publicKey, sighash) {
       // Here, we find the corresponding private key based on the public key and proceed to sign the transaction."
-      // Note that to sign Taproot transactions, you must use the 'signTapRoot' method for signing.
+      // Note that to sign Taproot transactions, you must use the 'signBip340' method for signing.
       // Below is a method for spending Taproot transactions that you can review.
-      return prive.signInput(p0, sigHash: sigHash);
+      return prive.signECDSA(p0, sighash: sighash);
     },
     utxo: utxo,
   );
@@ -107,36 +112,39 @@ Future<void> spendingP2WSH(ECPrivate sWallet, ECPrivate rWallet) async {
   final addr = sWallet.getPublic();
   // P2WSH ADDRESS
   final sender = addr.toP2wshAddress();
-  final utxo =
-      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
+  final utxo = await api.getAccountUtxo(
+      UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception("account does not have any unspent transaction or mybe no confirmed");
+    throw Exception(
+        "account does not have any unspent transaction or mybe no confirmed");
   }
 
-  final feeRate = await api.getRecommendedFeeRate();
+  final feeRate = await api.getNetworkFeeRate();
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
-  final receiver = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
 
-  final changeAddress = recPub.toP2wpkhAddress();
+  final changeAddress = recPub.toSegwitAddress();
   final List<BitcoinOutput> outputsAdress = [
     BitcoinOutput(address: receiver, value: BigInt.zero),
     BitcoinOutput(address: changeAddress, value: BigInt.zero)
   ];
   final transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
       utxos: utxo, outputs: outputsAdress, network: network);
-  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize,
+      feeRateType: BitcoinFeeRateType.medium);
   final canSpend = sumOfUtxo - estimateFee;
   final outPutWithValue = outputsAdress
-      .map((e) =>
-          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) => BitcoinOutput(
+          address: e.address,
+          value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
   final transaction = buildP2WSHTransaction(
     receiver: outPutWithValue,
-    sign: (p0, publicKey, sigHash) {
-      return prive.signInput(p0, sigHash: sigHash);
+    sign: (p0, publicKey, sighash) {
+      return prive.signECDSA(p0, sighash: sighash);
     },
     utxo: utxo,
   );
@@ -152,37 +160,40 @@ Future<void> spendingP2PKH(ECPrivate sWallet, ECPrivate rWallet) async {
   // and we use method `buildP2pkhTransaction` to create the transaction.
   final addr = sWallet.getPublic();
   // P2PKH
-  final sender = addr.toP2pkhAddress();
-  final utxo =
-      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
+  final sender = addr.toAddress();
+  final utxo = await api.getAccountUtxo(
+      UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception("account does not have any unspent transaction or mybe no confirmed");
+    throw Exception(
+        "account does not have any unspent transaction or mybe no confirmed");
   }
 
-  final feeRate = await api.getRecommendedFeeRate();
+  final feeRate = await api.getNetworkFeeRate();
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
-  final receiver = recPub.toP2wpkhAddress();
-  final changeAddress = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
+  final changeAddress = recPub.toSegwitAddress();
   final List<BitcoinOutput> outputsAdress = [
     BitcoinOutput(address: receiver, value: BigInt.zero),
     BitcoinOutput(address: changeAddress, value: BigInt.zero)
   ];
   final transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
       utxos: utxo, outputs: outputsAdress, network: network);
-  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize,
+      feeRateType: BitcoinFeeRateType.medium);
   final canSpend = sumOfUtxo - estimateFee;
   final outPutWithValue = outputsAdress
-      .map((e) =>
-          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) => BitcoinOutput(
+          address: e.address,
+          value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
 
   final transaction = buildP2pkhTransaction(
     receiver: outPutWithValue,
-    sign: (p0, publicKey, sigHash) {
-      return prive.signInput(p0, sigHash: sigHash);
+    sign: (p0, publicKey, sighash) {
+      return prive.signECDSA(p0, sighash: sighash);
     },
     utxo: utxo,
   );
@@ -194,42 +205,46 @@ Future<void> spendingP2PKH(ECPrivate sWallet, ECPrivate rWallet) async {
 // Spend P2SH(P2PKH) or P2SH(P2PK): Please note that all input addresses must be of P2SH(P2PKH) or P2SH(P2PK) type; otherwise, the transaction will fail.
 // This method is for standard 1-1 Multisig P2SH.
 // For standard n-of-m multi-signature scripts, please refer to the 'multi_sig_transactions.dart' tutorial.
-Future<void> spendingP2SHNoneSegwit(ECPrivate sWallet, ECPrivate rWallet) async {
+Future<void> spendingP2SHNoneSegwit(
+    ECPrivate sWallet, ECPrivate rWallet) async {
   // All the steps are the same as in the first tutorial;
   // the only difference is the transaction input type,
   // and we use method `buildP2shNoneSegwitTransaction` to create the transaction.
   final addr = sWallet.getPublic();
   // P2SH(P2PK)
   final sender = addr.toP2pkInP2sh();
-  final utxo =
-      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
+  final utxo = await api.getAccountUtxo(
+      UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception("account does not have any unspent transaction or mybe no confirmed");
+    throw Exception(
+        "account does not have any unspent transaction or mybe no confirmed");
   }
 
-  final feeRate = await api.getRecommendedFeeRate();
+  final feeRate = await api.getNetworkFeeRate();
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
-  final receiver = recPub.toP2wpkhAddress();
-  final changeAddress = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
+  final changeAddress = recPub.toSegwitAddress();
   final List<BitcoinOutput> outputsAdress = [
     BitcoinOutput(address: receiver, value: BigInt.zero),
     BitcoinOutput(address: changeAddress, value: BigInt.zero)
   ];
   final transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
       utxos: utxo, outputs: outputsAdress, network: network);
-  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize,
+      feeRateType: BitcoinFeeRateType.medium);
   final canSpend = sumOfUtxo - estimateFee;
   final outPutWithValue = outputsAdress
-      .map((e) =>
-          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) => BitcoinOutput(
+          address: e.address,
+          value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
   final transaction = buildP2shNoneSegwitTransaction(
     receiver: outPutWithValue,
-    sign: (p0, publicKey, sigHash) {
-      return prive.signInput(p0, sigHash: sigHash);
+    sign: (p0, publicKey, sighash) {
+      return prive.signECDSA(p0, sighash: sighash);
     },
     utxo: utxo,
   );
@@ -248,38 +263,41 @@ Future<void> spendingP2shSegwit(ECPrivate sWallet, ECPrivate rWallet) async {
   final addr = sWallet.getPublic();
   // P2SH(P2PWKH)
   final sender = addr.toP2wpkhInP2sh();
-  final utxo =
-      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
+  final utxo = await api.getAccountUtxo(
+      UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception("account does not have any unspent transaction or mybe no confirmed");
+    throw Exception(
+        "account does not have any unspent transaction or mybe no confirmed");
   }
 
-  final feeRate = await api.getRecommendedFeeRate();
+  final feeRate = await api.getNetworkFeeRate();
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
-  final receiver = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
 
-  final changeAddress = recPub.toP2wpkhAddress();
+  final changeAddress = recPub.toSegwitAddress();
   final List<BitcoinOutput> outputsAdress = [
     BitcoinOutput(address: receiver, value: BigInt.zero),
     BitcoinOutput(address: changeAddress, value: BigInt.zero)
   ];
   final transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
       utxos: utxo, outputs: outputsAdress, network: network);
-  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize,
+      feeRateType: BitcoinFeeRateType.medium);
   final canSpend = sumOfUtxo - estimateFee;
   final outPutWithValue = outputsAdress
-      .map((e) =>
-          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) => BitcoinOutput(
+          address: e.address,
+          value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
 
   // return;
   final transaction = buildP2SHSegwitTransaction(
     receiver: outPutWithValue,
-    sign: (p0, publicKey, sigHash) {
-      return prive.signInput(p0, sigHash: sigHash);
+    sign: (p0, publicKey, sighash) {
+      return prive.signECDSA(p0, sighash: sighash);
     },
     utxo: utxo,
   );
@@ -293,41 +311,44 @@ Future<void> spendingP2TR(ECPrivate sWallet, ECPrivate rWallet) async {
   // All the steps are the same as in the first tutorial;
   // the only difference is the transaction input type,
   // and we use method `buildP2trTransaction` to create the transaction.
-  // we use `signTapRoot` of ECPrivate for signing taproot transaction
+  // we use `signBip340` of ECPrivate for signing taproot transaction
   final addr = sWallet.getPublic();
   // P2TR address
   final sender = addr.toTaprootAddress();
-  final utxo =
-      await api.getAccountUtxo(UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
+  final utxo = await api.getAccountUtxo(
+      UtxoAddressDetails(address: sender, publicKey: addr.toHex()));
   final sumOfUtxo = utxo.sumOfUtxosValue();
   if (sumOfUtxo == BigInt.zero) {
-    throw Exception("account does not have any unspent transaction or mybe no confirmed");
+    throw Exception(
+        "account does not have any unspent transaction or mybe no confirmed");
   }
 
-  final feeRate = await api.getRecommendedFeeRate();
+  final feeRate = await api.getNetworkFeeRate();
   final prive = sWallet;
 
   final recPub = rWallet.getPublic();
-  final receiver = recPub.toP2wpkhAddress();
-  final changeAddress = recPub.toP2wpkhAddress();
+  final receiver = recPub.toSegwitAddress();
+  final changeAddress = recPub.toSegwitAddress();
   final List<BitcoinOutput> outputsAdress = [
     BitcoinOutput(address: receiver, value: BigInt.zero),
     BitcoinOutput(address: changeAddress, value: BigInt.zero)
   ];
   final transactionSize = BitcoinTransactionBuilder.estimateTransactionSize(
       utxos: utxo, outputs: outputsAdress, network: network);
-  final estimateFee = feeRate.getEstimate(transactionSize, feeRateType: BitcoinFeeRateType.medium);
+  final estimateFee = feeRate.getEstimate(transactionSize,
+      feeRateType: BitcoinFeeRateType.medium);
   final canSpend = sumOfUtxo - estimateFee;
   final outPutWithValue = outputsAdress
-      .map((e) =>
-          BitcoinOutput(address: e.address, value: canSpend ~/ BigInt.from(outputsAdress.length)))
+      .map((e) => BitcoinOutput(
+          address: e.address,
+          value: canSpend ~/ BigInt.from(outputsAdress.length)))
       .toList();
 
   final transaction = buildP2trTransaction(
     receiver: outPutWithValue,
-    sign: (p0, publicKey, sigHash) {
-      // Use signTapRoot instead of signInput for the taproot transaction input.
-      return prive.signTapRoot(p0, sighash: sigHash, tweak: true);
+    sign: (p0, publicKey, sighash) {
+      // Use signBip340 instead of signECDSA for the taproot transaction input.
+      return prive.signBip340(p0, sighash: sighash, tweak: true);
     },
     utxo: utxo,
   );

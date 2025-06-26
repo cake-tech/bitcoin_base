@@ -2,6 +2,10 @@
 // ignore_for_file: non_constant_identifier_names
 part of 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
 
+const SCAN_PATH = "m/352'/1'/0'/1'/0";
+
+const SPEND_PATH = "m/352'/1'/0'/0'/0";
+
 class SilentPaymentOwner extends SilentPaymentAddress {
   final ECPrivate b_scan;
   final ECPrivate b_spend;
@@ -12,11 +16,13 @@ class SilentPaymentOwner extends SilentPaymentAddress {
     required super.B_spend,
     required this.b_scan,
     required this.b_spend,
+    super.network,
   }) : super();
 
   factory SilentPaymentOwner.fromPrivateKeys({
     required ECPrivate b_scan,
     required ECPrivate b_spend,
+    required BasedUtxoNetwork network,
     int? version,
   }) {
     return SilentPaymentOwner(
@@ -24,38 +30,33 @@ class SilentPaymentOwner extends SilentPaymentAddress {
       b_spend: b_spend,
       B_scan: b_scan.getPublic(),
       B_spend: b_spend.getPublic(),
+      network: network,
       version: version ?? 0,
     );
   }
 
-  factory SilentPaymentOwner.fromBip32(Bip32Slip10Secp256k1 bip32, {int? version}) {
-    final scanDerivation = bip32.derive(
-      Bip32PathParser.parse(BitcoinDerivationPaths.SILENT_PAYMENTS_SCAN),
-    );
-    final spendDerivation = bip32.derive(
-      Bip32PathParser.parse(BitcoinDerivationPaths.SILENT_PAYMENTS_SPEND),
-    );
+  factory SilentPaymentOwner.fromHd(Bip32Slip10Secp256k1 bip32, {String? hrp, int? version}) {
+    final scanDerivation = bip32.derivePath(SCAN_PATH);
+    final spendDerivation = bip32.derivePath(SPEND_PATH);
 
     return SilentPaymentOwner(
       b_scan: ECPrivate(scanDerivation.privateKey),
       b_spend: ECPrivate(spendDerivation.privateKey),
       B_scan: ECPublic.fromBip32(scanDerivation.publicKey),
       B_spend: ECPublic.fromBip32(spendDerivation.publicKey),
+      network: hrp == "tsp" ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet,
       version: version ?? 0,
     );
   }
 
-  factory SilentPaymentOwner.fromMnemonic(String mnemonic,
-      {BasedUtxoNetwork? network, int? version}) {
-    return SilentPaymentOwner.fromBip32(
-      Bip32Slip10Secp256k1.fromSeed(
-        Bip39MnemonicDecoder().decode(mnemonic),
-        network == BitcoinNetwork.testnet
-            ? Bip32Const.testNetKeyNetVersions
-            : Bip32Const.mainNetKeyNetVersions,
-      ),
-      version: version,
-    );
+  factory SilentPaymentOwner.fromMnemonic(String mnemonic, {String? hrp, int? version}) {
+    return SilentPaymentOwner.fromHd(
+        Bip32Slip10Secp256k1.fromSeed(
+          Bip39MnemonicDecoder().decode(mnemonic),
+          hrp == "tsp" ? Bip32Const.testNetKeyNetVersions : Bip32Const.mainNetKeyNetVersions,
+        ),
+        hrp: hrp,
+        version: version);
   }
 
   List<int> generateLabel(int m) {
@@ -72,27 +73,8 @@ class SilentPaymentOwner extends SilentPaymentAddress {
       b_spend: b_spend,
       B_scan: B_scan,
       B_spend: B_m,
+      network: network,
       version: version,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'version': version,
-      'B_scan': B_scan.toHex(),
-      'B_spend': B_spend.toHex(),
-      'b_scan': b_scan.toHex(),
-      'b_spend': b_spend.toHex(),
-    };
-  }
-
-  static SilentPaymentOwner fromJson(Map<String, dynamic> json) {
-    return SilentPaymentOwner(
-      version: json['version'] as int,
-      B_scan: ECPublic.fromHex(json['B_scan'] as String),
-      B_spend: ECPublic.fromHex(json['B_spend'] as String),
-      b_scan: ECPrivate.fromHex(json['b_scan'] as String),
-      b_spend: ECPrivate.fromHex(json['b_spend'] as String),
     );
   }
 }
@@ -102,17 +84,19 @@ class SilentPaymentDestination extends SilentPaymentAddress {
     required super.version,
     required ECPublic scanPubkey,
     required ECPublic spendPubkey,
-    this.amount,
+    super.network,
+    required this.amount,
   }) : super(B_scan: scanPubkey, B_spend: spendPubkey);
 
-  int? amount;
+  int amount;
 
-  factory SilentPaymentDestination.fromAddress(String address, [int? amount]) {
+  factory SilentPaymentDestination.fromAddress(String address, int amount) {
     final receiver = SilentPaymentAddress.fromAddress(address);
 
     return SilentPaymentDestination(
       scanPubkey: receiver.B_scan,
       spendPubkey: receiver.B_spend,
+      network: receiver.network,
       version: receiver.version,
       amount: amount,
     );
@@ -125,12 +109,15 @@ class SilentPaymentAddress implements BitcoinBaseAddress {
   final int version;
   final ECPublic B_scan;
   final ECPublic B_spend;
+  BasedUtxoNetwork? network;
+  final String hrp;
 
   SilentPaymentAddress({
     required this.B_scan,
     required this.B_spend,
+    this.network = BitcoinNetwork.mainnet,
     this.version = 0,
-  }) {
+  }) : hrp = (network == BitcoinNetwork.testnet ? "tsp" : "sp") {
     if (version != 0) {
       throw Exception("Can't have other version than 0 for now");
     }
@@ -158,19 +145,20 @@ class SilentPaymentAddress implements BitcoinBaseAddress {
     return SilentPaymentAddress(
       B_scan: ECPublic.fromBytes(key.sublist(0, 33)),
       B_spend: ECPublic.fromBytes(key.sublist(33)),
+      network: prefix == 'tsp' ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet,
       version: version,
     );
   }
 
   @override
-  String toAddress(BasedUtxoNetwork network) {
+  String toAddress([BasedUtxoNetwork? network]) {
     return toString(network: network);
   }
 
   @override
   String toString({BasedUtxoNetwork? network}) {
     return Bech32EncoderBase.encodeBech32(
-      network == BitcoinNetwork.testnet ? 'tsp' : 'sp',
+      hrp,
       [
         version,
         ...Bech32BaseUtils.convertToBase32(

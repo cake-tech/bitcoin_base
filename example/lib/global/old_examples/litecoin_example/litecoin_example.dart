@@ -78,7 +78,7 @@ void _spendLTCP2pkhAddress() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs
-      outputs: [
+      outPuts: [
         /// Define a BitcoinOutput with the first P2shAddress and a value of 0.0001 LTC
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("0.0001")),
 
@@ -115,12 +115,12 @@ void _spendLTCP2pkhAddress() async {
               vout: 3,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: pub.toP2pkhAddress().type,
+              scriptType: pub.toAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
-                publicKey: pub.toHex(), address: pub.toP2pkhAddress())),
+                publicKey: pub.toHex(), address: pub.toAddress())),
       ]);
 
   /// Build the transaction by invoking the buildTransaction method on the BitcoinTransactionBuilder
@@ -129,7 +129,7 @@ void _spendLTCP2pkhAddress() async {
     /// and sign the transaction digest to construct the unlocking script.
     if (publicKey == pub.toHex()) {
       /// sign the transaction input using specified sighash or default to SIGHASH_ALL
-      return examplePrivateKey.signInput(trDigest, sigHash: sighash);
+      return examplePrivateKey.signECDSA(trDigest, sighash: sighash);
     }
 
     throw UnimplementedError();
@@ -200,7 +200,7 @@ void _spendFrom2P2shAddressAndOneMultiSigP2shAddress() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs
-      outputs: [
+      outPuts: [
         /// Define a BitcoinOutput with the third P2shAddress and a value equal to the 'change' variable
         BitcoinOutput(address: out1, value: change),
       ],
@@ -269,13 +269,13 @@ void _spendFrom2P2shAddressAndOneMultiSigP2shAddress() async {
     /// and sign the transaction digest to construct the unlocking script.
 
     if (publicKey == childKey1PublicKey.toHex()) {
-      return childKey1PrivateKey.signInput(trDigest, sigHash: sighash);
+      return childKey1PrivateKey.signECDSA(trDigest, sighash: sighash);
     }
     if (publicKey == examplePublicKey.toHex()) {
-      return childKey2PrivateKey.signInput(trDigest, sigHash: sighash);
+      return childKey2PrivateKey.signECDSA(trDigest, sighash: sighash);
     }
     if (publicKey == examplePublicKey2.toHex()) {
-      return examplePrivateKey.signInput(trDigest, sigHash: sighash);
+      return examplePrivateKey.signECDSA(trDigest, sighash: sighash);
     }
 
     throw UnimplementedError();
@@ -338,7 +338,7 @@ void _spendFromNestedSegwitP2WPKHInP2SH() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs
-      outputs: [
+      outPuts: [
         /// Define a BitcoinOutput with the third P2wpkhAddress and a value equal to the 'change' variable
         BitcoinOutput(address: out1, value: change),
       ],
@@ -381,13 +381,13 @@ void _spendFromNestedSegwitP2WPKHInP2SH() async {
     /// For each input in the transaction, locate the corresponding private key
     /// and sign the transaction digest to construct the unlocking script.
     if (publicKey == childKey1PublicKey.toHex()) {
-      return childKey1PrivateKey.signInput(trDigest, sigHash: sighash);
+      return childKey1PrivateKey.signECDSA(trDigest, sighash: sighash);
     }
     if (publicKey == examplePublicKey.toHex()) {
-      return childKey2PrivateKey.signInput(trDigest, sigHash: sighash);
+      return childKey2PrivateKey.signECDSA(trDigest, sighash: sighash);
     }
     if (publicKey == examplePublicKey2.toHex()) {
-      return examplePrivateKey.signInput(trDigest, sigHash: sighash);
+      return examplePrivateKey.signECDSA(trDigest, sighash: sighash);
     }
 
     throw UnimplementedError();
@@ -456,7 +456,7 @@ void _spendFromSegwitP2WPKHAddress() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs
-      outputs: [
+      outPuts: [
         /// Define a BitcoinOutput with the third P2pkhAddress and a value equal to the 'change' variable
         BitcoinOutput(address: input1, value: change),
       ],
@@ -487,13 +487,13 @@ void _spendFromSegwitP2WPKHAddress() async {
               vout: 0,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: examplePublicKey.toP2wpkhAddress().type,
+              scriptType: examplePublicKey.toSegwitAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: examplePublicKey.toHex(),
-                address: examplePublicKey.toP2wpkhAddress())),
+                address: examplePublicKey.toSegwitAddress())),
       ]);
 
   /// Build the transaction by invoking the buildTransaction method on the BitcoinTransactionBuilder instance (builder)
@@ -501,13 +501,13 @@ void _spendFromSegwitP2WPKHAddress() async {
     /// For each input in the transaction, locate the corresponding private key
     /// and sign the transaction digest to construct the unlocking script.
     if (publicKey == childKey1PublicKey.toHex()) {
-      return childKey1PrivateKey.signInput(trDigest, sigHash: sighash);
+      return childKey1PrivateKey.signECDSA(trDigest, sighash: sighash);
     }
     if (publicKey == examplePublicKey.toHex()) {
-      return childKey2PrivateKey.signInput(trDigest, sigHash: sighash);
+      return childKey2PrivateKey.signECDSA(trDigest, sighash: sighash);
     }
     if (publicKey == examplePublicKey2.toHex()) {
-      return examplePrivateKey.signInput(trDigest, sigHash: sighash);
+      return examplePrivateKey.signECDSA(trDigest, sighash: sighash);
     }
 
     throw UnimplementedError();
