@@ -1,6 +1,6 @@
-import 'package:bitcoin_base/src/bitcoin/address/address.dart';
-import 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
-import 'package:bitcoin_base/src/models/network.dart';
+import 'package:bitcoin_base_old/src/bitcoin/address/address.dart';
+import 'package:bitcoin_base_old/src/bitcoin/silent_payments/silent_payments.dart';
+import 'package:bitcoin_base_old/src/models/network.dart';
 
 class RegexUtils {
   static bool stringIsAddress(String string, RegExp addressRegex) {

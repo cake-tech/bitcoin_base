@@ -1,4 +1,4 @@
-import 'package:bitcoin_base/src/provider/api_provider.dart';
+import 'package:bitcoin_base_old/src/provider/api_provider.dart';
 
 /// Unsubscribe from a script hash, preventing future notifications if its status changes.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html

@@ -1,7 +1,7 @@
-import 'package:bitcoin_base/src/utils/utils.dart';
+import 'package:bitcoin_base_old/src/utils/utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:bitcoin_base/src/bitcoin/address/address.dart';
-import 'package:bitcoin_base/src/models/network.dart';
+import 'package:bitcoin_base_old/src/bitcoin/address/address.dart';
+import 'package:bitcoin_base_old/src/models/network.dart';
 
 class BitcoinAddressUtils {
   static bool validateAddress({required String address, required BasedUtxoNetwork network}) {

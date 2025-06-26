@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base_old/bitcoin_base.dart';
 import 'package:test/test.dart';
 import 'art_collection.dart';
 import 'decentralized_application.dart';

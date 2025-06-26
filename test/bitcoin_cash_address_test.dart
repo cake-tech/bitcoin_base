@@ -1,4 +1,4 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base_old/bitcoin_base.dart';
 import 'package:test/test.dart';
 
 /// copied from https://github.com/Electron-Cash/Electron-Cash/blob/master/electroncash/tests/test_token.py

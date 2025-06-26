@@ -8,11 +8,11 @@
 // - Enhanced functionality for improved handling of addresses across diverse networks.
 library bitcoin_base.address;
 
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_base/src/exception/exception.dart';
-import 'package:bitcoin_base/src/utils/enumerate.dart';
+import 'package:bitcoin_base_old/bitcoin_base.dart';
+import 'package:bitcoin_base_old/src/exception/exception.dart';
+import 'package:bitcoin_base_old/src/utils/enumerate.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:bitcoin_base/src/utils/script.dart';
+import 'package:bitcoin_base_old/src/utils/script.dart';
 part 'core.dart';
 part 'legacy_address.dart';
 part 'utils/address_utils.dart';

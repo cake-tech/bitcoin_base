@@ -1,4 +1,4 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base_old/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 /// Bitcoin Cash Metadata Registries Script to convert uris and content hash to bitcoin output script

@@ -1,5 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
-part of 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
+part of 'package:bitcoin_base_old/src/bitcoin/silent_payments/silent_payments.dart';
 
 class SilentPaymentOutput {
   final P2trAddress address;

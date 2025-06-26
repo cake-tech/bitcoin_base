@@ -1,5 +1,5 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_base/src/exception/exception.dart';
+import 'package:bitcoin_base_old/bitcoin_base.dart';
+import 'package:bitcoin_base_old/src/exception/exception.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 /// MultiSignatureSigner is an interface that defines methods required for representing

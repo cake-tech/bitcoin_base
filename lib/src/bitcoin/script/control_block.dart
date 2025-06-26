@@ -1,5 +1,5 @@
-import 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';
-import 'package:bitcoin_base/src/crypto/keypair/ec_public.dart';
+import 'package:bitcoin_base_old/src/bitcoin/script/op_code/constant.dart';
+import 'package:bitcoin_base_old/src/crypto/keypair/ec_public.dart';
 import 'package:blockchain_utils/utils/binary/utils.dart';
 
 import 'script.dart';

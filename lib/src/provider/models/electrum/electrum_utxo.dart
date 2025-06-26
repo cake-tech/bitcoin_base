@@ -1,6 +1,6 @@
-import 'package:bitcoin_base/src/bitcoin/address/address.dart';
-import 'package:bitcoin_base/src/cash_token/cash_token.dart';
-import 'package:bitcoin_base/src/provider/api_provider.dart';
+import 'package:bitcoin_base_old/src/bitcoin/address/address.dart';
+import 'package:bitcoin_base_old/src/cash_token/cash_token.dart';
+import 'package:bitcoin_base_old/src/provider/api_provider.dart';
 
 class ElectrumUtxo implements UTXO {
   factory ElectrumUtxo.fromJson(Map<String, dynamic> json) {

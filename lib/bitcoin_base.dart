@@ -6,24 +6,24 @@
 /// hierarchical deterministic (HD) wallet derivation, and Web3 Secret Storage Definition.
 library bitcoin_base;
 
-export 'package:bitcoin_base/src/bitcoin/address/address.dart';
+export 'package:bitcoin_base_old/src/bitcoin/address/address.dart';
 
-export 'package:bitcoin_base/src/bitcoin/address/util.dart';
+export 'package:bitcoin_base_old/src/bitcoin/address/util.dart';
 
-export 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
+export 'package:bitcoin_base_old/src/bitcoin/script/scripts.dart';
 
-export 'package:bitcoin_base/src/crypto/crypto.dart';
+export 'package:bitcoin_base_old/src/crypto/crypto.dart';
 
-export 'package:bitcoin_base/src/models/network.dart';
+export 'package:bitcoin_base_old/src/models/network.dart';
 
-export 'package:bitcoin_base/src/provider/api_provider.dart';
+export 'package:bitcoin_base_old/src/provider/api_provider.dart';
 
-export 'package:bitcoin_base/src/utils/utils.dart';
+export 'package:bitcoin_base_old/src/utils/utils.dart';
 
-export 'package:bitcoin_base/src/cash_token/cash_token.dart';
+export 'package:bitcoin_base_old/src/cash_token/cash_token.dart';
 
-export 'package:bitcoin_base/src/bitcoin_cash/bitcoin_cash.dart';
+export 'package:bitcoin_base_old/src/bitcoin_cash/bitcoin_cash.dart';
 
-export 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
+export 'package:bitcoin_base_old/src/bitcoin/silent_payments/silent_payments.dart';
 
-export 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';
+export 'package:bitcoin_base_old/src/bitcoin/script/op_code/constant.dart';

@@ -1,4 +1,4 @@
-part of 'package:bitcoin_base/src/bitcoin/address/address.dart';
+part of 'package:bitcoin_base_old/src/bitcoin/address/address.dart';
 
 /// Utility class for working with Bitcoin addresses and related operations.
 class _BitcoinAddressUtils {

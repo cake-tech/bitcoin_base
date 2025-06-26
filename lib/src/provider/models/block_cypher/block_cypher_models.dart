@@ -1,5 +1,5 @@
-import 'package:bitcoin_base/src/bitcoin/address/address.dart';
-import 'package:bitcoin_base/src/provider/models/utxo_details.dart';
+import 'package:bitcoin_base_old/src/bitcoin/address/address.dart';
+import 'package:bitcoin_base_old/src/provider/models/utxo_details.dart';
 
 class TxRef implements UTXO {
   final String txHash;

@@ -1,4 +1,4 @@
-import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
+import 'package:bitcoin_base_old/src/provider/service/electrum/electrum.dart';
 
 /// Pass through the masternode announce message to be broadcast by the daemon.
 /// Whenever a masternode comes online or a client is syncing,

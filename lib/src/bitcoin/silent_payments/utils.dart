@@ -1,5 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
-part of 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
+part of 'package:bitcoin_base_old/src/bitcoin/silent_payments/silent_payments.dart';
 
 final NUMS_H = BigInt.parse("0x50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0");
 

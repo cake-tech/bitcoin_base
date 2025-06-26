@@ -1,4 +1,4 @@
-import 'package:bitcoin_base/src/provider/service/electrum/params.dart';
+import 'package:bitcoin_base_old/src/provider/service/electrum/params.dart';
 
 /// A mixin for providing JSON-RPC service functionality.
 mixin BitcoinBaseElectrumRPCService {

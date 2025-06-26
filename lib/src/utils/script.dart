@@ -1,4 +1,4 @@
-import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
+import 'package:bitcoin_base_old/src/bitcoin/script/scripts.dart';
 
 bool isDefinedHashType(sighash) {
   final hashTypeMod = sighash & ~BitcoinOpCodeConst.SIGHASH_ANYONECANPAY;

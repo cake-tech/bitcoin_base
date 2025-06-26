@@ -1,4 +1,4 @@
-import 'package:bitcoin_base/src/provider/api_provider.dart';
+import 'package:bitcoin_base_old/src/provider/api_provider.dart';
 
 /// A newly-started server uses this call to get itself into other servers’ peers lists.
 /// It should not be used by wallet clients.

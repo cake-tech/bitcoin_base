@@ -1,4 +1,4 @@
-import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
+import 'package:bitcoin_base_old/src/provider/service/electrum/electrum.dart';
 
 /// Return a concatenated chunk of block headers from the main chain.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html

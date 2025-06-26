@@ -3,10 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
-import 'package:bitcoin_base/src/bitcoin/address/address.dart';
-import 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
-import 'package:bitcoin_base/src/crypto/crypto.dart';
+import 'package:bitcoin_base_old/bitcoin_base.dart';
+import 'package:bitcoin_base_old/src/bitcoin/script/scripts.dart';
+import 'package:bitcoin_base_old/src/bitcoin/address/address.dart';
+import 'package:bitcoin_base_old/src/bitcoin/silent_payments/silent_payments.dart';
+import 'package:bitcoin_base_old/src/crypto/crypto.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:blockchain_utils/crypto/crypto/cdsa/point/base.dart';
 import 'package:test/test.dart';
@@ -116,7 +117,7 @@ main() {
 
         final silentPaymentOwner = SilentPaymentOwner.fromPrivateKeys(
             b_scan: ECPrivate.fromHex(given["key_material"]["scan_priv_key"]),
-            b_spend: ECPrivate.fromHex(given["key_material"]["spend_priv_key"]));
+            b_spend: ECPrivate.fromHex(given["key_material"]["spend_priv_key"]), network: BitcoinNetwork.mainnet);
 
         // Add change address
         receivingAddresses.add(silentPaymentOwner);

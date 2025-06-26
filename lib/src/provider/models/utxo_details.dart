@@ -1,5 +1,5 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_base/src/exception/exception.dart';
+import 'package:bitcoin_base_old/bitcoin_base.dart';
+import 'package:bitcoin_base_old/src/exception/exception.dart';
 
 abstract class UTXO {
   BitcoinUtxo toUtxo(BitcoinAddressType addressType);

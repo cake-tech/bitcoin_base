@@ -1,6 +1,6 @@
-import 'package:bitcoin_base/src/bitcoin/address/address.dart';
-import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
-import 'package:bitcoin_base/src/models/network.dart';
+import 'package:bitcoin_base_old/src/bitcoin/address/address.dart';
+import 'package:bitcoin_base_old/src/bitcoin/script/scripts.dart';
+import 'package:bitcoin_base_old/src/models/network.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 /// A Script contains just a list of OP_CODES and also knows how to serialize into bytes

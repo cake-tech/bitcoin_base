@@ -1,4 +1,4 @@
-import 'package:bitcoin_base/src/provider/api_provider.dart';
+import 'package:bitcoin_base_old/src/provider/api_provider.dart';
 
 /// Return a server donation address.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html

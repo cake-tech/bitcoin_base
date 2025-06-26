@@ -1,6 +1,6 @@
-import 'package:bitcoin_base/src/provider/models/electrum/electrum_utxo.dart';
-import 'package:bitcoin_base/src/provider/service/electrum/methods.dart';
-import 'package:bitcoin_base/src/provider/service/electrum/params.dart';
+import 'package:bitcoin_base_old/src/provider/models/electrum/electrum_utxo.dart';
+import 'package:bitcoin_base_old/src/provider/service/electrum/methods.dart';
+import 'package:bitcoin_base_old/src/provider/service/electrum/params.dart';
 
 /// Return an ordered list of UTXOs sent to a script hash.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html

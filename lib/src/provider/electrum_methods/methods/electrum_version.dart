@@ -1,4 +1,4 @@
-import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
+import 'package:bitcoin_base_old/src/provider/service/electrum/electrum.dart';
 
 /// Identify the client to the server and negotiate the protocol version. Only the first server.version() message is accepted.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html

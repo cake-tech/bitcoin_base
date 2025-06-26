@@ -1,5 +1,5 @@
-import 'package:bitcoin_base/src/provider/service/electrum/methods.dart';
-import 'package:bitcoin_base/src/provider/service/electrum/params.dart';
+import 'package:bitcoin_base_old/src/provider/service/electrum/methods.dart';
+import 'package:bitcoin_base_old/src/provider/service/electrum/params.dart';
 
 /// Return a transaction hash and optionally a merkle proof, given a block height and a position in the block.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html

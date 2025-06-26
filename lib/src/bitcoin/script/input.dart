@@ -1,5 +1,5 @@
-import 'package:bitcoin_base/src/bitcoin/script/op_code/constant.dart';
-import 'package:bitcoin_base/src/exception/exception.dart';
+import 'package:bitcoin_base_old/src/bitcoin/script/op_code/constant.dart';
+import 'package:bitcoin_base_old/src/exception/exception.dart';
 import 'package:blockchain_utils/utils/utils.dart';
 import 'script.dart';
 

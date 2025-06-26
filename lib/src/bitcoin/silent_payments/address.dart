@@ -1,6 +1,6 @@
 // ignore_for_file: constant_identifier_names
 // ignore_for_file: non_constant_identifier_names
-part of 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
+part of 'package:bitcoin_base_old/src/bitcoin/silent_payments/silent_payments.dart';
 
 const SCAN_PATH = "m/352'/1'/0'/1'/0";
 
