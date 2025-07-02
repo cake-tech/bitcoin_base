@@ -2,8 +2,8 @@ import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
 /// Return the block header at the given height.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumBlockHeader extends ElectrumRequest<dynamic, dynamic> {
-  ElectrumBlockHeader({required this.startHeight, required this.cpHeight});
+class ElectrumRequestBlockHeader extends ElectrumRequest<dynamic, dynamic> {
+  ElectrumRequestBlockHeader({required this.startHeight, required this.cpHeight});
   final int startHeight;
   final int cpHeight;
 
@@ -12,7 +12,7 @@ class ElectrumBlockHeader extends ElectrumRequest<dynamic, dynamic> {
   String get method => ElectrumRequestMethods.blockHeader.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [startHeight, cpHeight];
   }
 
@@ -22,7 +22,7 @@ class ElectrumBlockHeader extends ElectrumRequest<dynamic, dynamic> {
   /// This provides a proof that the given header is present in the blockchain;
   /// presumably the client has the merkle root hard-coded as a checkpoint.
   @override
-  dynamic onResonse(result) {
+  dynamic onResponse(result) {
     return result;
   }
 }

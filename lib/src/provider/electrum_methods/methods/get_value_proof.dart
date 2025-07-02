@@ -2,9 +2,8 @@ import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
 /// Returns a name resolution proof, suitable for low-latency (single round-trip) resolution.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumGetValueProof
-    extends ElectrumRequest<Map<String, dynamic>, dynamic> {
-  ElectrumGetValueProof({required this.scriptHash, required this.cpHeight});
+class ElectrumRequestGetValueProof extends ElectrumRequest<Map<String, dynamic>, dynamic> {
+  ElectrumRequestGetValueProof({required this.scriptHash, required this.cpHeight});
 
   /// Script hash of the name being resolved.
   final String scriptHash;
@@ -17,7 +16,7 @@ class ElectrumGetValueProof
   String get method => ElectrumRequestMethods.getValueProof.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [scriptHash, cpHeight];
   }
 
@@ -25,7 +24,7 @@ class ElectrumGetValueProof
   /// from the most recent update back to either the registration transaction or a
   /// checkpointed transaction (whichever is later).
   @override
-  Map<String, dynamic> onResonse(result) {
+  Map<String, dynamic> onResponse(result) {
     return Map<String, dynamic>.from(result);
   }
 }
