@@ -3,10 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:bitcoin_base/src/bitcoin/script/scripts.dart';
-import 'package:bitcoin_base/src/bitcoin/address/address.dart';
-import 'package:bitcoin_base/src/bitcoin/silent_payments/silent_payments.dart';
-import 'package:bitcoin_base/src/crypto/crypto.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:blockchain_utils/crypto/crypto/cdsa/point/base.dart';
 import 'package:test/test.dart';
@@ -62,7 +59,7 @@ main() {
           inputPrivKeyInfos.add(
             ECPrivateInfo(
               privkey,
-              prevoutScript.getAddressType() == SegwitAddressType.p2tr,
+              prevoutScript.getAddressType() == SegwitAddresType.p2tr,
               tweak: false,
             ),
           );
@@ -71,7 +68,7 @@ main() {
 
         if (inputPubKeys.isNotEmpty) {
           final silentPaymentDestinations = (given['recipients'] as List<dynamic>)
-              .map((recipient) => SilentPaymentDestination.fromAddress(recipient))
+              .map((recipient) => SilentPaymentDestination.fromAddress(recipient, 5))
               .toList();
 
           try {
@@ -125,6 +122,7 @@ main() {
         final silentPaymentOwner = SilentPaymentOwner.fromPrivateKeys(
           b_scan: ECPrivate.fromHex(given["key_material"]["scan_priv_key"]),
           b_spend: ECPrivate.fromHex(given["key_material"]["spend_priv_key"]),
+          network: BitcoinNetwork.mainnet,
         );
 
         // Add change address
@@ -223,7 +221,7 @@ main() {
               msg,
               tapScripts: [],
               tweak: false,
-              auxRand: aux,
+              aux: aux,
             );
 
             // Verify the message is correct
