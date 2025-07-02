@@ -1,9 +1,9 @@
-import 'package:bitcoin_base/src/provider/api_provider.dart';
+import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
 /// Unsubscribe from a script hash, preventing future notifications if its status changes.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumScriptHashUnSubscribe extends ElectrumRequest<bool, bool> {
-  ElectrumScriptHashUnSubscribe({required this.scriptHash});
+class ElectrumRequestScriptHashUnSubscribe extends ElectrumRequest<bool, bool> {
+  ElectrumRequestScriptHashUnSubscribe({required this.scriptHash});
 
   /// The script hash as a hexadecimal string (BitcoinBaseAddress.pubKeyHash())
   final String scriptHash;
@@ -13,7 +13,7 @@ class ElectrumScriptHashUnSubscribe extends ElectrumRequest<bool, bool> {
   String get method => ElectrumRequestMethods.scriptHashUnSubscribe.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [scriptHash];
   }
 
@@ -21,7 +21,7 @@ class ElectrumScriptHashUnSubscribe extends ElectrumRequest<bool, bool> {
   /// otherwise False. Note that False might be returned even
   /// for something subscribed to earlier, because the server can drop subscriptions in rare circumstances.
   @override
-  bool onResonse(result) {
+  bool onResponse(result) {
     return result;
   }
 }

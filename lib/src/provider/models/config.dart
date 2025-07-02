@@ -1,5 +1,5 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
+import 'package:bitcoin_base/src/models/network.dart';
 import 'package:bitcoin_base/src/provider/constant/constant.dart';
 
 enum APIType { mempool, blockCypher }
@@ -12,7 +12,10 @@ class APIConfig {
   final String sendTransaction;
   final String blockHeight;
   final APIType apiType;
+  final String rawTransaction;
   final BasedUtxoNetwork network;
+  final String? block;
+  final String? blockTimestamp;
 
   factory APIConfig.selectApi(APIType apiType, BasedUtxoNetwork network) {
     switch (apiType) {
@@ -24,8 +27,8 @@ class APIConfig {
   }
 
   String getUtxoUrl(String address) {
-    String baseUrl = url;
-    return baseUrl.replaceAll("###", address);
+    final baseUrl = url;
+    return baseUrl.replaceAll('###', address);
   }
 
   String getFeeApiUrl() {
@@ -33,18 +36,41 @@ class APIConfig {
   }
 
   String getTransactionUrl(String transactionId) {
-    String baseUrl = transaction;
-    return baseUrl.replaceAll("###", transactionId);
+    final baseUrl = transaction;
+    return baseUrl.replaceAll('###', transactionId);
+  }
+
+  String getRawTransactionUrl(String transactionId) {
+    final baseUrl = rawTransaction;
+    return baseUrl.replaceAll('###', transactionId);
+  }
+
+  String getBlockUrl(String blockHash) {
+    if (block == null) {
+      throw const BitcoinBasePluginException("block url is not available");
+    }
+
+    String baseUrl = block!;
+    return baseUrl.replaceAll("###", blockHash);
+  }
+
+  String getBlockTimestampUrl(int timestamp) {
+    if (blockTimestamp == null) {
+      throw const BitcoinBasePluginException("block timestamp url is not available");
+    }
+
+    String baseUrl = blockTimestamp!;
+    return baseUrl.replaceAll("###", timestamp.toString());
   }
 
   String getTransactionsUrl(String address) {
-    String baseUrl = transactions;
-    return baseUrl.replaceAll("###", address);
+    final baseUrl = transactions;
+    return baseUrl.replaceAll('###', address);
   }
 
   String getBlockHeight(int blockHaight) {
-    String baseUrl = blockHeight;
-    return baseUrl.replaceAll("###", "$blockHaight");
+    final baseUrl = blockHeight;
+    return baseUrl.replaceAll('###', '$blockHaight');
   }
 
   factory APIConfig.fromBlockCypher(BasedUtxoNetwork network) {
@@ -67,14 +93,14 @@ class APIConfig {
         break;
       default:
         throw BitcoinBasePluginException(
-            "blockcypher does not support ${network.conf.coinName.name}, u must use your own provider");
+            'blockcypher does not support ${network.conf.coinName.name}, u must use your own provider');
     }
 
     return APIConfig(
-        url:
-            "$baseUrl/addrs/###/?unspentOnly=true&includeScript=true&limit=2000",
+        url: "$baseUrl/addrs/###/?unspentOnly=true&includeScript=true&limit=2000",
         feeRate: baseUrl,
         transaction: "$baseUrl/txs/###",
+        rawTransaction: '$baseUrl/txs/###',
         sendTransaction: "$baseUrl/txs/push",
         apiType: APIType.blockCypher,
         transactions: "$baseUrl/addrs/###/full?limit=200",
@@ -82,29 +108,33 @@ class APIConfig {
         blockHeight: "$baseUrl/blocks/###");
   }
 
-  factory APIConfig.mempool(BasedUtxoNetwork network) {
-    String baseUrl;
-    switch (network) {
-      case BitcoinNetwork.mainnet:
-        baseUrl = BtcApiConst.mempoolMainBaseURL;
-        break;
-      case BitcoinNetwork.testnet:
-        baseUrl = BtcApiConst.mempoolBaseURL;
-        break;
-      default:
-        throw BitcoinBasePluginException(
-            "mempool does not support ${network.conf.coinName.name}");
+  factory APIConfig.mempool(BasedUtxoNetwork network, [String? baseUrl]) {
+    if (baseUrl == null) {
+      switch (network) {
+        case BitcoinNetwork.mainnet:
+          baseUrl = BtcApiConst.mempoolMainBaseURL;
+          break;
+        case BitcoinNetwork.testnet:
+          baseUrl = BtcApiConst.mempoolBaseURL;
+          break;
+        default:
+          throw BitcoinBasePluginException(
+              "mempool does not support ${network.conf.coinName.name}");
+      }
     }
 
     return APIConfig(
         url: "$baseUrl/address/###/utxo",
-        feeRate: "$baseUrl/v1/fees/recommended",
+        feeRate: "$baseUrl/fees/recommended",
         transaction: "$baseUrl/tx/###",
+        rawTransaction: '$baseUrl/tx/###/hex',
         sendTransaction: "$baseUrl/tx",
         apiType: APIType.mempool,
         transactions: "$baseUrl/address/###/txs",
         network: network,
-        blockHeight: "$baseUrl/block-height/###");
+        blockHeight: "$baseUrl/block-height/###",
+        block: "$baseUrl/block/###",
+        blockTimestamp: "$baseUrl/mining/blocks/timestamp/###");
   }
 
   APIConfig(
@@ -115,5 +145,8 @@ class APIConfig {
       required this.sendTransaction,
       required this.apiType,
       required this.network,
-      required this.blockHeight});
+      required this.blockHeight,
+      required this.rawTransaction,
+      this.block,
+      this.blockTimestamp});
 }

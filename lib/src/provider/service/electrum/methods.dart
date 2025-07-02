@@ -15,20 +15,21 @@ class ElectrumRequestMethods {
   static const ElectrumRequestMethods serverAddPeer = ElectrumRequestMethods._("server.add_peer");
 
   /// Subscribe to a script hash.
+  static const String scripthashesSubscribeMethod = "blockchain.scripthash.subscribe";
   static const ElectrumRequestMethods scriptHashSubscribe =
-      ElectrumRequestMethods._("blockchain.scripthash.subscribe");
+      ElectrumRequestMethods._(scripthashesSubscribeMethod);
 
   /// Unsubscribe from a script hash, preventing future notifications if its status changes.
   static const ElectrumRequestMethods scriptHashUnSubscribe =
       ElectrumRequestMethods._("blockchain.scripthash.unsubscribe");
 
   /// Return an ordered list of UTXOs sent to a script hash.
-  static const ElectrumRequestMethods listunspent =
-      ElectrumRequestMethods._("blockchain.scripthash.listunspent");
+  static const String listunspentMethod = "blockchain.scripthash.listunspent";
+  static const ElectrumRequestMethods listunspent = ElectrumRequestMethods._(listunspentMethod);
 
   /// Return the confirmed and unconfirmed balances of a script hash.
-  static const ElectrumRequestMethods getBalance =
-      ElectrumRequestMethods._("blockchain.scripthash.get_balance");
+  static const String getBalanceMethod = "blockchain.scripthash.get_balance";
+  static const ElectrumRequestMethods getBalance = ElectrumRequestMethods._(getBalanceMethod);
 
   /// Return a raw transaction.
   static const ElectrumRequestMethods getTransaction =
@@ -55,20 +56,20 @@ class ElectrumRequestMethods {
       ElectrumRequestMethods._("blockchain.block.headers");
 
   /// Return the estimated transaction fee per kilobyte for a transaction to be confirmed within a certain number of blocks.
-  static const ElectrumRequestMethods estimateFee =
-      ElectrumRequestMethods._("blockchain.estimatefee");
+  static const String estimateFeeMethod = "blockchain.estimatefee";
+  static const ElectrumRequestMethods estimateFee = ElectrumRequestMethods._(estimateFeeMethod);
 
   /// Return the confirmed and unconfirmed history of a script hash.
-  static const ElectrumRequestMethods getHistory =
-      ElectrumRequestMethods._("blockchain.scripthash.get_history");
+  static const String getHistoryMethod = "blockchain.scripthash.get_history";
+  static const ElectrumRequestMethods getHistory = ElectrumRequestMethods._(getHistoryMethod);
 
   /// Return the unconfirmed transactions of a script hash.
   static const ElectrumRequestMethods getMempool =
       ElectrumRequestMethods._("blockchain.scripthash.get_mempool");
 
   /// Broadcast a transaction to the network.
-  static const ElectrumRequestMethods broadCast =
-      ElectrumRequestMethods._("blockchain.transaction.broadcast");
+  static const String broadcastMethod = "blockchain.transaction.broadcast";
+  static const ElectrumRequestMethods broadcast = ElectrumRequestMethods._(broadcastMethod);
 
   /// Return a banner to be shown in the Electrum console.
   static const ElectrumRequestMethods serverBanner = ElectrumRequestMethods._("server.banner");
@@ -80,11 +81,18 @@ class ElectrumRequestMethods {
   static const ElectrumRequestMethods ping = ElectrumRequestMethods._("server.ping");
 
   /// Identify the client to the server and negotiate the protocol version. Only the first server.version() message is accepted.
-  static const ElectrumRequestMethods version = ElectrumRequestMethods._("server.version");
+  static const String versionMethod = "server.version";
+  static const ElectrumRequestMethods version = ElectrumRequestMethods._(versionMethod);
 
   /// Subscribe to receive block headers when a new block is found.
+  static const String headersSubscribeMethod = "blockchain.headers.subscribe";
   static const ElectrumRequestMethods headersSubscribe =
-      ElectrumRequestMethods._("blockchain.headers.subscribe");
+      ElectrumRequestMethods._(headersSubscribeMethod);
+
+  /// Subscribe to receive block headers when a new block is found.
+  static const String tweaksSubscribeMethod = "blockchain.tweaks.subscribe";
+  static const ElectrumRequestMethods tweaksSubscribe =
+      ElectrumRequestMethods._(tweaksSubscribeMethod);
 
   /// Return the minimum fee a low-priority transaction must pay in order to be accepted to the daemon’s memory pool.
   static const ElectrumRequestMethods relayFee = ElectrumRequestMethods._("blockchain.relayfee");

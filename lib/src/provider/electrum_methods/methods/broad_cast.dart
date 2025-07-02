@@ -1,26 +1,25 @@
-import 'package:bitcoin_base/src/provider/service/electrum/methods.dart';
-import 'package:bitcoin_base/src/provider/service/electrum/params.dart';
+import 'package:bitcoin_base/src/provider/service/electrum/electrum.dart';
 
 /// Broadcast a transaction to the network.
 /// https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-class ElectrumBroadCastTransaction extends ElectrumRequest<String, String> {
-  ElectrumBroadCastTransaction({required this.transactionRaw});
+class ElectrumRequestBroadCastTransaction extends ElectrumRequest<String?, String?> {
+  ElectrumRequestBroadCastTransaction({required this.transactionRaw});
 
   /// The raw transaction as a hexadecimal string.
   final String transactionRaw;
 
   /// blockchain.transaction.broadcast
   @override
-  String get method => ElectrumRequestMethods.broadCast.method;
+  String get method => ElectrumRequestMethods.broadcast.method;
 
   @override
-  List toJson() {
+  List toParams() {
     return [transactionRaw];
   }
 
   /// The transaction hash as a hexadecimal string.
   @override
-  String onResonse(result) {
+  String? onResponse(result) {
     return result;
   }
 }
