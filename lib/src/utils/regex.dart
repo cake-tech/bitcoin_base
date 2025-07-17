@@ -21,6 +21,10 @@ class RegexUtils {
       return BitcoinCashAddress(address).baseAddress;
     }
 
+    if (network is DogecoinNetwork) {
+      return P2pkhAddress.fromAddress(address: address, network: network);
+    }
+
     if (stringIsAddress(address, P2pkhAddress.regex)) {
       return P2pkhAddress.fromAddress(address: address, network: network);
     } else if (stringIsAddress(address, P2shAddress.regex)) {

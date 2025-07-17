@@ -121,23 +121,24 @@ class Script {
     return null;
   }
 
-  String toAddress() {
+  String toAddress({BasedUtxoNetwork? network}) {
     final addressType = getAddressType();
+    final _network = network ?? BitcoinNetwork.mainnet;
     if (addressType == null) {
       throw ArgumentError("Invalid script");
     }
 
     switch (addressType) {
       case P2pkhAddressType.p2pkh:
-        return P2pkhAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
+        return P2pkhAddress.fromScriptPubkey(script: this).toAddress(_network);
       case P2shAddressType.p2pkhInP2sh:
-        return P2shAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
+        return P2shAddress.fromScriptPubkey(script: this).toAddress(_network);
       case SegwitAddresType.p2wpkh:
-        return P2wpkhAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
+        return P2wpkhAddress.fromScriptPubkey(script: this).toAddress(_network);
       case SegwitAddresType.p2wsh:
-        return P2wshAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
+        return P2wshAddress.fromScriptPubkey(script: this).toAddress(_network);
       case SegwitAddresType.p2tr:
-        return P2trAddress.fromScriptPubkey(script: this).toAddress(BitcoinNetwork.mainnet);
+        return P2trAddress.fromScriptPubkey(script: this).toAddress(_network);
     }
 
     throw ArgumentError("Invalid script");
