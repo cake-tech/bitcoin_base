@@ -37,7 +37,7 @@ void main() async {
   final public4 = private4.getPublic();
 
   // P2PKH ADDRESS
-  final exampleAddr1 = public1.toAddress();
+  final exampleAddr1 = public1.toP2pkhAddress();
 
   // P2TR
   final exampleAddr2 = public2.toTaprootAddress();
@@ -45,7 +45,7 @@ void main() async {
   // P2PKHINP2SH
   final exampleAddr3 = public2.toP2pkhInP2sh();
   // P2KH
-  final exampleAddr4 = public3.toAddress();
+  final exampleAddr4 = public3.toP2pkhAddress();
   // P2PKHINP2SH
   final exampleAddr5 = public3.toP2pkhInP2sh();
   // P2WSHINP2SH 1-1 multisig
@@ -55,7 +55,7 @@ void main() async {
   // P2PKINP2SH
   final exampleAddr8 = public4.toP2pkInP2sh();
   // P2WPKH
-  final exampleAddr9 = public3.toSegwitAddress();
+  final exampleAddr9 = public3.toP2wpkhAddress();
   // P2WSH 1-1 multisig
   final exampleAddr10 = public3.toP2wshAddress();
 
@@ -143,7 +143,7 @@ void main() async {
     // Now, we provide the UTXOs we want to spend.
     utxos: utxos,
     // We select transaction outputs
-    outPuts: [
+    outputs: [
       output1,
       output2,
       output3,

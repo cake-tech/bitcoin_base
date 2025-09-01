@@ -28,7 +28,7 @@ void main() async {
   final p2pkhAddress = BitcoinCashAddress.fromBaseAddress(
       publicKey.toP2pkInP2sh(useBCHP2sh32: true));
 
-  /// Reads all UTXOs (Unspent Transaction Outputs) associated with the account.
+  /// Reads all UTXOs (Unspent Transaction outputs) associated with the account.
   /// We does not need tokens utxo and we set to false.
   final elctrumUtxos =
       await provider.request(ElectrumRequestScriptHashListUnspent(
@@ -55,7 +55,7 @@ void main() async {
       "3f0d87791e5996aaddbce16c12651dd8b5b881cf7338340504bb7b2c6c08bfc4";
 
   final bchTransaction = ForkedTransactionBuilder(
-    outPuts: [
+    outputs: [
       BitcoinOutput(
         address: p2pkhAddress.baseAddress,
         value: sumOfUtxo -

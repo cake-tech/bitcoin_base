@@ -27,7 +27,7 @@ void main() async {
   /// Derives a P2PKH address from the given public key and converts it to a Bitcoin Cash address
   /// for enhanced accessibility within the network.
   final p2pkhAddress =
-      BitcoinCashAddress.fromBaseAddress(publicKey.toAddress());
+      BitcoinCashAddress.fromBaseAddress(publicKey.toP2pkhAddress());
 
   /// Initialize two P2SH32 addresses for receiving funds.
   /// bchtest:pvw39llgap0a4vm8jn9sjsvfsthah4wgemjlh6epdtzr3pl2fqtmsn3s4vcm7
@@ -42,7 +42,7 @@ void main() async {
   final p2sh32Example2 = BitcoinCashAddress.fromBaseAddress(
       publicKey.toP2pkInP2sh(useBCHP2sh32: true));
 
-  /// Reads all UTXOs (Unspent Transaction Outputs) associated with the account.
+  /// Reads all UTXOs (Unspent Transaction outputs) associated with the account.
   /// We does not need tokens utxo and we set to false.
   final example1ElectrumUtxos =
       await provider.request(ElectrumRequestScriptHashListUnspent(
@@ -79,7 +79,7 @@ void main() async {
     return;
   }
   final bchTransaction = ForkedTransactionBuilder(
-    outPuts: [
+    outputs: [
       BitcoinOutput(
         address: p2pkhAddress.baseAddress,
         value: BtcUtils.toSatoshi("0.00001"),

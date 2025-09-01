@@ -85,7 +85,7 @@ void _spendFrom3P2shAddress() async {
   final builder = BitcoinTransactionBuilder(
 
       /// outputs
-      outPuts: [
+      outputs: [
         /// Define a BitcoinOutput with the P2shAddress and a value of 1 DOGE
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("1")),
 
@@ -119,13 +119,13 @@ void _spendFrom3P2shAddress() async {
               vout: 1,
 
               /// Script type indicates the type of script associated with the UTXO's address
-              scriptType: childKey1PublicKey.toAddress().type,
+              scriptType: childKey1PublicKey.toP2pkhAddress().type,
             ),
 
             /// Include owner details with the public key and address associated with the UTXO
             ownerDetails: UtxoAddressDetails(
                 publicKey: childKey1PublicKey.toHex(),
-                address: childKey1PublicKey.toAddress())),
+                address: childKey1PublicKey.toP2pkhAddress())),
       ]);
   final tr = builder.buildTransaction((trDigest, utxo, publicKey, sighash) {
     if (publicKey == childKey1PublicKey.toHex()) {
@@ -213,7 +213,7 @@ void _spendFromP2pkhAndP2sh() async {
   final b = BitcoinTransactionBuilder(
 
       /// outputs
-      outPuts: [
+      outputs: [
         /// Define a BitcoinOutput with the P2pkhAddress and a value of 1.0 DOGE
         BitcoinOutput(address: out1, value: BtcUtils.toSatoshi("1")),
 
