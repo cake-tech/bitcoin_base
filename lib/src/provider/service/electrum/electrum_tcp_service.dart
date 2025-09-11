@@ -63,7 +63,11 @@ class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
   }
 
   void close(Object? error) async {
-    await _socket?.close();
+    try {
+      await _socket?.close();
+    } catch (e) {
+      print("ElectrumSSLService: close(): $e");
+    }
     _socket = null;
     _subscription?.cancel().catchError((e) {});
     _subscription = null;
