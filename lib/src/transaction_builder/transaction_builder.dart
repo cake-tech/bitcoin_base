@@ -35,6 +35,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
   final bool isFakeTransaction;
   final BitcoinOrdering inputOrdering;
   final BitcoinOrdering outputOrdering;
+  final List<int> locktime;
   BitcoinTransactionBuilder({
     required this.outPuts,
     required this.fee,
@@ -45,6 +46,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
     this.memo,
     this.enableRBF = false,
     this.isFakeTransaction = false,
+    this.locktime = BitcoinOpCodeConst.defaultTxLocktime,
   }) : utxosInfo = utxos {
     _validateBuilder();
   }
@@ -490,7 +492,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
 
     /// create new transaction with inputs and outputs and isSegwit transaction or not
     BtcTransaction transaction =
-        BtcTransaction(inputs: inputs, outputs: outputs);
+        BtcTransaction(inputs: inputs, outputs: outputs, locktime: locktime);
 
     /// we define empty witnesses. maybe the transaction is segwit and We need this
     final witnesses = <TxWitnessInput>[];
@@ -653,7 +655,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
 
     /// create new transaction with inputs and outputs and isSegwit transaction or not
     BtcTransaction transaction =
-        BtcTransaction(inputs: inputs, outputs: outputs);
+        BtcTransaction(inputs: inputs, outputs: outputs, locktime: locktime);
 
     /// we define empty witnesses. maybe the transaction is segwit and We need this
     final witnesses = <TxWitnessInput>[];
