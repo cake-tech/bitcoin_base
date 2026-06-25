@@ -33,6 +33,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
   final BitcoinOrdering outputOrdering;
   final List<ECPrivateInfo>? inputPrivKeyInfos;
   final List<Outpoint>? vinOutpoints;
+  final List<int> locktime;
   bool _hasSilentPayment = false;
 
   BitcoinTransactionBuilder({
@@ -47,6 +48,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
     this.isFakeTransaction = false,
     this.inputPrivKeyInfos,
     this.vinOutpoints,
+    this.locktime = BitcoinOpCodeConst.defaultTxLocktime,
   }) : utxosInfo = utxos {
     _validateBuilder();
   }
@@ -563,6 +565,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
       outputs: outputs,
       hasSegwit: hasSegwit,
       hasSilentPayment: _hasSilentPayment,
+      locktime: locktime,
     );
 
     /// we define empty witnesses. maybe the transaction is segwit and We need this
@@ -718,6 +721,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
       outputs: outputs,
       hasSegwit: hasSegwit,
       hasSilentPayment: _hasSilentPayment,
+      locktime: locktime
     );
 
     /// we define empty witnesses. maybe the transaction is segwit and We need this
