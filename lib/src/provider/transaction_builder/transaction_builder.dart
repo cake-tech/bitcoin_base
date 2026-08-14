@@ -48,7 +48,7 @@ class BitcoinTransactionBuilder implements BasedBitcoinTransacationBuilder {
     this.isFakeTransaction = false,
     this.inputPrivKeyInfos,
     this.vinOutpoints,
-    this.locktime = BitcoinOpCodeConst.defaultTxLocktime,
+    this.locktime = BitcoinOpCodeConst.DEFAULT_TX_LOCKTIME,
   }) : utxosInfo = utxos {
     _validateBuilder();
   }
@@ -565,7 +565,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
       outputs: outputs,
       hasSegwit: hasSegwit,
       hasSilentPayment: _hasSilentPayment,
-      locktime: locktime,
+      lock: locktime,
     );
 
     /// we define empty witnesses. maybe the transaction is segwit and We need this
@@ -721,7 +721,7 @@ that demonstrate the right to spend the bitcoins associated with the correspondi
       outputs: outputs,
       hasSegwit: hasSegwit,
       hasSilentPayment: _hasSilentPayment,
-      locktime: locktime
+      lock: locktime
     );
 
     /// we define empty witnesses. maybe the transaction is segwit and We need this
