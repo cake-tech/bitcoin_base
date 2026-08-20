@@ -78,7 +78,25 @@ class BtcTransaction {
   }
 
   /// Instantiates a Transaction from serialized raw hexadacimal data (classmethod)
+  ///
+  /// Throws a [BitcoinBasePluginException] (rather than a bare, uninformative
+  /// [RangeError]/[FormatException]) when [raw] is malformed or truncated -
+  /// e.g. a raw tx hex cut short by an upstream network/transport bug before
+  /// every field could be read.
   static BtcTransaction fromRaw(String raw) {
+    try {
+      return _fromRawUnchecked(raw);
+    } on BitcoinBasePluginException {
+      rethrow;
+    } catch (e) {
+      throw BitcoinBasePluginException(
+        'Malformed or truncated raw transaction hex: $e',
+        details: {'hexLength': raw.length},
+      );
+    }
+  }
+
+  static BtcTransaction _fromRawUnchecked(String raw) {
     final rawtx = BytesUtils.fromHexString(raw);
     final List<int> version = rawtx.sublist(0, 4);
     int cursor = 4;
@@ -124,8 +142,21 @@ class BtcTransaction {
     List<TxWitnessInput> witnesses = [];
     if (hasSegwit) {
       for (int n = 0; n < inputs.length; n++) {
-        final input = inputs[n];
-        if (input.scriptSig.script.isNotEmpty) continue;
+        // Per BIP144, every input gets exactly one witness field when the
+        // segwit flag is set - including legacy inputs (an empty stack,
+        // serialized as a single 0x00 byte) and P2SH-wrapped segwit inputs
+        // (non-empty scriptSig *and* non-empty witness). Skipping the read
+        // here for any input with a non-empty scriptSig desyncs the cursor
+        // for every witness read after it.
+        //
+        // The writer side (toBytes()'s `if (segwit)` below, reached via
+        // toHex()/serialize()/getSize() passing `segwit: hasSegwit`) already
+        // writes one witness entry per input unconditionally, so this loop
+        // must mirror that to round-trip correctly.
+        //
+        // final input = inputs[n];
+        // if (input.scriptSig.script.isNotEmpty) continue;
+        // /\ keep this removed
 
         final wVi = IntUtils.decodeVarint(rawtx.sublist(cursor, cursor + 9));
         cursor += wVi.item2;
@@ -146,6 +177,14 @@ class BtcTransaction {
     List<int>? mwebBytes;
     if (hasMweb) {
       mwebBytes = rawtx.sublist(cursor, rawtx.length - 4);
+    } else if (cursor != rawtx.length - 4) {
+      // `cursor` should land exactly 4 bytes before the end once inputs,
+      // outputs, and any witnesses are consumed.
+      throw BitcoinBasePluginException(
+        'Malformed or truncated raw transaction hex: expected locktime at '
+        'offset ${rawtx.length - 4}, but parsing ended at offset $cursor',
+        details: {'hexLength': raw.length},
+      );
     }
     cursor = rawtx.length - 4;
     List<int> lock = rawtx.sublist(cursor, cursor + 4);

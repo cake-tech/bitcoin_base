@@ -358,7 +358,7 @@ In the [example](https://github.com/mrtnetwork/bitcoin_base/tree/main/example/li
   const String memo = "https://github.com/mrtnetwork";
 
   /// SUM OF OUTOUT AMOUNTS
-  final sumOfOutputs = outPuts.fold(
+  final sumOfOutputs = outputs.fold(
       BigInt.zero, (previousValue, element) => previousValue + element.value);
 
   /// Estimate transaction size
