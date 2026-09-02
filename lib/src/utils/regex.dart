@@ -37,8 +37,12 @@ class RegexUtils {
       return SilentPaymentAddress.fromAddress(address);
     } else if (stringIsAddress(address, MwebAddress.regex)) {
       return MwebAddress.fromAddress(address: address, network: network);
-    } else {
+    } else if (network.supportedAddress.any((t) => t is SegwitAddresType)) {
       return P2wpkhAddress.fromAddress(address: address, network: network);
+    } else {
+      // Networks without a segwit address type only use base58, so an unmatched
+      // address is P2PKH, not P2WPKH.
+      return P2pkhAddress.fromAddress(address: address, network: network);
     }
   }
 }
