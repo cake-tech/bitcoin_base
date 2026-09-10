@@ -254,6 +254,23 @@ class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
               }
             }
           }
+        } else if (id != null) {
+          // Any other server-side RPC error (rejected subscribe/request
+          // outside the two shapes special-cased above) used to fall
+          // through to the plain `return data["result"] ?? ...` below,
+          // which is null for an error response — silently delivered to
+          // the caller as if it were a normal (empty) result, with no way
+          // for a subscriber's error handler or a one-shot caller's catch
+          // block to ever see it. Forward it to this id's own task the
+          // same way the batch-limit case already does for its tasks.
+          final task = _tasks[id];
+          if (task != null) {
+            if (task.isSubscription) {
+              task.subject?.addError(_errors[id]!);
+            } else {
+              task.completer?.completeError(_errors[id]!);
+            }
+          }
         }
       }
     }
