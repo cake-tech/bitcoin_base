@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:bitcoin_base/src/provider/service/electrum/params.dart';
 import 'package:bitcoin_base/src/provider/service/electrum/request_completer.dart';
@@ -52,6 +53,80 @@ abstract class BitcoinBaseElectrumRPCService {
     void Function(ConnectionStatus)? onConnectionStatusChange,
   }) {
     throw UnimplementedError();
+  }
+}
+
+/// Splits an Electrum socket byte stream into newline-delimited JSON-RPC
+/// messages. Bytes are buffered until a full line arrives, so a message split
+/// across socket reads is decoded exactly once, and a bad line only ever
+/// loses that one line - nothing is carried over into the next message.
+class ElectrumLineFramer {
+  ElectrumLineFramer(this.onMessage);
+
+  final void Function(Map<String, dynamic> message) onMessage;
+  final BytesBuilder _pending = BytesBuilder(copy: false);
+
+  void add(List<int> chunk) {
+    var start = 0;
+    var newline = chunk.indexOf(0x0A, start);
+
+    while (newline != -1) {
+      _pending.add(chunk.sublist(start, newline));
+      _dispatch(_pending.takeBytes());
+      start = newline + 1;
+      newline = chunk.indexOf(0x0A, start);
+    }
+
+    if (start < chunk.length) {
+      _pending.add(chunk.sublist(start));
+    }
+  }
+
+  void _dispatch(List<int> line) {
+    if (line.isEmpty) {
+      return;
+    }
+
+    final dynamic decoded;
+    try {
+      decoded = json.decode(utf8.decode(line));
+    } catch (e) {
+      print("ElectrumLineFramer: dropping undecodable line (${line.length} bytes): $e");
+      return;
+    }
+
+    final messages = decoded is List ? decoded : [decoded];
+    for (final message in messages) {
+      if (message is! Map<String, dynamic>) {
+        continue;
+      }
+
+      try {
+        onMessage(message);
+      } catch (e) {
+        print("ElectrumLineFramer: message handler failed: $e");
+      }
+    }
+  }
+}
+
+/// Fails every pending call and subscription once the connection is gone, so
+/// callers see the disconnect instead of waiting forever on a dead socket.
+void failSocketTasks(Map<int, SocketTask> tasks, Object error) {
+  final pending = tasks.values.toList();
+  tasks.clear();
+
+  for (final task in pending) {
+    final subject = task.subject;
+    if (subject != null && !subject.isClosed) {
+      subject.addError(error);
+      subject.close();
+    }
+
+    final completer = task.completer;
+    if (completer != null && !completer.isCompleted) {
+      completer.completeError(error);
+    }
   }
 }
 
