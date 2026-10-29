@@ -94,6 +94,13 @@ class ElectrumRequestMethods {
   static const ElectrumRequestMethods tweaksSubscribe =
       ElectrumRequestMethods._(tweaksSubscribeMethod);
 
+  /// Single-shot lookup of one Silent Payments output's amount and spent
+  /// status, by (txid, vout, funding height) — the two-pass amount fetch's
+  /// second pass (ADR-0015), used once a `blockchain.tweaks.subscribe`
+  /// match is found.
+  static const String tweaksGetMethod = "blockchain.tweaks.get";
+  static const ElectrumRequestMethods tweaksGet = ElectrumRequestMethods._(tweaksGetMethod);
+
   /// Return the minimum fee a low-priority transaction must pay in order to be accepted to the daemon’s memory pool.
   static const ElectrumRequestMethods relayFee = ElectrumRequestMethods._("blockchain.relayfee");
 
