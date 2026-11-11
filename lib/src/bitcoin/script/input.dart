@@ -69,7 +69,7 @@ class TxInput {
     List<int> outputN =
         txInputRaw.sublist(cursor + 32, cursor + 36).reversed.toList();
     cursor += 36;
-    final vi = IntUtils.decodeVarint(txInputRaw.sublist(cursor, cursor + 9));
+    final vi = IntUtils.decodeVarint(txInputRaw.skip(cursor).take(9).toList());
     cursor += vi.item2;
     List<int> unlockingScript = txInputRaw.sublist(cursor, cursor + vi.item1);
     cursor += vi.item1;

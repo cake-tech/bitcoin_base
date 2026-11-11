@@ -47,7 +47,7 @@ class TxOutput {
             .toSigned(64);
     cursor += 8;
 
-    final vi = IntUtils.decodeVarint(txBytes.sublist(cursor, cursor + 9));
+    final vi = IntUtils.decodeVarint(txBytes.skip(cursor).take(9).toList());
     cursor += vi.item2;
     final token = CashToken.fromRaw(txBytes.sublist(cursor));
     List<int> lockScript = txBytes.sublist(cursor + token.item2, cursor + vi.item1);
