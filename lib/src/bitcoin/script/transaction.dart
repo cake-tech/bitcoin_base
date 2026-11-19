@@ -5,7 +5,6 @@ import 'package:bitcoin_base/src/crypto/crypto.dart';
 import 'package:bitcoin_base/src/exception/exception.dart';
 import 'package:blockchain_utils/utils/utils.dart';
 import 'package:blockchain_utils/crypto/quick_crypto.dart';
-import 'package:collection/collection.dart';
 import 'input.dart';
 import 'output.dart';
 import 'script.dart';
@@ -77,6 +76,14 @@ class BtcTransaction {
         version: tx.version);
   }
 
+  /// BIP125: any input sequence below 0xfffffffe opts the transaction into RBF.
+  /// Matching only 0x1 would miss 0xfffffffd, which PSBT-built sends use.
+  static bool sequenceSignalsRbf(List<int> sequence) {
+    if (sequence.length != 4) return false;
+    final value = sequence[0] | (sequence[1] << 8) | (sequence[2] << 16) | (sequence[3] << 24);
+    return value < 0xfffffffe;
+  }
+
   /// Instantiates a Transaction from serialized raw hexadacimal data (classmethod)
   static BtcTransaction fromRaw(String raw) {
     final rawtx = BytesUtils.fromHexString(raw);
@@ -108,8 +115,7 @@ class BtcTransaction {
       cursor = inp.item2;
 
       if (canReplaceByFee == false) {
-        canReplaceByFee =
-            const ListEquality().equals(input.sequence, BitcoinOpCodeConst.REPLACE_BY_FEE_SEQUENCE);
+        canReplaceByFee = sequenceSignalsRbf(input.sequence);
       }
     }
 
@@ -123,10 +129,8 @@ class BtcTransaction {
     }
     List<TxWitnessInput> witnesses = [];
     if (hasSegwit) {
+      // BIP144: every input carries a witness stack, including P2SH-wrapped segwit inputs.
       for (int n = 0; n < inputs.length; n++) {
-        final input = inputs[n];
-        if (input.scriptSig.script.isNotEmpty) continue;
-
         final wVi = IntUtils.decodeVarint(rawtx.sublist(cursor, cursor + 9));
         cursor += wVi.item2;
         List<String> witnessesTmp = [];

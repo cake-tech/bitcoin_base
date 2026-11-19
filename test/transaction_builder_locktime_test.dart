@@ -5,18 +5,18 @@ void main() {
   group('BitcoinTransactionBuilder locktime', () {
     test('defaults to defaultTxLocktime', () {
       final b = BitcoinTransactionBuilder(
-        outPuts: const [],
+        outputs: const [],
         fee: BigInt.zero,
         network: BitcoinNetwork.mainnet,
         utxos: const [],
       );
-      expect(b.locktime, BitcoinOpCodeConst.defaultTxLocktime);
+      expect(b.locktime, BitcoinOpCodeConst.DEFAULT_TX_LOCKTIME);
     });
 
     test('stores the provided locktime', () {
       final lt = [0x50, 0x01, 0xcf, 0x00];
       final b = BitcoinTransactionBuilder(
-        outPuts: const [],
+        outputs: const [],
         fee: BigInt.zero,
         network: BitcoinNetwork.mainnet,
         utxos: const [],

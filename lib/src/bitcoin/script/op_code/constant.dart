@@ -362,7 +362,8 @@ class BitcoinOpCodeConst {
   static const List<int> EMPTY_TX_SEQUENCE = [0x00, 0x00, 0x00, 0x00];
   static const List<int> DEFAULT_TX_SEQUENCE = [0xff, 0xff, 0xff, 0xff];
   static const List<int> ABSOLUTE_TIMELOCK_SEQUENCE = [0xfe, 0xff, 0xff, 0xff];
-  static const List<int> REPLACE_BY_FEE_SEQUENCE = [0x01, 0x00, 0x00, 0x00];
+  // 0xfffffffd opts into RBF without the 1-block relative timelock that 0x01 adds.
+  static const List<int> REPLACE_BY_FEE_SEQUENCE = [0xfd, 0xff, 0xff, 0xff];
 
   /// Script version and Bitcoin-related identifiers
   static const int LEAF_VERSION_TAPSCRIPT = 0xc0;
