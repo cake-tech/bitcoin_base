@@ -102,7 +102,7 @@ class BtcTransaction {
       }
       cursor += 2;
     }
-    final vi = IntUtils.decodeVarint(rawtx.sublist(cursor, cursor + 9));
+    final vi = IntUtils.decodeVarint(rawtx.skip(cursor).take(9).toList());
     cursor += vi.item2;
 
     bool canReplaceByFee = false;
@@ -120,7 +120,7 @@ class BtcTransaction {
     }
 
     List<TxOutput> outputs = [];
-    final viOut = IntUtils.decodeVarint(rawtx.sublist(cursor, cursor + 9));
+    final viOut = IntUtils.decodeVarint(rawtx.skip(cursor).take(9).toList());
     cursor += viOut.item2;
     for (int index = 0; index < viOut.item1; index++) {
       final inp = TxOutput.fromRaw(raw: raw, hasSegwit: hasSegwit, cursor: cursor);
@@ -131,12 +131,12 @@ class BtcTransaction {
     if (hasSegwit) {
       // BIP144: every input carries a witness stack, including P2SH-wrapped segwit inputs.
       for (int n = 0; n < inputs.length; n++) {
-        final wVi = IntUtils.decodeVarint(rawtx.sublist(cursor, cursor + 9));
+        final wVi = IntUtils.decodeVarint(rawtx.skip(cursor).take(9).toList());
         cursor += wVi.item2;
         List<String> witnessesTmp = [];
         for (int n = 0; n < wVi.item1; n++) {
           List<int> witness = <int>[];
-          final wtVi = IntUtils.decodeVarint(rawtx.sublist(cursor, cursor + 9));
+          final wtVi = IntUtils.decodeVarint(rawtx.skip(cursor).take(9).toList());
           if (wtVi.item1 != 0) {
             witness = rawtx.sublist(cursor + wtVi.item2, cursor + wtVi.item1 + wtVi.item2);
           }
