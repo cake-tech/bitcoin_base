@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
+import 'package:bitcoin_base/src/provider/service/electrum/electrum_line_reader.dart';
 import 'package:bitcoin_base/src/provider/service/electrum/params.dart';
 import 'package:bitcoin_base/src/provider/service/electrum/request_completer.dart';
 import 'package:bitcoin_base/src/provider/service/electrum/service.dart';
@@ -19,7 +19,7 @@ class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
   Socket? _socket;
   StreamSubscription<List<int>>? _subscription;
   final Duration defaultRequestTimeOut;
-  String unterminatedString = '';
+  final ElectrumLineReader _lineReader = ElectrumLineReader();
   final Map<int, RPCError> _errors = {};
   final Map<int, SocketTask> _tasks = {};
 
@@ -69,10 +69,13 @@ class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
       print("ElectrumSSLService: close(): $e");
     }
     _socket = null;
+    // A half-read line from this connection must not leak into the next one.
+    _lineReader.reset();
     _subscription?.cancel().catchError((e) {});
     _subscription = null;
 
     _setConnectionStatus(ConnectionStatus.disconnected);
+    failSocketTasks(_tasks, error ?? const SocketException("Electrum connection closed"));
   }
 
   void _onDone() {
@@ -99,60 +102,6 @@ class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
       defaultRequestTimeOut: defaultRequestTimeOut,
       onConnectionStatusChange: onConnectionStatusChange,
     );
-  }
-
-  void _parseResponse(String message) {
-    try {
-      final response = json.decode(message) as Map<String, dynamic>;
-      _handleResponse(response);
-    } on FormatException catch (e) {
-      final msg = e.message.toLowerCase();
-
-      if (e.source is String) {
-        unterminatedString += e.source as String;
-      }
-
-      if (msg.contains("not a subtype of type")) {
-        unterminatedString += e.source as String;
-        return;
-      }
-
-      if (isJSONStringCorrect(unterminatedString)) {
-        try {
-          final response = json.decode(unterminatedString) as Map<String, dynamic>;
-          _handleResponse(response);
-          unterminatedString = '';
-        } catch (_) {
-          final response = json.decode(unterminatedString) as List<dynamic>;
-          for (final element in response) {
-            _handleResponse(element as Map<String, dynamic>);
-          }
-
-          unterminatedString = '';
-        }
-      }
-    } on TypeError catch (e) {
-      if (!e.toString().contains('Map<String, Object>') &&
-          !e.toString().contains('Map<String, dynamic>')) {
-        return;
-      }
-
-      unterminatedString += message;
-
-      if (isJSONStringCorrect(unterminatedString)) {
-        try {
-          final response = json.decode(unterminatedString) as Map<String, dynamic>;
-          _handleResponse(response);
-          unterminatedString = '';
-        } catch (_) {
-          final response = json.decode(unterminatedString) as List<dynamic>;
-          for (final element in response) {
-            _handleResponse(element as Map<String, dynamic>);
-          }
-          unterminatedString = '';
-        }
-      }
-    } catch (_) {}
   }
 
   void _handleResponse(Map<String, dynamic> response) {
@@ -186,17 +135,9 @@ class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
   }
 
   void _onMessage(List<int> event) {
-    try {
-      final msg = utf8.decode(event.toList());
-      final messagesList = msg.split("\n");
-      for (var message in messagesList) {
-        if (message.isEmpty) {
-          continue;
-        }
-
-        _parseResponse(message);
-      }
-    } catch (_) {}
+    for (final line in _lineReader.feed(event)) {
+      dispatchElectrumLine(line, _handleResponse);
+    }
   }
 
   dynamic _findResult(dynamic data, BaseElectrumRequestDetails? request) {
@@ -279,6 +220,13 @@ class ElectrumTCPService implements BitcoinBaseElectrumRPCService {
 
       _tasks.remove(id);
     } else {
+      // The caller closed this subscription but the server is still
+      // answering it (e.g. the final id-matched result after a "done" push).
+      if (task.subject?.isClosed ?? true) {
+        _tasks.remove(id);
+        return;
+      }
+
       if (task.isBatchRequest) {
         task.subject?.add({"id": id, "result": result});
       } else {

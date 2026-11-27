@@ -57,9 +57,23 @@ class TxInput {
     return data;
   }
 
-  static Tuple<TxInput, int> fromRaw(
-      {required String raw, int cursor = 0, bool hasSegwit = false}) {
-    final txInputRaw = BytesUtils.fromHexString(raw);
+  static Tuple<TxInput, int> fromRaw({
+    required String raw,
+    int cursor = 0,
+    bool hasSegwit = false,
+  }) =>
+      fromBytes(
+        bytes: BytesUtils.fromHexString(raw),
+        cursor: cursor,
+        hasSegwit: hasSegwit,
+      );
+
+  static Tuple<TxInput, int> fromBytes({
+    required List<int> bytes,
+    int cursor = 0,
+    bool hasSegwit = false,
+  }) {
+    final txInputRaw = bytes;
     List<int> inpHash =
         txInputRaw.sublist(cursor, cursor + 32).reversed.toList();
     if (inpHash.isEmpty) {
@@ -69,7 +83,7 @@ class TxInput {
     List<int> outputN =
         txInputRaw.sublist(cursor + 32, cursor + 36).reversed.toList();
     cursor += 36;
-    final vi = IntUtils.decodeVarint(txInputRaw.sublist(cursor, cursor + 9));
+    final vi = IntUtils.decodeVarint(txInputRaw.skip(cursor).take(9).toList());
     cursor += vi.item2;
     List<int> unlockingScript = txInputRaw.sublist(cursor, cursor + vi.item1);
     cursor += vi.item1;

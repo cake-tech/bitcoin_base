@@ -95,13 +95,13 @@ class BtcTransaction {
       }
       cursor += 2;
     }
-    final vi = IntUtils.decodeVarint(rawtx.sublist(cursor, cursor + 9));
+    final vi = IntUtils.decodeVarint(rawtx.skip(cursor).take(9).toList());
     cursor += vi.item2;
 
     bool canReplaceByFee = false;
     List<TxInput> inputs = [];
     for (int index = 0; index < vi.item1; index++) {
-      final inp = TxInput.fromRaw(raw: raw, hasSegwit: hasSegwit, cursor: cursor);
+      final inp = TxInput.fromBytes(bytes: rawtx, hasSegwit: hasSegwit, cursor: cursor);
 
       final input = inp.item1;
       inputs.add(input);
@@ -114,25 +114,23 @@ class BtcTransaction {
     }
 
     List<TxOutput> outputs = [];
-    final viOut = IntUtils.decodeVarint(rawtx.sublist(cursor, cursor + 9));
+    final viOut = IntUtils.decodeVarint(rawtx.skip(cursor).take(9).toList());
     cursor += viOut.item2;
     for (int index = 0; index < viOut.item1; index++) {
-      final inp = TxOutput.fromRaw(raw: raw, hasSegwit: hasSegwit, cursor: cursor);
+      final inp = TxOutput.fromBytes(bytes: rawtx, hasSegwit: hasSegwit, cursor: cursor);
       outputs.add(inp.item1);
       cursor = inp.item2;
     }
     List<TxWitnessInput> witnesses = [];
     if (hasSegwit) {
       for (int n = 0; n < inputs.length; n++) {
-        final input = inputs[n];
-        if (input.scriptSig.script.isNotEmpty) continue;
-
-        final wVi = IntUtils.decodeVarint(rawtx.sublist(cursor, cursor + 9));
+        // BIP144: every input carries a witness stack, including P2SH-wrapped segwit inputs.
+        final wVi = IntUtils.decodeVarint(rawtx.skip(cursor).take(9).toList());
         cursor += wVi.item2;
         List<String> witnessesTmp = [];
         for (int n = 0; n < wVi.item1; n++) {
           List<int> witness = <int>[];
-          final wtVi = IntUtils.decodeVarint(rawtx.sublist(cursor, cursor + 9));
+          final wtVi = IntUtils.decodeVarint(rawtx.skip(cursor).take(9).toList());
           if (wtVi.item1 != 0) {
             witness = rawtx.sublist(cursor + wtVi.item2, cursor + wtVi.item1 + wtVi.item2);
           }

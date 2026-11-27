@@ -48,7 +48,7 @@ class Script {
         commands.add(BytesUtils.toHexString(scriptBytes.sublist(index, index + bytesToRead)));
         index = index + bytesToRead;
       } else {
-        final viAndSize = IntUtils.decodeVarint(scriptBytes.sublist(index, index + 9));
+        final viAndSize = IntUtils.decodeVarint(scriptBytes.skip(index).take(9).toList());
         int dataSize = viAndSize.item1;
         int size = viAndSize.item2;
         final lastIndex = (index + size + dataSize) > scriptBytes.length
